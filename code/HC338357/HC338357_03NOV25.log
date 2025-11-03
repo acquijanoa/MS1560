@@ -1,0 +1,240 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+6          
+7          /**********************************************************
+8          *                                                         *
+9          *  				SAS PROGRAM								  *
+10         *                                                         *
+11         ***********************************************************
+12         *                                                         *
+13         *  Program name: HC338357.sas
+14         *
+15         *  Programmer: Álvaro Quijano (AQ)
+16         *
+17         *  Description:
+18         *
+19         * ---------------------------------------------------------
+20         *
+21         *  Job Number: hc338357
+22         *
+2                                                          The SAS System                             13:58 Monday, November 3, 2025
+
+23         *  LANGUAGE: SAS 9.4
+24         *
+25         *  VERSION CONTROL:
+26         *					03nov25: create the file
+27         							 excluded bmi, anta10a and height
+28         *
+29         * ----------------------------------------------------------
+30         *
+31         *  INPUT: &homepath.\data\hc338351_flor_19aug25
+32         *
+33         *  OUTPUT: &homepath.\code\hc338357\hc338357_Inclusion/exclusion_&sysdate..rtf
+34         *
+35         **********************************************************/
+36         options nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173 orientation=landscape;
+37         ods escapechar '^';
+38         
+39         * Set libraries name;
+40         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+41         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+42         
+43         * Set macro variables;
+44         %let prg = AQA;
+45         %let db_in = data.hc338351_flor_19aug25;
+46         %let lf_margin = 0.7in;
+47         %let rg_margin = 0.7in;
+48         
+49         * Create datasets with indicators for inclusion or exclusion;
+50         data indicators_df;
+51         	set &db_in;	
+52         	keep inclusion_flor inclusion_ant inclusion_prs inclusion_covs;
+53         
+54         	* flor participant;
+55         	inclusion_flor = 1;
+56         
+57         	* missing child anthropometry;
+58         	if ^missing(child_weight) or ^missing(child_height) then inclusion_ant = 1; else inclusion_ant = 0;
+59         
+60         	* If child_prs_bmi_a is missing;
+61         	if ^missing(child_prs_bmi_a) then inclusion_prs = 1*inclusion_ant; else inclusion_prs = 0;
+62         
+63         	* ;
+64         	if nmiss(of yrsv1birth slpdur agg_ment agg_phys hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
+65         		employedyn n_hc current_smoker income_c2 alcohol_use yrsus_c3 education_c3 marital_status) = 0 then inclusion_covs = 1*inclusion_prs; else inclusion_covs = 0;
+66         run;
+
+NOTE: There were 291 observations read from the data set DATA.HC338351_FLOR_19AUG25.
+NOTE: The data set WORK.INDICATORS_DF has 291 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+                                                                               The SAS System
+
+
+67         
+68         * Calculate the frequency for each class;
+69         proc means data = indicators_df sum noprint;
+70         	var inclusion_flor inclusion_ant inclusion_prs inclusion_covs;
+71         	output out = inclusion_tab sum= / autoname;
+72         run;
+
+NOTE: There were 291 observations read from the data set WORK.INDICATORS_DF.
+NOTE: The data set WORK.INCLUSION_TAB has 1 observations and 6 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+73         
+74         * Transpose data;
+75         proc transpose data = inclusion_tab out=inclusion_tab_t(rename=(col1=Inclusion));
+76         	var inclusion_flor_sum inclusion_ant_sum inclusion_prs_sum inclusion_covs_sum;
+77         run;
+
+NOTE: There were 1 observations read from the data set WORK.INCLUSION_TAB.
+NOTE: The data set WORK.INCLUSION_TAB_T has 4 observations and 2 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+78         
+79         * create dataset with inclusion/exclusions/;
+80         data df_inclusions;
+81         	set inclusion_tab_t;
+82         	length label $ 50;
+83         	drop type _name_ ;
+84         		
+85         	* Creates type variable;
+86         	type = scan(_NAME_,2,'_');
+87         
+88         	* Define label;
+89         	if type = 'flor' then label = "Participated in FLOR study";
+90         	if type = 'ant' then label = "Child anthropometry measured";
+91         	if type = 'prs' then label = "Child PRS BMI (A) measured";
+92         	if type = 'covs' then label = "Non-missing covariates";
+93         
+94         	* creates variable for ordering;
+95         	Order = _N_;
+96         run;
+
+NOTE: There were 4 observations read from the data set WORK.INCLUSION_TAB_T.
+NOTE: The data set WORK.DF_INCLUSIONS has 4 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+97         
+98         * Sort data by order and creates the variables exclusions;
+                                                                               The SAS System
+
+99         proc sort data = df_inclusions; by order; run;
+
+NOTE: There were 4 observations read from the data set WORK.DF_INCLUSIONS.
+NOTE: The data set WORK.DF_INCLUSIONS has 4 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+100        data df_inclusions;
+101        	set df_inclusions;
+102        
+103        	* Exclusion;
+104        	Exclusion = lag(Inclusion) - Inclusion;
+105        
+106        	* Correct the first row values (missing);
+107        	if Exclusion = . then Exclusion = 0;
+108        
+109        	* Calculate percentages;
+110        	p1 = 100*Inclusion/(Inclusion+Exclusion);
+111        	p2 = 100-p1;
+112        run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1 at 104:29   
+NOTE: There were 4 observations read from the data set WORK.DF_INCLUSIONS.
+NOTE: The data set WORK.DF_INCLUSIONS has 4 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+113        
+114        * Create a dataset for the missingness pattern;
+115        data db_MI;
+116        	set &db_in;
+117        
+118        	* subset data;
+119        	if ^missing(child_weight) and ^missing(child_prs_bmi_a);
+120        run;
+
+NOTE: There were 291 observations read from the data set DATA.HC338351_FLOR_19AUG25.
+NOTE: The data set WORK.DB_MI has 201 observations and 266 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+121        
+122        * Write RTF file;
+123        ods listing close;
+124        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+125        ods rtf file = "&homepath.\code\&job.\&job._Inclusion_&sysdate..rtf" style = manuscrt bodytitle;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338357\HC338357_Inclusion_03NOV25.rtf
+126        footnote1 j=left HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %sysfunc(time(), timeampm.) }";
+127        
+                                                                               The SAS System
+
+128        * Print RTF report;
+129        proc report data = df_inclusions;
+130        	title 'Inclusion and Exclusion Criteria for Manuscript MS#1560';
+131        	ods noproctitle;
+132        	column order Label Inclusion p1 Exclusion p2;
+133        	define order / order=internal noprint;
+134        	define label / 'Inclusion criteria'  style=[width=3in just=left];
+135        	define p1 / analysis '%';
+136        	define p2 / analysis '%';
+137        	format p1 p2 8.2;
+138        run;
+
+NOTE: There were 4 observations read from the data set WORK.DF_INCLUSIONS.
+NOTE: PROCEDURE REPORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+139        
+140        * Print missingness pattern;
+141        title 'Missing data pattern';
+142        proc mi data = db_mi nimpute=0 displaypattern=nomeans;
+143        	ods select MissPattern;
+144        	var yrsv1birth slpdur  agg_ment agg_phys  hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
+145        		employedyn n_hc current_smoker income_c2 alcohol_use yrsus_c3 education_c3 marital_status;
+146        run;
+
+NOTE: PROCEDURE MI used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.00 seconds
+      
+
+147        
+148        * close rtf file;
+149        ods rtf close;
+150        
+151        
+152        proc printto; run;
+

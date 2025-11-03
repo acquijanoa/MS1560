@@ -1,0 +1,4 @@
+/data
+*.sas7bdat
+/docs
+**/"old files"/

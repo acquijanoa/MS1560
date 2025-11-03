@@ -1,0 +1,72 @@
+                                                                               The SAS System
+
+                                                                            The COMPARE Procedure
+                                                     Comparison of DATA.HC338351_FLOR_06MAY25 with HC3383.HC338301_FLOR
+                                                                               (Method=EXACT)
+
+                                                                              Data Set Summary
+
+        Dataset                              Created          Modified  NVar    NObs  Label
+
+        DATA.HC338351_FLOR_06MAY25  06MAY25:17:59:10  06MAY25:17:59:10   256     291  MS #1560 Analysis File (ONLY FLOR participants) created in HC338351 on 06MAY25
+        HC3383.HC338301_FLOR        25APR25:15:16:14  25APR25:15:16:14   256     291  MS #1560 Analysis File (ONLY FLOR participants) created in HC338301 on 25APR25
+
+
+                                                                              Variables Summary
+
+                                                                   Number of Variables in Common: 256.
+                                                                   Number of ID Variables: 1.
+
+
+                                                                             Observation Summary
+
+                                                                  Observation      Base  Compare  ID
+
+                                                                  First Obs           1        1  ID=00252632
+                                                                  Last  Obs         291      291  ID=98750548
+
+                                                   Number of Observations in Common: 291.
+                                                   Total Number of Observations Read from DATA.HC338351_FLOR_06MAY25: 291.
+                                                   Total Number of Observations Read from HC3383.HC338301_FLOR: 291.
+
+                                                   Number of Observations with Some Compared Variables Unequal: 0.
+                                                   Number of Observations with All Compared Variables Equal: 291.
+
+                                                   NOTE: No unequal values were found. All values compared are exactly equal.
+
+                                                                               The SAS System
+
+                                                                            The COMPARE Procedure
+                                                      Comparison of DATA.HC338351_ALL_06MAY25 with HC3383.HC338301_ALL
+                                                                               (Method=EXACT)
+
+                                                                              Data Set Summary
+
+          Dataset                             Created          Modified  NVar    NObs  Label
+
+          DATA.HC338351_ALL_06MAY25  06MAY25:17:59:10  06MAY25:17:59:10   256     550  All 1st live singleton births between V1 & V2 created in HC338351 on 06MAY25
+          HC3383.HC338301_ALL        25APR25:15:16:14  25APR25:15:16:14   256     550  All 1st live singleton births between V1 & V2 created in HC338301 on 25APR25
+
+
+                                                                              Variables Summary
+
+                                                                   Number of Variables in Common: 256.
+                                                                   Number of ID Variables: 1.
+
+
+                                                                             Observation Summary
+
+                                                                  Observation      Base  Compare  ID
+
+                                                                  First Obs           1        1  ID=00252632
+                                                                  Last  Obs         550      550  ID=99722347
+
+                                                   Number of Observations in Common: 550.
+                                                   Total Number of Observations Read from DATA.HC338351_ALL_06MAY25: 550.
+                                                   Total Number of Observations Read from HC3383.HC338301_ALL: 550.
+
+                                                   Number of Observations with Some Compared Variables Unequal: 0.
+                                                   Number of Observations with All Compared Variables Equal: 550.
+
+                                                   NOTE: No unequal values were found. All values compared are exactly equal.
+

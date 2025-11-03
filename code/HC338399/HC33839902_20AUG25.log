@@ -1,0 +1,103 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+7          
+8          /*********************************************************
+9          *                                                        *
+10         *  SAS PROGRAM - JOB HC33839902 			  			     *
+11         *                                                        *
+12         **********************************************************
+13         *                                                        *
+14         *  PROGRAM NAME: HC33839902.sas
+15         *
+16         *  PROGRAMMER: Álvaro Quijano (AQ)
+17         *
+18         *  DESCRIPTION: Compute Pearson Correlation between
+19         					yrsv1birth and yrs_btwn_v1v2
+20         *
+21         * ---------------------------------------------------------
+22         *
+2                                                          The SAS System                           13:40 Wednesday, August 20, 2025
+
+23         *  JOB NUMBER: HC338399
+24         *
+25         *  PREVIOUS JOB:
+26         *
+27         *  LANGUAGE: SAS 9.4
+28         *
+29         *  VERSION CONTROL:
+30         					19aug25 - Create the file
+31         
+32         * ----------------------------------------------------------
+33         *
+34         *  INPUT: J:\HCHS\SC\Review\HC3383\hc338301_flor
+35         *
+36         *  OUTPUT: &homepath.\code\&job.\&subjob._correlation_&sysdate..rtf
+37         *
+38         **********************************************************/
+39         options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+40         ods escapechar '^';
+41         
+42         * ;
+43         
+44         * Set libraries name;
+45         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+46         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+47         libname hc3383 'J:\HCHS\SC\Review\HC3383';
+NOTE: Libref HC3383 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Review\HC3383
+47       !                                            /* hc338301_flor.sas7bdat hc338301_all.sas7bdat*/
+48         
+49         * Set macro variables;
+50         %put JOB=&job.;
+JOB=HC338399
+51         %put SUBJOB=&subjob.;
+SUBJOB=HC33839902
+52         %let prg = AQ;
+53         %let db_flor = hc3383.hc338301_flor;
+54         %let db_all = hc3383.hc338301_flor;
+55         
+56         * Add footnote;
+57         footnote J=center height=10pt font='times roman' "&sysdate, &systime -- &subjob (job: &job) by &prg using HC338301_flor data";
+58         
+59         * Number of ids;
+60         proc sql noprint;
+61         	select count(distinct(id)) into:n_ids
+62         	from &db_flor.;
+63         quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+                                                                               The SAS System
+
+
+64         
+65         ods listing close;
+66         ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+67         ods rtf file = "&homepath.\code\&job.\&subjob._correlation_&sysdate..rtf" style=manuscrt;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338399\HC33839902_correlation_20AUG25.rtf
+68         Title "Pearson correlation between time between V1 and V2 and Years between visit 1 and birth, FLOR (n=%qtrim(&n_ids.))";
+69         proc corr data = &db_flor. plots=scatter(nvar=all);
+70         	var yrs_btwn_v1v2 yrsv1birth;
+71         run;
+
+WARNING: You must enable ODS graphics before requesting plots.
+NOTE: PROCEDURE CORR used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.01 seconds
+      
+
+72         ods rtf close;
+73         
+74         proc printto; run;
+

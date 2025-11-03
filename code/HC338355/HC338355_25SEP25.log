@@ -1,0 +1,1128 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+5          
+6          /*********************************************************
+7          *                                                         *
+8          *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
+9          *                                                        *
+10         **********************************************************
+11         *                                                        *
+12         *  PROGRAM NAME: HC338355.sas
+13         *
+14         *  PROGRAMMER: Álvaro Quijano (AQ)
+15         *
+16         *  DESCRIPTION: Imputation model				
+17         *
+18         * ---------------------------------------------------------
+19         *
+20         *  JOB NUMBER: HC338355
+21         *
+22         *  PREVIOUS JOB:
+2                                                          The SAS System                         11:47 Thursday, September 25, 2025
+
+23         *
+24         *  LANGUAGE: SAS 9.4
+25         *
+26         *  VERSION CONTROL:
+27         					03jun25: create the file
+28         
+29         * ----------------------------------------------------------
+30         *
+31         *  INPUT:
+32         *
+33         *  OUTPUT:
+34         *
+35         **********************************************************/
+36         options orientation = portrait nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+37         ods escapechar '^';
+38         
+39         * Set libraries name;
+40         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+41         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+42         
+43         * Set macro variables;
+44         %let job = HC338355;
+45         %let prg = AQA;
+46         %let impdb = data.hc338353_imputed_data_20aug25;
+47         %let lf_margin = 0.7in;
+48         %let rg_margin = 0.7in;
+49         
+50         * Include sas scripts with formats and macros;
+51         %include "&homepath.\code\HC338390\HC338390.sas"; * Formats ;
+NOTE: Format BKGRD1_C7NOMISS_FMT has been output.
+NOTE: Format PV has been output.
+NOTE: Format CENTERNUM_FMT has been output.
+NOTE: Format LANG_PREF_FMT has been output.
+NOTE: Format MARITAL_STATUS_FMT has been output.
+NOTE: Format EDUCATION_C3_FMT has been output.
+NOTE: Format N_HC_FMT has been output.
+NOTE: Format INCOME_C2_FMT has been output.
+NOTE: Format YRSUS_C3_FMT has been output.
+NOTE: Format EMPLOYEDYN_FMT has been output.
+NOTE: Format ALCOHOL_USE_FMT has been output.
+NOTE: Format $STAT has been output.
+NOTE: Format PV is already on the library WORK.FORMATS.
+NOTE: Format PV has been output.
+NOTE: Format YN_FMT has been output.
+NOTE: Format BLANKDOT has been output.
+NOTE: Format REFNUM has been output.
+NOTE: The NEGPAREN (in)format was specified on the right-hand side of an equal sign, but without a length specification. PROC FORMAT will assume a default length of at 
+      least 40 for the format being generated. If this is an insufficient width, you can rerun PROC FORMAT with an explicit width for the NEGPAREN (in)format, or provide a 
+      sufficient DEFAULT= option.
+NOTE: Format PAREN has been output.
+
+                                                                               The SAS System
+
+NOTE: PROCEDURE FORMAT used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.00 seconds
+      
+
+131        
+132        * var_labels dataset ;
+133        data var_labels;
+134            length source $32 label $200;
+135            infile datalines dsd truncover;
+136            input source :$32. classval0 label :$200. order;
+137            datalines;
+
+NOTE: The data set WORK.VAR_LABELS has 59 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+197        ;
+198        run;
+199        
+200        /*----------------------------------------------------------
+201         Macro: run_univariate
+202         Purpose: Run univariate models for both categorical and
+203                  continuous predictors, merge results.
+204        -----------------------------------------------------------*/
+205        
+206        %macro run_univariate(data=, outcome=, catvars=, contvars=);
+207        
+208        * %let data =  &impdb.;
+209        * %let var = age;
+210        * %let outcome = birthwt_ga_z;
+211        
+212           * --- categorical variables --- ;
+213           %let i=1;
+214           %let var0=%scan(&catvars, &i,' '); %put &var0.;
+215        	   %let var = %scan(&var0,1,'-'); %put &var.;
+216        	   %let ref = %scan(&var0,2,'-'); %put &ref.;
+217        
+218           %do %while(&var ne);
+219        	* Generates the model;
+220            proc mixed data = &data.;
+221        		by _imputation_;
+222        		class &var.(ref="&ref.");
+223        		model &outcome. = &var. / solution;
+224        		ods output solutionF=estimates;
+225        	run;
+226        
+227        	* Combine imputed values;
+228        	proc mianalyze parms(classvar=full)=estimates;
+229        		modeleffects &var.;
+230        		class &var.;
+231        		ods output ParameterEstimates=est;
+232        	run;
+233        
+234        	* edit dataset to match final output;
+                                                                               The SAS System
+
+235        	data &var._out;
+236        		set est;
+237        		keep source probt &var.;
+238        		
+239        		* create the new variable;
+240        		Source = upcase(Parm);
+241        		rename &var. = ClassVal0;
+242        		rename probt = Prob;
+243        	run;
+244        		
+245        	* update counter ;
+246              %let i=%eval(&i+1); %put &i.;
+247              %let var0=%scan(&catvars, &i, ' ');
+248        	    %let var = %scan(&var0,1,'-');
+249        	    %let ref = %scan(&var0,2,'-');
+250           %end;
+251        
+252           * --- continuous variables --- ;
+253           %let j=1;
+254           %let var=%scan(&contvars, &j);
+255        
+256           %do %while(&var ne);
+257        
+258           proc glm data=&data;
+259        	  by _imputation_;
+260              ods select ParameterEstimates;
+261        	  ods output ParameterEstimates = pars_est;
+262              model &outcome = &var / solution;
+263           run; quit;
+264        
+265           proc mianalyze parms= pars_est;
+266        		modeleffects &var.;
+267        		ods output ParameterEstimates = &var._pooled;
+268           run;
+269        
+270           data &var._out;
+271             set &var._pooled;
+272             keep Source ClassVal0 ProbT;
+273        
+274        	 ClassVal0 = .;
+275        	 rename ProbT= Prob;
+276             Source = upcase(Parm);
+277           run;
+278        
+279              * update counter ;
+280        	  %let j=%eval(&j+1);
+281              %let var=%scan(&contvars, &j);
+282           %end;
+283        
+284           /* --- Merge all outputs --- */
+285           data all_univariate_results;
+286              set
+287              %let i=1;
+288              %let var0=%scan(&catvars, &i,' ');
+289        	  %let var = %scan(&var0,1,'-');
+290              %do %while(&var ne);
+291                 &var._out
+                                                                               The SAS System
+
+292        		 %let i=%eval(&i+1);
+293                 %let var0=%scan(&catvars, &i, ' ');
+294        	     %let var = %scan(&var0,1,'-');
+295              %end;
+296        
+297              %let j=1;
+298              %let var=%scan(&contvars, &j);
+299              %do %while(&var ne);
+300                 &var._out
+301                 %let j=%eval(&j+1);
+302                 %let var=%scan(&contvars, &j);
+303              %end;
+304              ;
+305           run;
+306        
+307           * Sort dataset;
+308           proc sort data = all_univariate_results; by source classval0; run;
+309           proc sort data = var_labels; by source classval0; run;
+310        
+311           * Insert Label by Variable;
+312           data all_univariate;
+313            merge all_univariate_results (in=a) var_labels (in=b);
+314            by Source classval0;
+315        
+316        	if missing(prob) then prob = 97;
+317        
+318            if a;
+319            if not b then label=Source;
+320            run;	
+321        
+322        	proc sort data=all_univariate; by order; run;
+323        
+324        	* end macro;
+325        %mend run_univariate;
+326        
+327        * Define categorical variables;
+328        %let catvars = centernum-1 income_c2-2 lang_pref-2 bkgrd1_c7nomiss-3
+329                       marital_status-1 employedyn-0 education_c3-1 n_hc-1 yrsus_c3-3
+330                       alcohol_use-1;
+331        
+332        * Define continuous variables;
+333        %let contvars = yrsv1birth age povpct bmi anta10a height child_prs_bmi_a current_smoker
+334                        agg_ment agg_phys cesd10 stai10 hei2010 pct_mvpa slpdur parity_v1;
+335        
+336        * Executes macro;
+337        %run_univariate(data=&impdb, outcome=birthwt_ga_z,
+338                        catvars=&catvars, contvars=&contvars);
+centernum-1
+centernum
+1
+NOTE: The data set WORK.ESTIMATES has 50 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 1-20.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.01 seconds
+      
+
+                                                                               The SAS System
+
+NOTE: The data set WORK.EST has 4 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 21.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 4 observations read from the data set WORK.EST.
+NOTE: The data set WORK.CENTERNUM_OUT has 4 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+2
+NOTE: The data set WORK.ESTIMATES has 30 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 22-41.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.EST has 2 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 42.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2 observations read from the data set WORK.EST.
+NOTE: The data set WORK.INCOME_C2_OUT has 2 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+3
+NOTE: The data set WORK.ESTIMATES has 30 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 43-62.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: The data set WORK.EST has 2 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 63.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2 observations read from the data set WORK.EST.
+NOTE: The data set WORK.LANG_PREF_OUT has 2 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+                                                                               The SAS System
+
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+4
+NOTE: The data set WORK.ESTIMATES has 80 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 64-83.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.EST has 7 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 84.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 7 observations read from the data set WORK.EST.
+NOTE: The data set WORK.BKGRD1_C7NOMISS_OUT has 7 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.00 seconds
+      
+
+5
+NOTE: The data set WORK.ESTIMATES has 40 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 85-104.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.26 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.EST has 3 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 105.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 3 observations read from the data set WORK.EST.
+NOTE: The data set WORK.MARITAL_STATUS_OUT has 3 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+6
+NOTE: The data set WORK.ESTIMATES has 30 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 106-125.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.15 seconds
+      cpu time            0.01 seconds
+      
+                                                                               The SAS System
+
+
+NOTE: The data set WORK.EST has 2 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 126.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2 observations read from the data set WORK.EST.
+NOTE: The data set WORK.EMPLOYEDYN_OUT has 2 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.00 seconds
+      
+
+7
+NOTE: The data set WORK.ESTIMATES has 40 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 127-146.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: The data set WORK.EST has 3 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 147.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 3 observations read from the data set WORK.EST.
+NOTE: The data set WORK.EDUCATION_C3_OUT has 3 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+8
+NOTE: The data set WORK.ESTIMATES has 30 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 148-167.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.EST has 2 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 168.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 2 observations read from the data set WORK.EST.
+NOTE: The data set WORK.N_HC_OUT has 2 observations and 3 variables.
+                                                                               The SAS System
+
+NOTE: DATA statement used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+9
+NOTE: The data set WORK.ESTIMATES has 40 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 169-188.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: The data set WORK.EST has 3 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 189.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 3 observations read from the data set WORK.EST.
+NOTE: The data set WORK.YRSUS_C3_OUT has 3 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+10
+NOTE: The data set WORK.ESTIMATES has 40 observations and 8 variables.
+NOTE: The PROCEDURE MIXED printed pages 190-209.
+NOTE: PROCEDURE MIXED used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: The data set WORK.EST has 3 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 210.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 3 observations read from the data set WORK.EST.
+NOTE: The data set WORK.ALCOHOL_USE_OUT has 3 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+11
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 211-220.
+NOTE: PROCEDURE GLM used (Total process time):
+                                                                               The SAS System
+
+      real time           0.10 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.YRSV1BIRTH_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 221.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.YRSV1BIRTH_POOLED.
+NOTE: The data set WORK.YRSV1BIRTH_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 222-231.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: The data set WORK.AGE_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 232.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.AGE_POOLED.
+NOTE: The data set WORK.AGE_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 233-242.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: The data set WORK.POVPCT_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 243.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+                                                                               The SAS System
+
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.POVPCT_POOLED.
+NOTE: The data set WORK.POVPCT_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 244-253.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.BMI_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 254.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.BMI_POOLED.
+NOTE: The data set WORK.BMI_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 255-264.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.ANTA10A_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 265.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.ANTA10A_POOLED.
+NOTE: The data set WORK.ANTA10A_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+                                                                               The SAS System
+
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 266-275.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.HEIGHT_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 276.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.HEIGHT_POOLED.
+NOTE: The data set WORK.HEIGHT_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 277-286.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.CHILD_PRS_BMI_A_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 287.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.CHILD_PRS_BMI_A_POOLED.
+NOTE: The data set WORK.CHILD_PRS_BMI_A_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 288-297.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.00 seconds
+      
+                                                                               The SAS System
+
+
+NOTE: The data set WORK.CURRENT_SMOKER_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 298.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.CURRENT_SMOKER_POOLED.
+NOTE: The data set WORK.CURRENT_SMOKER_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 299-308.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.AGG_MENT_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 309.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.AGG_MENT_POOLED.
+NOTE: The data set WORK.AGG_MENT_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 310-319.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.01 seconds
+      
+
+NOTE: The data set WORK.AGG_PHYS_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 320.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+                                                                               The SAS System
+
+NOTE: There were 1 observations read from the data set WORK.AGG_PHYS_POOLED.
+NOTE: The data set WORK.AGG_PHYS_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 321-330.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.CESD10_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 331.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.CESD10_POOLED.
+NOTE: The data set WORK.CESD10_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 332-341.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.STAI10_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 342.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.STAI10_POOLED.
+NOTE: The data set WORK.STAI10_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+                                                                               The SAS System
+
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 343-352.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.HEI2010_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 353.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.HEI2010_POOLED.
+NOTE: The data set WORK.HEI2010_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 354-363.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.PCT_MVPA_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 364.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.PCT_MVPA_POOLED.
+NOTE: The data set WORK.PCT_MVPA_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 365-374.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.SLPDUR_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 375.
+                                                                               The SAS System
+
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.SLPDUR_POOLED.
+NOTE: The data set WORK.SLPDUR_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Interactivity disabled with BY processing.
+NOTE: The data set WORK.PARS_EST has 20 observations and 7 variables.
+NOTE: The PROCEDURE GLM printed pages 376-385.
+NOTE: PROCEDURE GLM used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: The data set WORK.PARITY_V1_POOLED has 1 observations and 12 variables.
+NOTE: The PROCEDURE MIANALYZE printed page 386.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 1 observations read from the data set WORK.PARITY_V1_POOLED.
+NOTE: The data set WORK.PARITY_V1_OUT has 1 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Multiple lengths were specified for the variable Source by input data set(s). This can cause truncation of data.
+NOTE: There were 4 observations read from the data set WORK.CENTERNUM_OUT.
+NOTE: There were 2 observations read from the data set WORK.INCOME_C2_OUT.
+NOTE: There were 2 observations read from the data set WORK.LANG_PREF_OUT.
+NOTE: There were 7 observations read from the data set WORK.BKGRD1_C7NOMISS_OUT.
+NOTE: There were 3 observations read from the data set WORK.MARITAL_STATUS_OUT.
+NOTE: There were 2 observations read from the data set WORK.EMPLOYEDYN_OUT.
+NOTE: There were 3 observations read from the data set WORK.EDUCATION_C3_OUT.
+NOTE: There were 2 observations read from the data set WORK.N_HC_OUT.
+NOTE: There were 3 observations read from the data set WORK.YRSUS_C3_OUT.
+NOTE: There were 3 observations read from the data set WORK.ALCOHOL_USE_OUT.
+NOTE: There were 1 observations read from the data set WORK.YRSV1BIRTH_OUT.
+NOTE: There were 1 observations read from the data set WORK.AGE_OUT.
+NOTE: There were 1 observations read from the data set WORK.POVPCT_OUT.
+NOTE: There were 1 observations read from the data set WORK.BMI_OUT.
+NOTE: There were 1 observations read from the data set WORK.ANTA10A_OUT.
+NOTE: There were 1 observations read from the data set WORK.HEIGHT_OUT.
+NOTE: There were 1 observations read from the data set WORK.CHILD_PRS_BMI_A_OUT.
+NOTE: There were 1 observations read from the data set WORK.CURRENT_SMOKER_OUT.
+                                                                               The SAS System
+
+NOTE: There were 1 observations read from the data set WORK.AGG_MENT_OUT.
+NOTE: There were 1 observations read from the data set WORK.AGG_PHYS_OUT.
+NOTE: There were 1 observations read from the data set WORK.CESD10_OUT.
+NOTE: There were 1 observations read from the data set WORK.STAI10_OUT.
+NOTE: There were 1 observations read from the data set WORK.HEI2010_OUT.
+NOTE: There were 1 observations read from the data set WORK.PCT_MVPA_OUT.
+NOTE: There were 1 observations read from the data set WORK.SLPDUR_OUT.
+NOTE: There were 1 observations read from the data set WORK.PARITY_V1_OUT.
+NOTE: The data set WORK.ALL_UNIVARIATE_RESULTS has 47 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 47 observations read from the data set WORK.ALL_UNIVARIATE_RESULTS.
+NOTE: The data set WORK.ALL_UNIVARIATE_RESULTS has 47 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 59 observations read from the data set WORK.VAR_LABELS.
+NOTE: The data set WORK.VAR_LABELS has 59 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Multiple lengths were specified for the BY variable Source by input data sets. This might cause unexpected results.
+NOTE: There were 47 observations read from the data set WORK.ALL_UNIVARIATE_RESULTS.
+NOTE: There were 59 observations read from the data set WORK.VAR_LABELS.
+NOTE: The data set WORK.ALL_UNIVARIATE has 47 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 47 observations read from the data set WORK.ALL_UNIVARIATE.
+NOTE: The data set WORK.ALL_UNIVARIATE has 47 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+339        
+340        * Calculate correlations;
+341        proc corr data = &impdb. out=corrs;
+342        	by _imputation_;
+343        	var &contvars. lang_pref income_c2 marital_status employedyn n_hc alcohol_use education_c3 yrsus_c3 accult_mesa;
+344        run;
+
+NOTE: The data set WORK.CORRS has 280 observations and 28 variables.
+NOTE: The PROCEDURE CORR printed pages 387-476.
+                                                                               The SAS System
+
+NOTE: PROCEDURE CORR used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.01 seconds
+      
+
+345        
+346        * Update corrs dataset;
+347        data corrs;
+348        	set corrs;
+349        	drop _TYPE_;
+350        
+351        	rename _NAME_ = variable;
+352        	if ^missing(_NAME_);
+353        run;
+
+NOTE: There were 280 observations read from the data set WORK.CORRS.
+NOTE: The data set WORK.CORRS has 250 observations and 27 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+      
+
+354        
+355        * Edit the data;
+356        data long; set corrs end=eof;
+357          keep _imputation_ variable vname corr ;
+358          array c (*) &contvars.  lang_pref income_c2 marital_status employedyn n_hc alcohol_use education_c3 yrsus_c3 accult_mesa;
+359          do i=1 to dim(c);
+360             vname=vname(c(i));
+361             corr=c(i);
+362             output;
+363          end;
+364          if eof then do;
+365            variable=''; vname=''; corr=1; output;
+366            variable=''; vname=''; corr=1; output;
+367          end;
+368        run;
+
+NOTE: There were 250 observations read from the data set WORK.CORRS.
+NOTE: The data set WORK.LONG has 6252 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+369        
+370        * ;
+371        data long;
+372        	set long;
+373        	* convert to positive the correlation values for ordering;
+374        	corr_pos = abs(corr);
+375        
+376        	* exclude -1 or;
+377        	if corr ^= 1;
+378        run;
+
+NOTE: There were 6252 observations read from the data set WORK.LONG.
+                                                                               The SAS System
+
+NOTE: The data set WORK.LONG has 6000 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+379        
+380        * Sort by imputation;
+381        proc sort data = long; by _imputation_ descending corr_pos; run;
+
+NOTE: There were 6000 observations read from the data set WORK.LONG.
+NOTE: The data set WORK.LONG has 6000 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+382        
+383        * Produce rank;
+384        proc rank data = long out = ranked ties=low descending;
+385        	by _imputation_;
+386        	var corr_pos;
+387        	ranks corr_rank;
+388        run;
+
+NOTE: There were 6000 observations read from the data set WORK.LONG.
+NOTE: The data set WORK.RANKED has 6000 observations and 6 variables.
+NOTE: PROCEDURE RANK used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.00 seconds
+      
+
+389        
+390        * Select the first 10;
+391        proc sql;
+392        	create table corr_per_simulation as
+393        	select *
+394        	from ranked
+395        	where corr_rank <= 30 and variable < vname
+396        	order by _imputation_, corr_pos desc
+397        	;
+NOTE: Table WORK.CORR_PER_SIMULATION created, with 150 rows and 6 columns.
+
+398        quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+399        
+400        ods listing close;
+401        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+402        ods rtf file="&homepath./code/&job./&job._Univariate_analysis_&sysdate..rtf" style=manuscrt bodytitle;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560/code/HC338355/HC338355_Univariate_analysis_25SEP25.rtf
+403        proc report data = all_univariate;
+404        	title j=center height=11pt font='times roman' bold 'Univariate linear models for the Effect of Maternal Factors on Birthweight-for-Gestational-Age Z-score';
+405        	footnote1 J=LEFT HEIGHT=11pt FONT='times roman' "^S={leftmargin=1.5in rightmargin=1.5in} P-values are based on univariate analysis of linear models pooled across
+                                                                               The SAS System
+
+405      !  10 imputations. Each model was fit separately with birthweight-for-gestational-age z-score as the outcome. Reported p-values correspond to the main effect of the
+405      !  variable or level.";
+NOTE: The quoted string currently being processed has become more than 262 characters long.  You might have unbalanced quotation marks.
+406        	footnote2 J=LEFT HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(),
+406      ! timeampm.))}";
+407        	column Order Label Prob;
+408        	define order / noprint order=internal;
+409        	define Label / 'Variable';
+410        	define Prob / display 'P-value' style=[vjust=bottom];
+411        run;
+
+NOTE: PROCEDURE REPORT used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+NOTE: There were 47 observations read from the data set WORK.ALL_UNIVARIATE.
+NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST" format.
+
+412        
+413        * Print the report of correlations;
+414        proc report data = corr_per_simulation;
+415        	title j=center height=11pt font='times roman' bold 'Correlation among predictors';
+416        	footnote1 J=LEFT HEIGHT=11pt FONT='';
+417        	by _imputation_;
+418        	column  variable vname corr corr_pos;
+419        	define corr_pos / order=internal noprint;
+420        	define variable / display 'Variable 1';
+421        	define vname / display 'Variable 2';
+422        	define corr / display 'Correlation';
+423        run;
+
+NOTE: There were 150 observations read from the data set WORK.CORR_PER_SIMULATION.
+NOTE: PROCEDURE REPORT used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+424        
+425        ods rtf close;
+426        
+

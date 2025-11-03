@@ -1,0 +1,682 @@
+                                                                               The SAS System
+
+                                               Data Set Name        OUTPUT.HC338351_FLOR_23JUN25    Observations          291 
+                                               Member Type          DATA                            Variables             266 
+                                               Engine               V9                              Indexes               0   
+                                               Created              06/23/2025 14:27:33             Observation Length    2104
+                                               Last Modified        06/23/2025 14:27:33             Deleted Observations  0   
+                                               Protection                                           Compressed            NO  
+                                               Data Set Type                                        Sorted                YES 
+                                               Label                                                                          
+                                               Data Representation  WINDOWS_32                                                
+                                               Encoding             wlatin1  Western (Windows)                                
+
+
+                                                                      Engine/Host Dependent Information
+
+                                Data Set Page Size          172032                                                                           
+                                Number of Data Set Pages    4                                                                                
+                                First Data Page             1                                                                                
+                                Max Obs per Page            81                                                                               
+                                Obs in First Data Page      64                                                                               
+                                Number of Data Set Repairs  0                                                                                
+                                ExtendObsCounter            YES                                                                              
+                                Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_flor_23jun25.sas7bdat
+                                Release Created             9.0401M8                                                                         
+                                Host Created                W32_WIN+PRO                                                                      
+                                Owner Name                  CSCC\acquijanoa                                                                  
+                                File Size                   840KB                                                                            
+                                File Size (bytes)           860160                                                                           
+
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+ 28 ABDOMINAL_OBESITY_NCEP  Num    8                    Abdominal Obesity (waist circ) - NCEP                                                                               
+ 98 ABDOMINAL_OBESITY_      Num    8                    Abdominal Obesity (waist circ) - NCEP                                                                               
+    NCEP_V2                                                                                                                                                                 
+ 47 ACCULT_MESA             Num    8                    Acculturation Score - MESA                                                                                          
+111 ACCULT_MESA_V2          Num    8                    Acculturation Score - MESA, Visit 2                                                                                 
+ 82 ACTICALYN               Num    8                    Actical data available (1=Yes,0=No)                                                                                 
+ 81 ADHERENTYN              Num    8                    Participant has at least 3 adherent (>=10 hrs) days (1=Yes,0=No)                                                    
+  8 AGE                     Num    8                    Age                                                                                                                 
+  9 AGEGROUP_C2             Num    8                    1(18-44),2(45+)                                                                                                     
+ 43 AGEGROUP_C6             Num    8                    6-level Age Sub-groups                                                                                              
+ 93 AGEGROUP_C6_V2          Num    8                    6-level grouped age of participant at Visit 2                                                                       
+229 AGEGRP_CHILD_C4         Num    8                    Children’s age in 4 levels                                                                                          
+225 AGE_CHILD_CLINDATE      Num    8                    Child's age in years using CLINDATE                                                                                 
+226 AGE_CHILD_CLINDATE_MO   Num    8                    Child's age in months using CLINDATE                                                                                
+224 AGE_CHILD_ENROLL        Num    8                    Child's age in years at SOL FLOR enrollment                                                                         
+223 AGE_MOM_FLOR            Num    8                    Mother's age in years using CLINDATE                                                                                
+ 92 AGE_V2                  Num    8                    Age at visit 2 (yrs)                                                                                                
+ 11 AGG_MENT                Num    8                    Aggregate mental health score norm-based transformed                                                                
+ 10 AGG_PHYS                Num    8                    Aggregate physical health score norm-based transformed                                                              
+ 31 ALCOHOL_USE             Num    8                    Alcohol Use (1-Never,2=Former,3=Current)                                                                            
+123 ANT10A                  Num    8 BEST12.            waist                                                                                                               
+ 78 ANTA10A                 Num    8                    Waist Girth (cm) (ANTA10A)                                                                                          
+126 BABY1YN                 Num    8                    First live birth after V1                                                                                           
+129 BIRTHWT_C3              Num    8                    Birth weight baby 1 (< 2.5kg, 2.5-4.0kg, >4.0kg)                                                                    
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+125 BIRTHWT_GA_PCT          Num    8 BEST12.   BEST32.  Birth weight for gestational age percentile                                                                         
+124 BIRTHWT_GA_Z            Num    8 BEST12.   BEST32.  Birth weight for gestational age Z-score                                                                            
+216 BIRTH_ORDER             Num    8                    Birth Order                                                                                                         
+ 49 BKGRD1_C7               Num    8                    7-level re-classification of Hispanic/Latino Background                                                             
+257 BKGRD1_C7NOMISS         Num    8                    7-Level Re-classification of Hispanic/Latino Background (Combining Missing with Mixed/Other)                        
+ 13 BMI                     Num    8                    BMI (kg/m2)                                                                                                         
+ 30 BMIGRP_C4               Num    8                    4-level grouped Body Mass Index - WHO                                                                               
+ 48 BMIGRP_C6               Num    8                    6-level grouped Body Mass Index - WHO                                                                               
+233 BMIPCT                  Num    8                    Body Mass Index for age Percentiles - CDC (Child)                                                                   
+235 BMIPCT_C3               Num    8                    BMI percentile in 3 levels                                                                                          
+232 BMIZ                    Num    8                    Body Mass Index for age Z-Score - CDC (Child)                                                                       
+253 BMI_GE30YN              Num    8                    BMI >=30 (obese)                                                                                                    
+ 88 BMI_V2                  Num    8                    Body Mass Index (kg/m2) at Visit 2                                                                                  
+230 BORN_AFTERV2            Num    8                    Baby born after mom’s visit 2                                                                                       
+  7 CENTER                  Char   1                    Center                                                                                                              
+ 50 CENTERNUM               Num    8                    Participant's Field Center - numeric                                                                                
+ 59 CESD10                  Num    8                    10-item CESD10                                                                                                      
+107 CESD10_V2               Num    8                    10-item CES-D summary score at Visit 2                                                                              
+227 CHILD_HEIGHT            Num    8                    Height (cm)                                                                                                         
+260 CHILD_PRS_BMI_A         Num    8 BEST12.   BEST32.  Child obesity PRS (from adult data)                                                                                 
+228 CHILD_WEIGHT            Num    8                    Weight (kg)                                                                                                         
+ 32 CIGARETTE_USE           Num    8                    Cigarette Use (1-Never,2=Former,3=Current)                                                                          
+108 CIGARETTE_USE_V2        Num    8                    Cigarette Use at Visit 2(1-Never,2=Former,3=Current)                                                                
+ 15 CLINDATE                Num    8 MMDDYY10.          Date of Clinic Visit                                                                                                
+219 CLINDATE_FLOR           Num    8 MMDDYY10.          SOL FLOR Clinic Date                                                                                                
+ 90 CLINDATE_V2             Num    8 MMDDYY10.          Visit 2 clinic date                                                                                                 
+ 86 CONSENT_V2              Num    8                    Consent in HCHS/SOL Visit 2, based on ICT1, CHK4A1 and CHK31A                                                       
+ 54 CURRENT_SMOKER          Num    8                    Current Smoker (from CIGARETTE_USE)                                                                                 
+103 CURRENT_SMOKER_V2       Num    8                    Current smoker at Visit 2                                                                                           
+127 DAYSV1BIRTH             Num    8                    Time between Visit 1 and baby’s birth (days)                                                                        
+255 DBP_GE80YN              Num    8                    Diastolic blood pressure >= 80 mm Hg                                                                                
+236 DEMB1                   Num    8                    Child sex                                                                                                           
+237 DEMB7                   Num    8 BEST12.            Total income                                                                                                        
+238 DEMB8                   Num    8 BEST12.            Income < $30,000                                                                                                    
+239 DEMB9                   Num    8 BEST12.            Income > $30,000                                                                                                    
+240 DEMB10                  Num    8 BEST12.            People supported on income                                                                                          
+241 DEMB11                  Num    8 BEST12.            Marital status                                                                                                      
+244 DEMB13                  Num    8 BEST12.            Current employment status                                                                                           
+245 DEMB14                  Num    8 BEST12.            Number full-time jobs                                                                                               
+247 DEMB15                  Num    8 BEST12.            Number part-time jobs                                                                                               
+249 DEMB16                  Num    8 BEST12.            Usual work schedule                                                                                                 
+242 DEMB12A                 Num    8 BEST12.            Homemaker                                                                                                           
+243 DEMB12B                 Num    8 BEST12.            Student                                                                                                             
+246 DEMB14A                 Num    8 BEST12.            Average weekly full-time hours                                                                                      
+248 DEMB15A                 Num    8 BEST12.            Average weekly part-time hours                                                                                      
+ 34 DIABETES1               Num    8                    3-level grouped Diabetes ver.1                                                                                      
+ 35 DIABETES2               Num    8                    3-level grouped Diabetes - ADA Guidelines plus scanned anti-diabetics medication                                    
+ 38 DIABETES3               Num    8                    3-level grouped Diabetes - ADA Guidelines plus self-reported diabetes diagnosis                                     
+ 55 DIABETES2_INDICATOR     Num    8                    Diabetes Indicator - ADA                                                                                            
+ 95 DIABETES3_V2            Num    8                    3-level grouped Diabetes Definition 3 (Lab criteria ADA Guidelines plus self-reported diabetes diagnosis) by Visit 2
+ 39 DIABETES_C4             Num    8                    4-level grouped diabetes (none/pre/treated/untreated)                                                               
+ 36 DIABETES_LAB            Num    8                    3-level grouped Diabetes - Lab                                                                                      
+ 89 DIABETES_LAB_V2         Num    8                    3-level grouped Diabetes - Lab criteria ADA Guidelines, at Visit 2                                                  
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+ 37 DIABETES_SELF           Num    8                    Diabetes - self report only                                                                                         
+ 94 DIABETES_SELF_V2        Num    8                    Self-reported having diabetes diagnosis by Visit 2, V1-AFU-V2 cumulative, excluding gestational diabetes            
+ 40 DIAB_DIAG               Num    8                    Diabetes Diagnosis time                                                                                             
+ 99 DM3_AWARE_V2            Num    8                    Diabetes awareness in Diabetes Definition 3 classification by Visit 2                                               
+100 DM3_CONTROL_V2          Num    8                    Diabetes controlled in Diabetes Definition 3 classification at Visit 2                                              
+ 41 DM_AWARE                Num    8                    Diabetes awareness at baseline                                                                                      
+ 42 DM_CONTROL              Num    8                    Diabetes controlled: DM Classified at Baseline and A1C < 7%                                                         
+ 72 ECEA2                   Num    8                    Yearly Household Income Low/High (ECEA2)                                                                            
+ 73 ECEA3                   Num    8                    Low Income Range (ECEA3)                                                                                            
+ 74 ECEA4                   Num    8                    High Income Range (ECEA4)                                                                                           
+ 75 ECEA5                   Num    8                    Number people supported by household income (ECEA5)                                                                 
+ 56 EDUCATION_C2            Num    8                    Education Status (2 levels)                                                                                         
+ 57 EDUCATION_C3            Num    8                    Education Status (3 levels)                                                                                         
+104 EDUCATION_C3_V2         Num    8                    Education Status at Visit 2(3 levels)                                                                               
+ 23 EMPLOYED                Num    8                    Employment Status (includes retirees)                                                                               
+258 EMPLOYEDYN              Num    8                    Employment Status (1-yes, 0-no)                                                                                     
+109 EMPLOYED_V2             Num    8                    Visit 2 4-level employment status                                                                                   
+252 FGLUCOSE_GE100YN        Num    8                    Fasting glucose >=100 mg/dL                                                                                         
+259 FLOR_DYAD               Num    8                    FLOR participant                                                                                                    
+ 14 GENDER                  Char   1                    Gender (F=Female, M=Male)                                                                                           
+ 51 GENDERNUM               Num    8                    Gender (0=Female, 1=Male)                                                                                           
+ 85 GENDER_V2               Char   1                    Gender (M or F)                                                                                                     
+234 HAZ                     Num    8                    Height for age Z-Score - CDC (Child)                                                                                
+  6 HEI2010                 Num    8                    HEI total score, 0-100                                                                                              
+266 HEI2010_C3              Num    8                    3-level Health Index Score 2010                                                                                     
+  2 HEIGHT                  Num    8                    Height (corrected)                                                                                                  
+256 HIGHBPYN                Num    8                    Systolic blood pressure >= 120 (mm Hg) or diastolic blood pressure >= 80 (mm Hg)                                    
+ 26 HIGH_TRIG               Num    8                    High Triglycerides (>=150 mg/dL)                                                                                    
+ 96 HIGH_TRIG_V2            Num    8                    High Triglycerides(>=150 mg/dL)                                                                                     
+ 52 HOMA_IR                 Num    8                    HOMA index of Insulin Resistance                                                                                    
+102 HOMA_IR_V2              Num    8                    HOMA index of Insulin Resistance                                                                                    
+ 79 HRS_DAY                 Num    8                    hrs/day (average) monitor was worn                                                                                  
+ 33 HYPERTENSION            Num    8                    Hypertension (BP>=140/90 and Med Use)                                                                               
+  1 ID                      Char   8                    HCHS Participant ID                                                                                                 
+217 ID_CHILD                Char   8                    Child ID                                                                                                            
+218 ID_DAD                  Char   8                    Father Participant ID                                                                                               
+ 21 INCOME                  Num    8                    Yearly Household Income (ECEA3 and ECEA4)                                                                           
+264 INCOME_C2               Num    8                    2-level grouped yearly household income                                                                             
+ 58 INCOME_C3               Num    8                    3-level grouped yearly household income                                                                             
+ 22 INCOME_C5               Num    8                    Yearly Household Income (collapsed categories)                                                                      
+ 87 INCOME_C3_V2            Num    8                    3-level grouped yearly household income at Visit 2                                                                  
+ 29 INSULIN_FAST            Num    8                    Insulin, fasting (calibrated, converted to mU/L)                                                                    
+101 INSULIN_FAST_V2         Num    8                    Fasting Insulin, (mU/L)                                                                                             
+ 64 LABA67                  Num    8                    Triglycerides (mg/dL) (LABA67)                                                                                      
+ 62 LABA68                  Num    8                    HDL-cholesterol (mg/dL) (LABA68)                                                                                    
+ 63 LABA70                  Num    8                    Glucose, fasting (mg/dL) (LABA70)                                                                                   
+115 LABA67_V2               Num    8 BEST12.            Triglycerides (mg/dL)                                                                                               
+116 LABA68_V2               Num    8 BEST12.            HDL-cholesterol (mg/dL)                                                                                             
+117 LABA70_V2               Num    8 BEST12.            Glucose, fasting (mg/dL)                                                                                            
+ 24 LANG_PREF               Num    8                    Language preference - (1=Span, 2=Eng)                                                                               
+106 LANG_PREF_V2            Num    8                    Language preference at Visit 2 - (1=Span,2=Eng)                                                                     
+130 LGA                     Num    8                    Large for gestational age (> 90th pctl), baby 1                                                                     
+ 27 LOW_HDL                 Num    8                    Low HDL (<40 mg/dl (male), <50 mg/dL (females))                                                                     
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+ 97 LOW_HDL_V2              Num    8                    Low HDL (<40 mg/dl (male), <50 mg/dL (females)                                                                      
+ 20 MARITAL_STATUS          Num    8                    Marital Status (collapsed categories)                                                                               
+ 17 MED_ANTIDIAB            Num    8                    Antidiabetics                                                                                                       
+ 18 MED_ANTIHYPERT          Num    8                    Antihypertensives                                                                                                   
+ 16 MED_LLD                 Num    8                    Lipid lowering drugs/Antihyperlipidemics (LLD)                                                                      
+221 MODE1                   Num    8                    Completed Mode 1 of SOL FLOR                                                                                        
+222 MODE2                   Num    8                    Completed Mode 2 of SOL FLOR                                                                                        
+ 80 MV_DAY                  Num    8                    min/day (average) of moderate or vigorous activity (>=1535 counts/min)                                              
+ 44 N_HC                    Num    8                    Health Insurance Coverage - Current                                                                                 
+105 N_HC_V2                 Num    8                    Current Health Insurance Coverage at Visit 2                                                                        
+ 76 OCEA1                   Num    8                    Retired (OCEA1)                                                                                                     
+ 77 OCEA5                   Num    8                    Current Employment Status (OCEA5)                                                                                   
+250 PARITY_V1               Num    8                    Number of babies born alive by Visit 1                                                                              
+149 PCE3                    Num    8 BEST12.            Pregnancy Result                                                                                                    
+151 PCE4                    Num    8 BEST12.            Delivery type                                                                                                       
+152 PCE5                    Num    8 BEST12.            Birth Location                                                                                                      
+153 PCE6                    Num    8 BEST12.            number of babies in pregnancy                                                                                       
+133 PCE0A                   Num    8 MMDDYY10.          Completion Date                                                                                                     
+190 PCE10A                  Num    8 BEST12.            Baby 4 Birth                                                                                                        
+191 PCE10B                  Num    8 BEST12.            Baby 4 gender                                                                                                       
+192 PCE10C                  Num    8 BEST12.            Baby 4 Weight lbs                                                                                                   
+193 PCE10C1                 Num    8 BEST12.            Baby 4 Weight oz                                                                                                    
+194 PCE10C2                 Num    8 BEST12.            Baby 4 Weight g                                                                                                     
+206 PCE10C_G                Num    8                    Baby 4 Weight (g,calculated)                                                                                        
+195 PCE10D                  Num    8 BEST12.            Baby 4 approx weight                                                                                                
+196 PCE10E                  Num    8 BEST12.            Baby 4 currently breastfeeding                                                                                      
+197 PCE10E1                 Num    8 BEST12.            Baby 4 age stopped bf                                                                                               
+198 PCE10E2                 Num    8 BEST12.            Baby 4 units age stopped bf                                                                                         
+199 PCE10E3                 Num    8 BEST12.            Baby 4 bf long as wanted                                                                                            
+200 PCE10E4                 Num    8 BEST12.            Baby 4 age solid foods                                                                                              
+201 PCE10E5                 Num    8 BEST12.            Baby 4 units age solid foods                                                                                        
+210 PCE10E1_DAYS            Num    8                    Baby 4 age stopped bf (days)                                                                                        
+214 PCE10E4_DAYS            Num    8                    Baby 4 age solid foods (days)                                                                                       
+134 PCE1A                   Num    8 BEST12.            Pregnancy Number                                                                                                    
+135 PCE1C                   Num    8 BEST12.            Received care in the US                                                                                             
+136 PCE1D                   Num    8 BEST12.            Hypertension-HBP in this pregnancy                                                                                  
+137 PCE1D1                  Num    8 BEST12.            Hypertension-HBP before this pregnancy                                                                              
+138 PCE1E                   Num    8 BEST12.            Preeclampsia-toxemia in this pregnancy                                                                              
+139 PCE1F                   Num    8 BEST12.            Eclampsia during this pregnancy                                                                                     
+140 PCE1G                   Num    8 BEST12.            Diabetes during this pregnancy                                                                                      
+141 PCE1G1                  Num    8 BEST12.            Took meds for blood sugar during this pregnancy                                                                     
+142 PCE1G2                  Num    8 BEST12.            Had Diabetes Before                                                                                                 
+143 PCE1H                   Num    8 BEST12.            Smoked during last 3 months of pregnancy                                                                            
+144 PCE1I                   Num    8 BEST12.            Smoked 3 months before pregnancy                                                                                    
+145 PCE1J                   Num    8 BEST12.            Weight gained during pregnancy                                                                                      
+146 PCE1J1                  Num    8 BEST12.            Weight gained units                                                                                                 
+202 PCE1J_KG                Num    8                    Weight gained during pregnancy (kg)                                                                                 
+147 PCE2A                   Num    8 BEST12.            Pregnancy Length                                                                                                    
+148 PCE2A1                  Num    8 BEST12.            Pregnancy length units                                                                                              
+215 PCE2A_WEEKS             Num    8                    Pregnancy Length (weeks)                                                                                            
+150 PCE3A                   Num    8 BEST12.            Number of Babies                                                                                                    
+154 PCE7A                   Num    8 BEST12.            Baby 1 Birth                                                                                                        
+155 PCE7B                   Num    8 BEST12.            Baby 1 gender                                                                                                       
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+156 PCE7C                   Num    8 BEST12.            Baby 1 Weight lbs                                                                                                   
+157 PCE7C1                  Num    8 BEST12.            Baby 1 Weight oz                                                                                                    
+158 PCE7C2                  Num    8 BEST12.            Baby 1 Weight g                                                                                                     
+203 PCE7C_G                 Num    8                    Baby 1 Weight (g,calculated)                                                                                        
+159 PCE7D                   Num    8 BEST12.            Baby 1 approx weight                                                                                                
+160 PCE7E                   Num    8 BEST12.            Baby 1 currently breastfeeding                                                                                      
+161 PCE7E1                  Num    8 BEST12.            Baby 1 age stopped bf                                                                                               
+162 PCE7E2                  Num    8 BEST12.            Baby 1 units age stopped bf                                                                                         
+163 PCE7E3                  Num    8 BEST12.            Baby 1 bf long as wanted                                                                                            
+164 PCE7E4                  Num    8 BEST12.            Baby 1 age solid foods                                                                                              
+165 PCE7E5                  Num    8 BEST12.            Baby 1 units age solid foods                                                                                        
+207 PCE7E1_DAYS             Num    8                    Baby 1 age stopped bf (days)                                                                                        
+211 PCE7E4_DAYS             Num    8                    Baby 1 age solid foods (days)                                                                                       
+166 PCE8A                   Num    8 BEST12.            Baby 2 Birth                                                                                                        
+167 PCE8B                   Num    8 BEST12.            Baby 2 gender                                                                                                       
+168 PCE8C                   Num    8 BEST12.            Baby 2 Weight lbs                                                                                                   
+169 PCE8C1                  Num    8 BEST12.            Baby 2 Weight oz                                                                                                    
+170 PCE8C2                  Num    8 BEST12.            Baby 2 Weight g                                                                                                     
+204 PCE8C_G                 Num    8                    Baby 2 Weight (g,calculated)                                                                                        
+171 PCE8D                   Num    8 BEST12.            Baby 2 approx weight                                                                                                
+172 PCE8E                   Num    8 BEST12.            Baby 2 currently breastfeeding                                                                                      
+173 PCE8E1                  Num    8 BEST12.            Baby 2 age stopped bf                                                                                               
+174 PCE8E2                  Num    8 BEST12.            Baby 2 units age stopped bf                                                                                         
+175 PCE8E3                  Num    8 BEST12.            Baby 2 bf long as wanted                                                                                            
+176 PCE8E4                  Num    8 BEST12.            Baby 2 age solid foods                                                                                              
+177 PCE8E5                  Num    8 BEST12.            Baby 2 Units age solid foods                                                                                        
+208 PCE8E1_DAYS             Num    8                    Baby 2 age stopped bf (days)                                                                                        
+212 PCE8E4_DAYS             Num    8                    Baby 2 age solid foods (days)                                                                                       
+178 PCE9A                   Num    8 BEST12.            Baby 3 Birth                                                                                                        
+179 PCE9B                   Num    8 BEST12.            Baby 3 gender                                                                                                       
+180 PCE9C                   Num    8 BEST12.            Baby 3 Weight lbs                                                                                                   
+181 PCE9C1                  Num    8 BEST12.            Baby 3 Weight oz                                                                                                    
+182 PCE9C2                  Num    8 BEST12.            Baby 3 Weight g                                                                                                     
+205 PCE9C_G                 Num    8                    Baby 3 Weight (g,calculated)                                                                                        
+183 PCE9D                   Num    8 BEST12.            Baby 3 approx weight                                                                                                
+184 PCE9E                   Num    8 BEST12.            Baby 3 currently breastfeeding                                                                                      
+185 PCE9E1                  Num    8 BEST12.            Baby 3 age stopped bf                                                                                               
+186 PCE9E2                  Num    8 BEST12.            Baby 3 units age stopped bf                                                                                         
+187 PCE9E3                  Num    8 BEST12.            Baby 3 bf long as wanted                                                                                            
+188 PCE9E4                  Num    8 BEST12.            Baby 3 age solid foods                                                                                              
+189 PCE9E5                  Num    8 BEST12.            Baby 3 units age solid foods                                                                                        
+209 PCE9E1_DAYS             Num    8                    Baby 3 age stopped bf (days)                                                                                        
+213 PCE9E4_DAYS             Num    8                    Baby 3 age solid foods (days)                                                                                       
+265 PCT_MVPA                Num    8                    Percentage of time spent in moderate-to-vigorous physical activity                                                  
+ 70 PIEA4                   Char   2 $2.       $2.      Country/Territory Born (PIEA4)                                                                                      
+ 71 PIEA7                   Num    8                    Years Lived in Mainland US (PIEA7)                                                                                  
+ 60 POVPCT                  Num    8                    Household income, percent of poverty                                                                                
+ 61 POVPCT_C4               Num    8                    Household income, percent of poverty, 4 categories                                                                  
+132 PRETERM                 Num    8                    Pregnancy lasted <= 37 weeks                                                                                        
+251 PRIMIPARA_V1            Num    8                    FLOR baby is 1st live birth ever (1-yes, 0-no)                                                                      
+  4 PSU_ID                  Num    8                    Primary Sampling Unit ID                                                                                            
+114 RME19                   Num    8 BEST12.            # Babies born alive-before V1                                                                                       
+112 RME12a                  Num    8 BEST12.            Times Pregnant Before V1                                                                                            
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+113 RME13a                  Num    8 BEST12.            # Pregs of 6+ months-before V1                                                                                      
+118 SBP5                    Num    8 BEST12.            average systolic                                                                                                    
+119 SBP6                    Num    8 BEST12.            average diastolic                                                                                                   
+120 SBP7                    Num    8 BEST12.            average pulse                                                                                                       
+ 65 SBPA5                   Num    8                    Average Systolic (SBPA5)                                                                                            
+ 66 SBPA6                   Num    8                    Average Diastolic (SBPA6)                                                                                           
+ 67 SBPA7                   Num    8                    Average Pulse Rate (SBPA7)                                                                                          
+254 SBP_GE120YN             Num    8                    Systolic blood pressure >= 120 mm Hg                                                                                
+131 SGA                     Num    8                    Small for gestational age (< 10th pctl) for baby #1                                                                 
+ 53 SITE_BKGRD              Num    8                    Cross-Classification of Center and Hispanic/Latino Background                                                       
+263 SLPDUR                  Num    8                    Average sleep duration (hours)                                                                                      
+261 SLPDUR_WKDAY            Num    8                    Weekday sleep duration (hours)                                                                                      
+262 SLPDUR_WKEND            Num    8                    Weekend sleep duration (hours)                                                                                      
+ 19 STAI10                  Num    8                    10-Item State Trait Anxiety Inventory                                                                               
+  3 STRAT                   Num    8                    Stratification Variable ID                                                                                          
+121 TBE1                    Num    8 BEST12.            Smoke 100 cigarettes in lifetime                                                                                    
+122 TBE4                    Num    8 BEST12.            Current smoking status                                                                                              
+ 68 TBEA1                   Num    8                    Smoke at least 100 cigs in lifetime (TBEA1)                                                                         
+ 69 TBEA3                   Num    8                    Present Smoking Status (TBEA3)                                                                                      
+ 12 US_BORN                 Num    8                    Born in mainland US (50 States + DC)                                                                                
+231 WAZ                     Num    8                    Weight for age Z-Score - CDC (Child)                                                                                
+  5 WEIGHT_FINAL_           Num    8                    Overall Sample Normalized Census 2010 Calibrated Trimmed NonResponse                                                
+    NORM_OVERALL                                        Adjusted Final Weights - Year 1-3 (frozen as of 10/27/2011)                                                         
+ 84 WEIGHT_NORM_OVERALL_V2  Num    8                    HCHS V2 Overall Normalized, Census 2010 Calibrated, Trimmed,                                                        
+                                                        Nonresponse Adjusted Weights - (frozen as of 03/06/2018)                                                            
+ 83 WEIGHT_PA_IPW_OVERALL   Num    8                    Sampling weight (norm_overall) * IPW of actical adherence                                                           
+ 25 YRSUS                   Num    8                    Years lived in US                                                                                                   
+ 45 YRSUS_C2                Num    8                    2-level grouped years lived in the US (50 States)                                                                   
+ 46 YRSUS_C3                Num    8                    Years lived in the US (50 States, 3-levels)                                                                         
+110 YRSUS_C3_V2             Num    8                    Years lived in the US at Visit 2 (50 States, 3-level)                                                               
+128 YRSV1BIRTH              Num    8                    Time between Visit 1 and baby’s birth (years)                                                                       
+220 YRS_BTWN_V1FLOR         Num    8                    Elapsed time in years between visit 1 and FLOR clinic date                                                          
+ 91 YRS_BTWN_V1V2           Num    8                    Elapsed time between visits 1 and 2 (yrs)                                                                           
+
+
+                                                                              Sort Information
+
+                                                                             Sortedby       ID  
+                                                                             Validated      YES 
+                                                                             Character Set  ANSI
+                                                                               The SAS System
+
+                                               Data Set Name        OUTPUT.HC338351_ALL_23JUN25    Observations          550 
+                                               Member Type          DATA                           Variables             266 
+                                               Engine               V9                             Indexes               0   
+                                               Created              06/23/2025 14:27:33            Observation Length    2104
+                                               Last Modified        06/23/2025 14:27:33            Deleted Observations  0   
+                                               Protection                                          Compressed            NO  
+                                               Data Set Type                                       Sorted                YES 
+                                               Label                                                                         
+                                               Data Representation  WINDOWS_32                                               
+                                               Encoding             wlatin1  Western (Windows)                               
+
+
+                                                                     Engine/Host Dependent Information
+
+                                Data Set Page Size          172032                                                                          
+                                Number of Data Set Pages    7                                                                               
+                                First Data Page             1                                                                               
+                                Max Obs per Page            81                                                                              
+                                Obs in First Data Page      64                                                                              
+                                Number of Data Set Repairs  0                                                                               
+                                ExtendObsCounter            YES                                                                             
+                                Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_all_23jun25.sas7bdat
+                                Release Created             9.0401M8                                                                        
+                                Host Created                W32_WIN+PRO                                                                     
+                                Owner Name                  CSCC\acquijanoa                                                                 
+                                File Size                   1MB                                                                             
+                                File Size (bytes)           1376256                                                                         
+
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+ 28 ABDOMINAL_OBESITY_NCEP  Num    8                    Abdominal Obesity (waist circ) - NCEP                                                                               
+ 98 ABDOMINAL_OBESITY_      Num    8                    Abdominal Obesity (waist circ) - NCEP                                                                               
+    NCEP_V2                                                                                                                                                                 
+ 47 ACCULT_MESA             Num    8                    Acculturation Score - MESA                                                                                          
+111 ACCULT_MESA_V2          Num    8                    Acculturation Score - MESA, Visit 2                                                                                 
+ 82 ACTICALYN               Num    8                    Actical data available (1=Yes,0=No)                                                                                 
+ 81 ADHERENTYN              Num    8                    Participant has at least 3 adherent (>=10 hrs) days (1=Yes,0=No)                                                    
+  8 AGE                     Num    8                    Age                                                                                                                 
+  9 AGEGROUP_C2             Num    8                    1(18-44),2(45+)                                                                                                     
+ 43 AGEGROUP_C6             Num    8                    6-level Age Sub-groups                                                                                              
+ 93 AGEGROUP_C6_V2          Num    8                    6-level grouped age of participant at Visit 2                                                                       
+229 AGEGRP_CHILD_C4         Num    8                    Children’s age in 4 levels                                                                                          
+225 AGE_CHILD_CLINDATE      Num    8                    Child's age in years using CLINDATE                                                                                 
+226 AGE_CHILD_CLINDATE_MO   Num    8                    Child's age in months using CLINDATE                                                                                
+224 AGE_CHILD_ENROLL        Num    8                    Child's age in years at SOL FLOR enrollment                                                                         
+223 AGE_MOM_FLOR            Num    8                    Mother's age in years using CLINDATE                                                                                
+ 92 AGE_V2                  Num    8                    Age at visit 2 (yrs)                                                                                                
+ 11 AGG_MENT                Num    8                    Aggregate mental health score norm-based transformed                                                                
+ 10 AGG_PHYS                Num    8                    Aggregate physical health score norm-based transformed                                                              
+ 31 ALCOHOL_USE             Num    8                    Alcohol Use (1-Never,2=Former,3=Current)                                                                            
+123 ANT10A                  Num    8 BEST12.            waist                                                                                                               
+ 78 ANTA10A                 Num    8                    Waist Girth (cm) (ANTA10A)                                                                                          
+126 BABY1YN                 Num    8                    First live birth after V1                                                                                           
+129 BIRTHWT_C3              Num    8                    Birth weight baby 1 (< 2.5kg, 2.5-4.0kg, >4.0kg)                                                                    
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+125 BIRTHWT_GA_PCT          Num    8 BEST12.   BEST32.  Birth weight for gestational age percentile                                                                         
+124 BIRTHWT_GA_Z            Num    8 BEST12.   BEST32.  Birth weight for gestational age Z-score                                                                            
+216 BIRTH_ORDER             Num    8                    Birth Order                                                                                                         
+ 49 BKGRD1_C7               Num    8                    7-level re-classification of Hispanic/Latino Background                                                             
+257 BKGRD1_C7NOMISS         Num    8                    7-Level Re-classification of Hispanic/Latino Background (Combining Missing with Mixed/Other)                        
+ 13 BMI                     Num    8                    BMI (kg/m2)                                                                                                         
+ 30 BMIGRP_C4               Num    8                    4-level grouped Body Mass Index - WHO                                                                               
+ 48 BMIGRP_C6               Num    8                    6-level grouped Body Mass Index - WHO                                                                               
+233 BMIPCT                  Num    8                    Body Mass Index for age Percentiles - CDC (Child)                                                                   
+235 BMIPCT_C3               Num    8                    BMI percentile in 3 levels                                                                                          
+232 BMIZ                    Num    8                    Body Mass Index for age Z-Score - CDC (Child)                                                                       
+253 BMI_GE30YN              Num    8                    BMI >=30 (obese)                                                                                                    
+ 88 BMI_V2                  Num    8                    Body Mass Index (kg/m2) at Visit 2                                                                                  
+230 BORN_AFTERV2            Num    8                    Baby born after mom’s visit 2                                                                                       
+  7 CENTER                  Char   1                    Center                                                                                                              
+ 50 CENTERNUM               Num    8                    Participant's Field Center - numeric                                                                                
+ 59 CESD10                  Num    8                    10-item CESD10                                                                                                      
+107 CESD10_V2               Num    8                    10-item CES-D summary score at Visit 2                                                                              
+227 CHILD_HEIGHT            Num    8                    Height (cm)                                                                                                         
+260 CHILD_PRS_BMI_A         Num    8 BEST12.   BEST32.  Child obesity PRS (from adult data)                                                                                 
+228 CHILD_WEIGHT            Num    8                    Weight (kg)                                                                                                         
+ 32 CIGARETTE_USE           Num    8                    Cigarette Use (1-Never,2=Former,3=Current)                                                                          
+108 CIGARETTE_USE_V2        Num    8                    Cigarette Use at Visit 2(1-Never,2=Former,3=Current)                                                                
+ 15 CLINDATE                Num    8 MMDDYY10.          Date of Clinic Visit                                                                                                
+219 CLINDATE_FLOR           Num    8 MMDDYY10.          SOL FLOR Clinic Date                                                                                                
+ 90 CLINDATE_V2             Num    8 MMDDYY10.          Visit 2 clinic date                                                                                                 
+ 86 CONSENT_V2              Num    8                    Consent in HCHS/SOL Visit 2, based on ICT1, CHK4A1 and CHK31A                                                       
+ 54 CURRENT_SMOKER          Num    8                    Current Smoker (from CIGARETTE_USE)                                                                                 
+103 CURRENT_SMOKER_V2       Num    8                    Current smoker at Visit 2                                                                                           
+127 DAYSV1BIRTH             Num    8                    Time between Visit 1 and baby’s birth (days)                                                                        
+255 DBP_GE80YN              Num    8                    Diastolic blood pressure >= 80 mm Hg                                                                                
+236 DEMB1                   Num    8                    Child sex                                                                                                           
+237 DEMB7                   Num    8 BEST12.            Total income                                                                                                        
+238 DEMB8                   Num    8 BEST12.            Income < $30,000                                                                                                    
+239 DEMB9                   Num    8 BEST12.            Income > $30,000                                                                                                    
+240 DEMB10                  Num    8 BEST12.            People supported on income                                                                                          
+241 DEMB11                  Num    8 BEST12.            Marital status                                                                                                      
+244 DEMB13                  Num    8 BEST12.            Current employment status                                                                                           
+245 DEMB14                  Num    8 BEST12.            Number full-time jobs                                                                                               
+247 DEMB15                  Num    8 BEST12.            Number part-time jobs                                                                                               
+249 DEMB16                  Num    8 BEST12.            Usual work schedule                                                                                                 
+242 DEMB12A                 Num    8 BEST12.            Homemaker                                                                                                           
+243 DEMB12B                 Num    8 BEST12.            Student                                                                                                             
+246 DEMB14A                 Num    8 BEST12.            Average weekly full-time hours                                                                                      
+248 DEMB15A                 Num    8 BEST12.            Average weekly part-time hours                                                                                      
+ 34 DIABETES1               Num    8                    3-level grouped Diabetes ver.1                                                                                      
+ 35 DIABETES2               Num    8                    3-level grouped Diabetes - ADA Guidelines plus scanned anti-diabetics medication                                    
+ 38 DIABETES3               Num    8                    3-level grouped Diabetes - ADA Guidelines plus self-reported diabetes diagnosis                                     
+ 55 DIABETES2_INDICATOR     Num    8                    Diabetes Indicator - ADA                                                                                            
+ 95 DIABETES3_V2            Num    8                    3-level grouped Diabetes Definition 3 (Lab criteria ADA Guidelines plus self-reported diabetes diagnosis) by Visit 2
+ 39 DIABETES_C4             Num    8                    4-level grouped diabetes (none/pre/treated/untreated)                                                               
+ 36 DIABETES_LAB            Num    8                    3-level grouped Diabetes - Lab                                                                                      
+ 89 DIABETES_LAB_V2         Num    8                    3-level grouped Diabetes - Lab criteria ADA Guidelines, at Visit 2                                                  
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+ 37 DIABETES_SELF           Num    8                    Diabetes - self report only                                                                                         
+ 94 DIABETES_SELF_V2        Num    8                    Self-reported having diabetes diagnosis by Visit 2, V1-AFU-V2 cumulative, excluding gestational diabetes            
+ 40 DIAB_DIAG               Num    8                    Diabetes Diagnosis time                                                                                             
+ 99 DM3_AWARE_V2            Num    8                    Diabetes awareness in Diabetes Definition 3 classification by Visit 2                                               
+100 DM3_CONTROL_V2          Num    8                    Diabetes controlled in Diabetes Definition 3 classification at Visit 2                                              
+ 41 DM_AWARE                Num    8                    Diabetes awareness at baseline                                                                                      
+ 42 DM_CONTROL              Num    8                    Diabetes controlled: DM Classified at Baseline and A1C < 7%                                                         
+ 72 ECEA2                   Num    8                    Yearly Household Income Low/High (ECEA2)                                                                            
+ 73 ECEA3                   Num    8                    Low Income Range (ECEA3)                                                                                            
+ 74 ECEA4                   Num    8                    High Income Range (ECEA4)                                                                                           
+ 75 ECEA5                   Num    8                    Number people supported by household income (ECEA5)                                                                 
+ 56 EDUCATION_C2            Num    8                    Education Status (2 levels)                                                                                         
+ 57 EDUCATION_C3            Num    8                    Education Status (3 levels)                                                                                         
+104 EDUCATION_C3_V2         Num    8                    Education Status at Visit 2(3 levels)                                                                               
+ 23 EMPLOYED                Num    8                    Employment Status (includes retirees)                                                                               
+258 EMPLOYEDYN              Num    8                    Employment Status (1-yes, 0-no)                                                                                     
+109 EMPLOYED_V2             Num    8                    Visit 2 4-level employment status                                                                                   
+252 FGLUCOSE_GE100YN        Num    8                    Fasting glucose >=100 mg/dL                                                                                         
+259 FLOR_DYAD               Num    8                    FLOR participant                                                                                                    
+ 14 GENDER                  Char   1                    Gender (F=Female, M=Male)                                                                                           
+ 51 GENDERNUM               Num    8                    Gender (0=Female, 1=Male)                                                                                           
+ 85 GENDER_V2               Char   1                    Gender (M or F)                                                                                                     
+234 HAZ                     Num    8                    Height for age Z-Score - CDC (Child)                                                                                
+  6 HEI2010                 Num    8                    HEI total score, 0-100                                                                                              
+266 HEI2010_C3              Num    8                    3-level Health Index Score 2010                                                                                     
+  2 HEIGHT                  Num    8                    Height (corrected)                                                                                                  
+256 HIGHBPYN                Num    8                    Systolic blood pressure >= 120 (mm Hg) or diastolic blood pressure >= 80 (mm Hg)                                    
+ 26 HIGH_TRIG               Num    8                    High Triglycerides (>=150 mg/dL)                                                                                    
+ 96 HIGH_TRIG_V2            Num    8                    High Triglycerides(>=150 mg/dL)                                                                                     
+ 52 HOMA_IR                 Num    8                    HOMA index of Insulin Resistance                                                                                    
+102 HOMA_IR_V2              Num    8                    HOMA index of Insulin Resistance                                                                                    
+ 79 HRS_DAY                 Num    8                    hrs/day (average) monitor was worn                                                                                  
+ 33 HYPERTENSION            Num    8                    Hypertension (BP>=140/90 and Med Use)                                                                               
+  1 ID                      Char   8                    HCHS Participant ID                                                                                                 
+217 ID_CHILD                Char   8                    Child ID                                                                                                            
+218 ID_DAD                  Char   8                    Father Participant ID                                                                                               
+ 21 INCOME                  Num    8                    Yearly Household Income (ECEA3 and ECEA4)                                                                           
+264 INCOME_C2               Num    8                    2-level grouped yearly household income                                                                             
+ 58 INCOME_C3               Num    8                    3-level grouped yearly household income                                                                             
+ 22 INCOME_C5               Num    8                    Yearly Household Income (collapsed categories)                                                                      
+ 87 INCOME_C3_V2            Num    8                    3-level grouped yearly household income at Visit 2                                                                  
+ 29 INSULIN_FAST            Num    8                    Insulin, fasting (calibrated, converted to mU/L)                                                                    
+101 INSULIN_FAST_V2         Num    8                    Fasting Insulin, (mU/L)                                                                                             
+ 64 LABA67                  Num    8                    Triglycerides (mg/dL) (LABA67)                                                                                      
+ 62 LABA68                  Num    8                    HDL-cholesterol (mg/dL) (LABA68)                                                                                    
+ 63 LABA70                  Num    8                    Glucose, fasting (mg/dL) (LABA70)                                                                                   
+115 LABA67_V2               Num    8 BEST12.            Triglycerides (mg/dL)                                                                                               
+116 LABA68_V2               Num    8 BEST12.            HDL-cholesterol (mg/dL)                                                                                             
+117 LABA70_V2               Num    8 BEST12.            Glucose, fasting (mg/dL)                                                                                            
+ 24 LANG_PREF               Num    8                    Language preference - (1=Span, 2=Eng)                                                                               
+106 LANG_PREF_V2            Num    8                    Language preference at Visit 2 - (1=Span,2=Eng)                                                                     
+130 LGA                     Num    8                    Large for gestational age (> 90th pctl), baby 1                                                                     
+ 27 LOW_HDL                 Num    8                    Low HDL (<40 mg/dl (male), <50 mg/dL (females))                                                                     
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+ 97 LOW_HDL_V2              Num    8                    Low HDL (<40 mg/dl (male), <50 mg/dL (females)                                                                      
+ 20 MARITAL_STATUS          Num    8                    Marital Status (collapsed categories)                                                                               
+ 17 MED_ANTIDIAB            Num    8                    Antidiabetics                                                                                                       
+ 18 MED_ANTIHYPERT          Num    8                    Antihypertensives                                                                                                   
+ 16 MED_LLD                 Num    8                    Lipid lowering drugs/Antihyperlipidemics (LLD)                                                                      
+221 MODE1                   Num    8                    Completed Mode 1 of SOL FLOR                                                                                        
+222 MODE2                   Num    8                    Completed Mode 2 of SOL FLOR                                                                                        
+ 80 MV_DAY                  Num    8                    min/day (average) of moderate or vigorous activity (>=1535 counts/min)                                              
+ 44 N_HC                    Num    8                    Health Insurance Coverage - Current                                                                                 
+105 N_HC_V2                 Num    8                    Current Health Insurance Coverage at Visit 2                                                                        
+ 76 OCEA1                   Num    8                    Retired (OCEA1)                                                                                                     
+ 77 OCEA5                   Num    8                    Current Employment Status (OCEA5)                                                                                   
+250 PARITY_V1               Num    8                    Number of babies born alive by Visit 1                                                                              
+149 PCE3                    Num    8 BEST12.            Pregnancy Result                                                                                                    
+151 PCE4                    Num    8 BEST12.            Delivery type                                                                                                       
+152 PCE5                    Num    8 BEST12.            Birth Location                                                                                                      
+153 PCE6                    Num    8 BEST12.            number of babies in pregnancy                                                                                       
+133 PCE0A                   Num    8 MMDDYY10.          Completion Date                                                                                                     
+190 PCE10A                  Num    8 BEST12.            Baby 4 Birth                                                                                                        
+191 PCE10B                  Num    8 BEST12.            Baby 4 gender                                                                                                       
+192 PCE10C                  Num    8 BEST12.            Baby 4 Weight lbs                                                                                                   
+193 PCE10C1                 Num    8 BEST12.            Baby 4 Weight oz                                                                                                    
+194 PCE10C2                 Num    8 BEST12.            Baby 4 Weight g                                                                                                     
+206 PCE10C_G                Num    8                    Baby 4 Weight (g,calculated)                                                                                        
+195 PCE10D                  Num    8 BEST12.            Baby 4 approx weight                                                                                                
+196 PCE10E                  Num    8 BEST12.            Baby 4 currently breastfeeding                                                                                      
+197 PCE10E1                 Num    8 BEST12.            Baby 4 age stopped bf                                                                                               
+198 PCE10E2                 Num    8 BEST12.            Baby 4 units age stopped bf                                                                                         
+199 PCE10E3                 Num    8 BEST12.            Baby 4 bf long as wanted                                                                                            
+200 PCE10E4                 Num    8 BEST12.            Baby 4 age solid foods                                                                                              
+201 PCE10E5                 Num    8 BEST12.            Baby 4 units age solid foods                                                                                        
+210 PCE10E1_DAYS            Num    8                    Baby 4 age stopped bf (days)                                                                                        
+214 PCE10E4_DAYS            Num    8                    Baby 4 age solid foods (days)                                                                                       
+134 PCE1A                   Num    8 BEST12.            Pregnancy Number                                                                                                    
+135 PCE1C                   Num    8 BEST12.            Received care in the US                                                                                             
+136 PCE1D                   Num    8 BEST12.            Hypertension-HBP in this pregnancy                                                                                  
+137 PCE1D1                  Num    8 BEST12.            Hypertension-HBP before this pregnancy                                                                              
+138 PCE1E                   Num    8 BEST12.            Preeclampsia-toxemia in this pregnancy                                                                              
+139 PCE1F                   Num    8 BEST12.            Eclampsia during this pregnancy                                                                                     
+140 PCE1G                   Num    8 BEST12.            Diabetes during this pregnancy                                                                                      
+141 PCE1G1                  Num    8 BEST12.            Took meds for blood sugar during this pregnancy                                                                     
+142 PCE1G2                  Num    8 BEST12.            Had Diabetes Before                                                                                                 
+143 PCE1H                   Num    8 BEST12.            Smoked during last 3 months of pregnancy                                                                            
+144 PCE1I                   Num    8 BEST12.            Smoked 3 months before pregnancy                                                                                    
+145 PCE1J                   Num    8 BEST12.            Weight gained during pregnancy                                                                                      
+146 PCE1J1                  Num    8 BEST12.            Weight gained units                                                                                                 
+202 PCE1J_KG                Num    8                    Weight gained during pregnancy (kg)                                                                                 
+147 PCE2A                   Num    8 BEST12.            Pregnancy Length                                                                                                    
+148 PCE2A1                  Num    8 BEST12.            Pregnancy length units                                                                                              
+215 PCE2A_WEEKS             Num    8                    Pregnancy Length (weeks)                                                                                            
+150 PCE3A                   Num    8 BEST12.            Number of Babies                                                                                                    
+154 PCE7A                   Num    8 BEST12.            Baby 1 Birth                                                                                                        
+155 PCE7B                   Num    8 BEST12.            Baby 1 gender                                                                                                       
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+156 PCE7C                   Num    8 BEST12.            Baby 1 Weight lbs                                                                                                   
+157 PCE7C1                  Num    8 BEST12.            Baby 1 Weight oz                                                                                                    
+158 PCE7C2                  Num    8 BEST12.            Baby 1 Weight g                                                                                                     
+203 PCE7C_G                 Num    8                    Baby 1 Weight (g,calculated)                                                                                        
+159 PCE7D                   Num    8 BEST12.            Baby 1 approx weight                                                                                                
+160 PCE7E                   Num    8 BEST12.            Baby 1 currently breastfeeding                                                                                      
+161 PCE7E1                  Num    8 BEST12.            Baby 1 age stopped bf                                                                                               
+162 PCE7E2                  Num    8 BEST12.            Baby 1 units age stopped bf                                                                                         
+163 PCE7E3                  Num    8 BEST12.            Baby 1 bf long as wanted                                                                                            
+164 PCE7E4                  Num    8 BEST12.            Baby 1 age solid foods                                                                                              
+165 PCE7E5                  Num    8 BEST12.            Baby 1 units age solid foods                                                                                        
+207 PCE7E1_DAYS             Num    8                    Baby 1 age stopped bf (days)                                                                                        
+211 PCE7E4_DAYS             Num    8                    Baby 1 age solid foods (days)                                                                                       
+166 PCE8A                   Num    8 BEST12.            Baby 2 Birth                                                                                                        
+167 PCE8B                   Num    8 BEST12.            Baby 2 gender                                                                                                       
+168 PCE8C                   Num    8 BEST12.            Baby 2 Weight lbs                                                                                                   
+169 PCE8C1                  Num    8 BEST12.            Baby 2 Weight oz                                                                                                    
+170 PCE8C2                  Num    8 BEST12.            Baby 2 Weight g                                                                                                     
+204 PCE8C_G                 Num    8                    Baby 2 Weight (g,calculated)                                                                                        
+171 PCE8D                   Num    8 BEST12.            Baby 2 approx weight                                                                                                
+172 PCE8E                   Num    8 BEST12.            Baby 2 currently breastfeeding                                                                                      
+173 PCE8E1                  Num    8 BEST12.            Baby 2 age stopped bf                                                                                               
+174 PCE8E2                  Num    8 BEST12.            Baby 2 units age stopped bf                                                                                         
+175 PCE8E3                  Num    8 BEST12.            Baby 2 bf long as wanted                                                                                            
+176 PCE8E4                  Num    8 BEST12.            Baby 2 age solid foods                                                                                              
+177 PCE8E5                  Num    8 BEST12.            Baby 2 Units age solid foods                                                                                        
+208 PCE8E1_DAYS             Num    8                    Baby 2 age stopped bf (days)                                                                                        
+212 PCE8E4_DAYS             Num    8                    Baby 2 age solid foods (days)                                                                                       
+178 PCE9A                   Num    8 BEST12.            Baby 3 Birth                                                                                                        
+179 PCE9B                   Num    8 BEST12.            Baby 3 gender                                                                                                       
+180 PCE9C                   Num    8 BEST12.            Baby 3 Weight lbs                                                                                                   
+181 PCE9C1                  Num    8 BEST12.            Baby 3 Weight oz                                                                                                    
+182 PCE9C2                  Num    8 BEST12.            Baby 3 Weight g                                                                                                     
+205 PCE9C_G                 Num    8                    Baby 3 Weight (g,calculated)                                                                                        
+183 PCE9D                   Num    8 BEST12.            Baby 3 approx weight                                                                                                
+184 PCE9E                   Num    8 BEST12.            Baby 3 currently breastfeeding                                                                                      
+185 PCE9E1                  Num    8 BEST12.            Baby 3 age stopped bf                                                                                               
+186 PCE9E2                  Num    8 BEST12.            Baby 3 units age stopped bf                                                                                         
+187 PCE9E3                  Num    8 BEST12.            Baby 3 bf long as wanted                                                                                            
+188 PCE9E4                  Num    8 BEST12.            Baby 3 age solid foods                                                                                              
+189 PCE9E5                  Num    8 BEST12.            Baby 3 units age solid foods                                                                                        
+209 PCE9E1_DAYS             Num    8                    Baby 3 age stopped bf (days)                                                                                        
+213 PCE9E4_DAYS             Num    8                    Baby 3 age solid foods (days)                                                                                       
+265 PCT_MVPA                Num    8                    Percentage of time spent in moderate-to-vigorous physical activity                                                  
+ 70 PIEA4                   Char   2 $2.       $2.      Country/Territory Born (PIEA4)                                                                                      
+ 71 PIEA7                   Num    8                    Years Lived in Mainland US (PIEA7)                                                                                  
+ 60 POVPCT                  Num    8                    Household income, percent of poverty                                                                                
+ 61 POVPCT_C4               Num    8                    Household income, percent of poverty, 4 categories                                                                  
+132 PRETERM                 Num    8                    Pregnancy lasted <= 37 weeks                                                                                        
+251 PRIMIPARA_V1            Num    8                    FLOR baby is 1st live birth ever (1-yes, 0-no)                                                                      
+  4 PSU_ID                  Num    8                    Primary Sampling Unit ID                                                                                            
+114 RME19                   Num    8 BEST12.            # Babies born alive-before V1                                                                                       
+112 RME12a                  Num    8 BEST12.            Times Pregnant Before V1                                                                                            
+                                                                               The SAS System
+
+                                                                 Alphabetic List of Variables and Attributes
+ 
+  # Variable                Type Len Format    Informat Label
+
+113 RME13a                  Num    8 BEST12.            # Pregs of 6+ months-before V1                                                                                      
+118 SBP5                    Num    8 BEST12.            average systolic                                                                                                    
+119 SBP6                    Num    8 BEST12.            average diastolic                                                                                                   
+120 SBP7                    Num    8 BEST12.            average pulse                                                                                                       
+ 65 SBPA5                   Num    8                    Average Systolic (SBPA5)                                                                                            
+ 66 SBPA6                   Num    8                    Average Diastolic (SBPA6)                                                                                           
+ 67 SBPA7                   Num    8                    Average Pulse Rate (SBPA7)                                                                                          
+254 SBP_GE120YN             Num    8                    Systolic blood pressure >= 120 mm Hg                                                                                
+131 SGA                     Num    8                    Small for gestational age (< 10th pctl) for baby #1                                                                 
+ 53 SITE_BKGRD              Num    8                    Cross-Classification of Center and Hispanic/Latino Background                                                       
+263 SLPDUR                  Num    8                    Average sleep duration (hours)                                                                                      
+261 SLPDUR_WKDAY            Num    8                    Weekday sleep duration (hours)                                                                                      
+262 SLPDUR_WKEND            Num    8                    Weekend sleep duration (hours)                                                                                      
+ 19 STAI10                  Num    8                    10-Item State Trait Anxiety Inventory                                                                               
+  3 STRAT                   Num    8                    Stratification Variable ID                                                                                          
+121 TBE1                    Num    8 BEST12.            Smoke 100 cigarettes in lifetime                                                                                    
+122 TBE4                    Num    8 BEST12.            Current smoking status                                                                                              
+ 68 TBEA1                   Num    8                    Smoke at least 100 cigs in lifetime (TBEA1)                                                                         
+ 69 TBEA3                   Num    8                    Present Smoking Status (TBEA3)                                                                                      
+ 12 US_BORN                 Num    8                    Born in mainland US (50 States + DC)                                                                                
+231 WAZ                     Num    8                    Weight for age Z-Score - CDC (Child)                                                                                
+  5 WEIGHT_FINAL_           Num    8                    Overall Sample Normalized Census 2010 Calibrated Trimmed NonResponse                                                
+    NORM_OVERALL                                        Adjusted Final Weights - Year 1-3 (frozen as of 10/27/2011)                                                         
+ 84 WEIGHT_NORM_OVERALL_V2  Num    8                    HCHS V2 Overall Normalized, Census 2010 Calibrated, Trimmed,                                                        
+                                                        Nonresponse Adjusted Weights - (frozen as of 03/06/2018)                                                            
+ 83 WEIGHT_PA_IPW_OVERALL   Num    8                    Sampling weight (norm_overall) * IPW of actical adherence                                                           
+ 25 YRSUS                   Num    8                    Years lived in US                                                                                                   
+ 45 YRSUS_C2                Num    8                    2-level grouped years lived in the US (50 States)                                                                   
+ 46 YRSUS_C3                Num    8                    Years lived in the US (50 States, 3-levels)                                                                         
+110 YRSUS_C3_V2             Num    8                    Years lived in the US at Visit 2 (50 States, 3-level)                                                               
+128 YRSV1BIRTH              Num    8                    Time between Visit 1 and baby’s birth (years)                                                                       
+220 YRS_BTWN_V1FLOR         Num    8                    Elapsed time in years between visit 1 and FLOR clinic date                                                          
+ 91 YRS_BTWN_V1V2           Num    8                    Elapsed time between visits 1 and 2 (yrs)                                                                           
+
+
+                                                                              Sort Information
+
+                                                                             Sortedby       ID  
+                                                                             Validated      YES 
+                                                                             Character Set  ANSI

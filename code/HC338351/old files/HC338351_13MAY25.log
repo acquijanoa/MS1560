@@ -1,0 +1,177 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.01 seconds
+      
+
+5          
+6          /*********************************************************
+7          *                                                         *
+8          *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
+9          *                                                        *
+10         **********************************************************
+11         *                                                        *
+12         *  PROGRAM NAME: HC338351.sas
+13         *
+14         *  PROGRAMMER: Álvaro Quijano (AQ)
+15         *
+16         *  DESCRIPTION:
+17         				
+18         *
+19         * ---------------------------------------------------------
+20         *
+21         *  JOB NUMBER: HC338351
+22         *
+23         *  PREVIOUS JOB:
+24         *
+25         *  LANGUAGE: SAS 9.4
+26         *
+27         *  VERSION CONTROL:
+28         					21APR25 - (HC338351) Start file
+29         					22APR25 - add the new derived variables cesd10 and accult_mesa
+2                                                          The SAS System                                07:21 Tuesday, May 13, 2025
+
+30         					05MAY25 - Include the #_all dataset
+31         					08may25 - Updated to include the updates in cont#1(n_hc (v1 and v2) and alcohol_use variables)
+32         					12may25 - Includes SC file (already QC'ed) as the starting point
+33         
+34         * ----------------------------------------------------------
+35         *
+36         *  INPUT:
+37         *
+38         *  OUTPUT:
+39         *
+40         **********************************************************/
+41         options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+42         
+43         * Set libraries name;
+44         libname invv1 "J:\HCHS\SC\Sasdata\INV_Use\Consolidated";
+NOTE: Libref INVV1 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Sasdata\INV_Use\Consolidated
+45         libname invv2 "J:\HCHS\SC\Sasdata\Visit2\INV_Use\Consolidated";
+NOTE: Libref INVV2 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Sasdata\Visit2\INV_Use\Consolidated
+46         libname flor "J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\INV_Use\Datasets";
+NOTE: Libref FLOR was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\INV_Use\Datasets
+47         libname confid 'J:\HCHS\SC\Confid\Sasdata\Visit2\Internal_Use';
+NOTE: Libref CONFID was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Confid\Sasdata\Visit2\Internal_Use
+48         libname output "&homepath.\data";
+NOTE: Libref OUTPUT was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+49         libname hc3383 "J:\HCHS\SC\Review\HC3383";
+NOTE: Libref HC3383 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Review\HC3383
+50         
+51         * Set macro variables;
+52         %let pw = los_shch;
+53         %let job = HC338351;
+54         
+55         %let output_dataset = output.HC338351_flor_&sysdate.;
+56         %let output_dataset2 = output.HC338351_all_&sysdate.;
+57         
+58         
+59         data &output_dataset2;
+60         	SET hc3383.hc338301_all;
+61         	
+62         	* Recode the missingness in income_c3 for the imputation procedure ;
+63         	IF INCOME_C3 = 3 THEN INCOME_C2 = .;
+64         	ELSE INCOME_C2 = INCOME_C3;
+65         	LABEL INCOME_C2 = "2-level grouped yearly household income";
+66         
+67         	* PCT_MVPA;
+68         	PCT_MVPA = MV_DAY / HRS_DAY;
+                                                                               The SAS System
+
+69         	label PCT_MVPA = "Percentage of time spent in moderate-to-vigorous physical activity";
+70         run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      152 at 68:20   
+NOTE: There were 550 observations read from the data set HC3383.HC338301_ALL.
+NOTE: The data set OUTPUT.HC338351_ALL_13MAY25 has 550 observations and 261 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.81 seconds
+      cpu time            0.01 seconds
+      
+
+71         
+72         * Create dataset for flor participants;
+73         data &output_dataset;
+74         	set &output_dataset2;
+75         
+76         	if flor_dyad;
+77         run;
+
+NOTE: There were 550 observations read from the data set OUTPUT.HC338351_ALL_13MAY25.
+NOTE: The data set OUTPUT.HC338351_FLOR_13MAY25 has 291 observations and 261 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.00 seconds
+      
+
+78         
+79         
+80         * Sort the dataset by id;
+81         proc sort data = &output_dataset; by id; run;
+
+NOTE: There were 291 observations read from the data set OUTPUT.HC338351_FLOR_13MAY25.
+NOTE: The data set OUTPUT.HC338351_FLOR_13MAY25 has 291 observations and 261 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.15 seconds
+      cpu time            0.00 seconds
+      
+
+82         proc sort data = &output_dataset2; by id; run;
+
+NOTE: There were 550 observations read from the data set OUTPUT.HC338351_ALL_13MAY25.
+NOTE: The data set OUTPUT.HC338351_ALL_13MAY25 has 550 observations and 261 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.00 seconds
+      
+
+83         
+84         * print the contents;
+85         ods rtf file = "&homepath.\code\&job\contents_flor_&sysdate..rtf";
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338351\contents_flor_13MAY25.rtf
+86         	
+86       !  proc contents data = &output_dataset;
+87         		ods noproctitle;
+88         	run;
+                                                                               The SAS System
+
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.26 seconds
+      cpu time            0.04 seconds
+      
+NOTE: The PROCEDURE CONTENTS printed pages 1-6.
+
+89         ods rtf close;
+90         
+91         * print the contents;
+92         ods rtf file = "&homepath.\code\&job\contents_all_&sysdate..rtf";
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338351\contents_all_13MAY25.rtf
+93         	
+93       !  proc contents data = &output_dataset2;
+94         		ods noproctitle;
+95         	run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.04 seconds
+      
+NOTE: The PROCEDURE CONTENTS printed pages 7-12.
+
+96         ods rtf close;
+97         
+98         proc printto; run;
+

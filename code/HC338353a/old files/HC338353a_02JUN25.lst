@@ -1,0 +1,82 @@
+                                                     Variable: child_prs_bmi_a
+
+                                                          The MI Procedure
+
+                                                      Variable Transformations
+ 
+                                            Variable           _Transform_        Lambda
+
+                                            BMI                LOG                     .
+                                            ANTA10A            LOG                     .
+                                            AGG_MENT           BOXCOX            2.00000
+                                            AGG_PHYS           BOXCOX            3.00000
+                                            POVPCT             POWER             0.50000
+
+
+                                               Variance Information (10 Imputations)
+ 
+                                                                                      Relative       Fraction
+                            -----------------Variance-----------------                Increase        Missing       Relative
+         Variable                Between         Within          Total       DF    in Variance    Information     Efficiency
+
+       * BMI                 0.000001548       0.000210       0.000212   196.16       0.008106       0.008055       0.999195
+       * ANTA10A             0.000000575    0.000098465    0.000099098   196.59       0.006424       0.006392       0.999361
+       * AGG_MENT              10.273302    1273.992669    1285.293301   195.96       0.008870       0.008809       0.999120
+       * AGG_PHYS                  17158        1236342        1255216    194.1       0.015266       0.015086       0.998494
+         HEIGHT                 0.001529       0.196820       0.198502   196.05       0.008543       0.008487       0.999152
+         HEI2010                0.005763       0.882075       0.888413    196.4       0.007186       0.007146       0.999286
+       * POVPCT                 0.009364       0.076992       0.087293    137.5       0.133791       0.120720       0.988072
+         CESD10                 0.005617       0.155737       0.161916   184.78       0.039673       0.038470       0.996168
+         STAI10                 0.003950       0.165193       0.169538   190.27       0.026305       0.025773       0.997429
+         PARITY_V1           0.000024477       0.005971       0.005998   197.05       0.004509       0.004493       0.999551
+         PCT_MVPA               0.001167       0.008030       0.009314   125.49       0.159902       0.141476       0.986050
+
+                                                      * Transformed Variables
+
+
+                                                Parameter Estimates (10 Imputations)
+ 
+    Variable                   Mean      Std Error    95% Confidence Limits        DF        Minimum        Maximum            Mu0
+
+  * BMI                    3.313880       0.014554         3.29         3.34   196.16       3.311945       3.315367              0
+
+                                                       * Transformed Variables
+                                                     Variable: child_prs_bmi_a
+
+                                                          The MI Procedure
+
+                                                Parameter Estimates (10 Imputations)
+ 
+    Variable                   Mean      Std Error    95% Confidence Limits        DF        Minimum        Maximum            Mu0
+
+  * ANTA10A                4.515011       0.009955         4.50         4.53   196.59       4.513771       4.516001              0
+  * AGG_MENT            1160.125589      35.850987      1089.42      1230.83   195.96    1156.269851    1164.676676              0
+  * AGG_PHYS                  52512    1120.364200     50302.65     54721.95    194.1          52379          52747              0
+    HEIGHT               157.732180       0.445535       156.85       158.61   196.05     157.679846     157.804470              0
+    HEI2010               56.655877       0.942557        54.80        58.51    196.4      56.532475      56.767575              0
+  * POVPCT                10.308314       0.295453         9.72        10.89    137.5      10.167174      10.464406              0
+    CESD10                 6.918793       0.402387         6.12         7.71   184.78       6.824028       7.049828              0
+    STAI10                17.865527       0.411750        17.05        18.68   190.27      17.763558      17.989522              0
+    PARITY_V1              1.164677       0.077448         1.01         1.32   197.05       1.159204       1.174129              0
+    PCT_MVPA               1.464116       0.096508         1.27         1.66   125.49       1.408067       1.516971              0
+
+                                                       * Transformed Variables
+
+                                                Parameter Estimates (10 Imputations)
+ 
+                                                                  t for H0:
+                                               Variable            Mean=Mu0   Pr > |t|
+
+                                             * BMI                   227.69     <.0001
+                                             * ANTA10A               453.55     <.0001
+                                             * AGG_MENT               32.36     <.0001
+                                             * AGG_PHYS               46.87     <.0001
+                                               HEIGHT                354.03     <.0001
+                                               HEI2010                60.11     <.0001
+                                             * POVPCT                 34.89     <.0001
+                                               CESD10                 17.19     <.0001
+                                               STAI10                 43.39     <.0001
+                                               PARITY_V1              15.04     <.0001
+                                               PCT_MVPA               15.17     <.0001
+
+                                                      * Transformed Variables

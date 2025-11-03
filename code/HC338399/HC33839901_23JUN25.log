@@ -1,0 +1,113 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.14 seconds
+      cpu time            0.00 seconds
+      
+
+491  
+492  /*********************************************************
+493  *                                                        *
+494  *  SAS PROGRAM - JOB HC33839901                              *
+495  *                                                        *
+496  **********************************************************
+497  *                                                        *
+498  *  PROGRAM NAME: HC33839901.sas
+499  *
+500  *  PROGRAMMER: Álvaro Quijano (AQ)
+501  *
+502  *  DESCRIPTION: QC process for the analysis file cont#1
+503  
+504  *
+505  * ---------------------------------------------------------
+506  *
+507  *  JOB NUMBER: HC338399
+508  *
+509  *  PREVIOUS JOB:
+510  *
+511  *  LANGUAGE: SAS 9.4
+512  *
+513  *  VERSION CONTROL:
+514                      23jun25 - Create the file
+515  
+516  * ----------------------------------------------------------
+517  *
+518  *  INPUT:
+519  *
+520  *  OUTPUT:
+521  *
+522  **********************************************************/
+523  options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+524  ods escapechar '^';
+525  
+526  * ;
+527  
+528  * Set libraries name;
+529  libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+530  libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+531  libname hc3383 'J:\HCHS\SC\Review\HC3383';
+NOTE: Libref HC3383 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Review\HC3383
+531!                                            /* hc338301_flor.sas7bdat hc338301_all.sas7bdat*/
+532  
+533  * Set macro variables;
+534  %let job = HC338399;
+535  %let subjob = HC33839901;
+536  %let prg = aqa;
+537  %let db_flor = data.hc338351_flor_06may25;
+538  %let comp_flor = hc3383.hc338301_flor; /* Computing request analytic file */
+539  
+540  * footnote;
+541  footnote J=center height=10pt font='times roman' "&sysdate, &systime -- &subjob (job: &job) by &prg using  hc338301_flor data";
+542  
+543  ods rtf file = "&homepath.\code\&job.\&subjob._hei2010_tertiles_&sysdate..rtf";
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338399\HC33839901_hei2010_tertiles_23JUN25.rtf
+544  
+545  title 'Dataset used to retrieve tertiles values';
+546  proc contents data = &comp_flor;
+547      ods select attributes;
+548  run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+      
+
+549  
+550  * compute tertiles using &comp_flor data;
+551  proc univariate data = &comp_flor noprint;
+552      var hei2010;
+553      output out=db_tertiles pctlpts=33.3 66.67 prtlpre=pctl_;
+                                                   -------
+                                                   1
+WARNING 1-322: Assuming the symbol PCTLPRE was misspelled as prtlpre.
+554  run;
+
+NOTE: The data set WORK.DB_TERTILES has 1 observations and 2 variables.
+NOTE: PROCEDURE UNIVARIATE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+555  
+556  * Print computed tertiles;
+557  proc print data = db_tertiles;
+558      title 'Retrieved tertiles values';
+559  run;
+
+NOTE: There were 1 observations read from the data set WORK.DB_TERTILES.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+560  
+561  ods rtf close;
+562  
+563  proc printto; run;
+

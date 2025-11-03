@@ -1,0 +1,414 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+5          
+6          /*********************************************************
+7          *                                                         *
+8          *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
+9          *                                                        *
+10         **********************************************************
+11         *                                                        *
+12         *  PROGRAM NAME: HC338353.sas
+13         *
+14         *  PROGRAMMER: Álvaro Quijano (AQ)
+15         *
+16         *  DESCRIPTION: Imputation model
+17         				
+18         *
+19         * ---------------------------------------------------------
+20         *
+21         *  JOB NUMBER: HC338353
+22         *
+23         *  PREVIOUS JOB:
+24         *
+25         *  LANGUAGE: SAS 9.4
+26         *
+27         *  VERSION CONTROL:
+28         					28apr25: Creates the file
+29         					13may25: Update input file
+2                                                          The SAS System                              19:17 Wednesday, May 21, 2025
+
+30         
+31         	
+32         * ----------------------------------------------------------
+33         *
+34         *  INPUT:
+35         *
+36         *  OUTPUT:
+37         *
+38         **********************************************************/
+39         options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+40         ods escapechar '^';
+41         
+42         
+43         * Set libraries name;
+44         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+45         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+46         
+47         * Set macro variables;
+48         %let job = HC338353;
+49         %let prg = AQA;
+50         %let data = data.HC338351_flor_13may25;
+51         %let lf_margin = 0.7in;
+52         %let rg_margin = 0.7in;
+53         
+54         ods listing gpath = "&homepath.\code\&job.\gplot";
+55         ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+56         ods rtf file = "&homepath\code\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\HC338353_mi_21MAY25.rtf
+57         
+58         * Boxcox transformation ;
+59         proc transreg data = db;
+ERROR: File WORK.DB.DATA does not exist.
+60         	model boxcox(agg_ment / convenient lambda = -10 to 10 by 0.05) = identity(log_bmi log_anta10a waz height employedyn n_hc current_smoker education_c3 income_c2);
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+61         run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE TRANSREG used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+                                                                               The SAS System
+
+
+62         proc transreg data = db;
+ERROR: File WORK.DB.DATA does not exist.
+63         	model boxcox(agg_phys / convenient lambda = -10 to 10 by 0.05) = identity(log_bmi log_anta10a waz height employedyn n_hc current_smoker education_c3 income_c2);
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+ERROR: No data set open to look up variables.
+64         run;
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE TRANSREG used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+65         
+66         * Transform variables to plot them;
+
+
+67         data db;
+68         	set &data;
+69         	
+70         	log_bmi = log(bmi);
+71         	log_anta10a = log(anta10a);
+72         	agg_ment_sq = (agg_ment **2  - 1) / 2;
+73         	agg_phys_cub = (agg_phys**3 - 1 )/ 3;
+74         
+75         	log_pct_mvpa = log(pct_mvpa + 1);
+76         run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      2 at 70:12    1 at 71:16    2 at 72:26    2 at 72:31    2 at 73:26    2 at 73:30    75 at 75:17   75 at 75:30   
+NOTE: There were 291 observations read from the data set DATA.HC338351_FLOR_13MAY25.
+NOTE: The data set WORK.DB has 291 observations and 266 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+77         
+78         * Plot the continuous variables;
+79         %macro histogram_density(var=);
+80         	proc sgplot data = db;
+81         		histogram &var.;
+82         		density &var. / type = normal;
+83         	run;
+84         %mend histogram_density;
+85         
+86         title 'Variable: Weight-for-age (WAZ)';
+87         %histogram_density(var = waz);
+                                                                               The SAS System
+
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           1.58 seconds
+      cpu time            0.12 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+88         
+89         title 'Variable: Body Mass Index in log-scale (log_BMI)';
+90         %histogram_density(var = log_bmi);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.36 seconds
+      cpu time            0.03 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot1.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+91         
+92         title 'Variable: Waist girth in original scale (anta10a)';
+93         %histogram_density(var = anta10a);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.36 seconds
+      cpu time            0.03 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot2.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+94         
+95         title 'Variable: Waist girth in log scale (log_anta10a)';
+96         %histogram_density(var = log_anta10a);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.20 seconds
+      cpu time            0.06 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot3.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+97         
+98         title 'Variable: height';
+99         %histogram_density(var = height);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.26 seconds
+      cpu time            0.07 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot4.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+100        	
+101        title 'Variable: agg_ment';
+102        %histogram_density(var = agg_ment_sq);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+                                                                               The SAS System
+
+      real time           0.26 seconds
+      cpu time            0.03 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot5.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+103        
+104        title 'Variable: agg_phys';
+105        %histogram_density(var = agg_phys_cub);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.22 seconds
+      cpu time            0.03 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot6.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+106        
+107        title 'Variable: hei2010';
+108        %histogram_density(var = hei2010);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.01 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot7.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+109        
+110        title 'Variable: parity_v1';
+111        %histogram_density(var = parity_v1);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.58 seconds
+      cpu time            0.04 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot8.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+112        
+113        title 'Variable: pct_mvpa';
+114        %histogram_density(var = pct_mvpa);
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.25 seconds
+      cpu time            0.09 seconds
+      
+NOTE: Listing image output written to J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338353\gplot\SGPlot9.png.
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+115        
+116        
+117        * Impute variables of interest;
+118        proc mi data=db out=data.imputed_data_&sysdate. nimpute=10 seed=3383
+119        	minimum= . . . . . . . . . . . 0 . 0 . . 0 . . . .  . .
+120        	maximum= . . . . . . . . . . . 100 . . . . . . . . . . .;
+121          ods exclude modelinfo fcsmodel misspattern;
+                                                                               The SAS System
+
+122           class centernum bkgrd1_c7nomiss lang_pref
+123        			employedyn n_hc current_smoker income_c2 /* binary variables */
+124        			alcohol_use yrsus_c3 education_c3 marital_status;
+125           transform log(bmi) log(anta10a)
+126        				boxcox(agg_ment / lambda = 2) boxcox(agg_phys / lambda = 3) power(povpct / lambda=0.5);
+127           fcs reg(waz bmi anta10a agg_ment agg_phys height hei2010 povpct cesd10 stai10 pct_mvpa)
+128        			regpmm(parity_v1);
+129           fcs logistic(employedyn n_hc current_smoker income_c2 / link=logit likelihood=augment)
+130        			logistic(alcohol_use yrsus_c3 education_c3 marital_status);
+131           var waz centernum bkgrd1_c7nomiss yrs_btwn_v1flor age lang_pref
+132        		bmi anta10a agg_ment agg_phys height hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
+133        		employedyn n_hc current_smoker income_c2 /* binary variables */
+134        		alcohol_use yrsus_c3 education_c3 marital_status /* nominal/ordinal variables*/
+135        		;
+136        run;
+
+WARNING: The maximum likelihood estimates for the FCS method logistic model for variable MARITAL_STATUS in an iteration process may not exist. The resulting posterior 
+         predictive distribution of the parameters used in the imputation process is based on the maximum likelihood estimates in the last maximum likelihood iteration. The 
+         LIKELIHOOD=AUGMENT option can be used to derive the maximum likelihood estimates by using an augmented data set.
+NOTE: The data set DATA.IMPUTED_DATA_21MAY25 has 2910 observations and 267 variables.
+NOTE: The PROCEDURE MI printed page 1.
+NOTE: PROCEDURE MI used (Total process time):
+      real time           19.18 seconds
+      cpu time            14.78 seconds
+      
+
+137        
+138        %macro summary_imputation(vars=);
+139        	proc means data = data.imputed_data_&sysdate. nmiss;
+140        		by _imputation_;
+141        		var &vars.;
+142        		output out = a;
+143        	run;
+144        	proc transpose data = a out=b(drop=_label_ rename=(_name_= Variable));
+145        		by _imputation_;
+146        		id _stat_;
+147        		var &vars.;
+148        	run;
+149        	proc sort data = b out=c; by Variable; run;
+150        	proc print data = c; run;
+151        %mend summary_imputation;
+152        
+153        * Summarize the imputated variables;
+154        title 'Imputed variables';
+155        %summary_imputation(vars=waz bmi anta10a agg_ment agg_phys height hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
+156        				employedyn n_hc current_smoker income_c2
+157        				alcohol_use yrsus_c3 education_c3 marital_status);
+
+NOTE: There were 2910 observations read from the data set DATA.IMPUTED_DATA_21MAY25.
+NOTE: The data set WORK.A has 50 observations and 24 variables.
+NOTE: The PROCEDURE MEANS printed pages 2-6.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.01 seconds
+      
+
+
+                                                                               The SAS System
+
+NOTE: There were 50 observations read from the data set WORK.A.
+NOTE: The data set WORK.B has 200 observations and 7 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 200 observations read from the data set WORK.B.
+NOTE: The data set WORK.C has 200 observations and 7 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 200 observations read from the data set WORK.C.
+NOTE: The PROCEDURE PRINT printed pages 7-10.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+158        
+159        proc freq data = db;
+160        	table accult_mesa * yrsus_c3 / nopercent nocum norow nocol;
+161        run;
+
+NOTE: There were 291 observations read from the data set WORK.DB.
+NOTE: The PROCEDURE FREQ printed page 11.
+NOTE: PROCEDURE FREQ used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+162        
+163        proc reg DATA = db plots=none;
+164        	MODEL WAZ = accult_mesa centernum yrs_btwn_v1flor bkgrd1_c7nomiss age income_c2 lang_pref
+165        				parity_v1 povpct  marital_status employedyn education_c3 yrsus_c3 n_hc
+166        				bmi anta10a height agg_ment agg_phys cesd10 stai10
+167        				current_smoker hei2010 alcohol_use pct_mvpa / vif collin;
+168        quit;
+
+NOTE: The PROCEDURE REG printed pages 12-15.
+NOTE: PROCEDURE REG used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+169        
+170        proc means data = db;
+171        	var waz centernum yrs_btwn_v1flor bkgrd1_c7nomiss age income_c3 lang_pref
+172        				parity_v1 povpct accult_mesa marital_status employedyn education_c3 yrsus_c3 n_hc  v
+173        				bmi anta10a height agg_ment agg_phys cesd10 stai10
+ERROR: Variable V not found.
+174        				current_smoker hei2010 alcohol_use pct_mvpa;
+175        run;
+                                                                               The SAS System
+
+
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+176        ods startpage = off;
+
+
+177        proc means data = data.imputed_data_&sysdate.;
+178        	var waz centernum yrs_btwn_v1flor bkgrd1_c7nomiss age income_c3 lang_pref
+179        				parity_v1 povpct accult_mesa marital_status employedyn education_c3 yrsus_c3 n_hc
+180        				bmi anta10a height agg_ment agg_phys cesd10 stai10
+181        				current_smoker hei2010 alcohol_use pct_mvpa;
+182        run;
+
+NOTE: There were 2910 observations read from the data set DATA.IMPUTED_DATA_21MAY25.
+NOTE: The PROCEDURE MEANS printed page 16.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+183        
+184        ods rtf close;
+185        
+186        proc printto; run;
+
