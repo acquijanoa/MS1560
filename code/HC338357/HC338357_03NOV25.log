@@ -1,5 +1,5 @@
 NOTE: PROCEDURE PRINTTO used (Total process time):
-      real time           0.01 seconds
+      real time           0.03 seconds
       cpu time            0.01 seconds
       
 
@@ -20,7 +20,7 @@ NOTE: PROCEDURE PRINTTO used (Total process time):
 20         *
 21         *  Job Number: hc338357
 22         *
-2                                                          The SAS System                             13:58 Monday, November 3, 2025
+2                                                          The SAS System                             15:08 Monday, November 3, 2025
 
 23         *  LANGUAGE: SAS 9.4
 24         *
@@ -76,7 +76,7 @@ NOTE: Libref HCHSTYLE was successfully assigned as follows:
 NOTE: There were 291 observations read from the data set DATA.HC338351_FLOR_19AUG25.
 NOTE: The data set WORK.INDICATORS_DF has 291 observations and 4 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.02 seconds
       cpu time            0.00 seconds
       
                                                                                The SAS System
@@ -92,7 +92,7 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 291 observations read from the data set WORK.INDICATORS_DF.
 NOTE: The data set WORK.INCLUSION_TAB has 1 observations and 6 variables.
 NOTE: PROCEDURE MEANS used (Total process time):
-      real time           0.01 seconds
+      real time           0.02 seconds
       cpu time            0.01 seconds
       
 
@@ -105,7 +105,7 @@ NOTE: PROCEDURE MEANS used (Total process time):
 NOTE: There were 1 observations read from the data set WORK.INCLUSION_TAB.
 NOTE: The data set WORK.INCLUSION_TAB_T has 4 observations and 2 variables.
 NOTE: PROCEDURE TRANSPOSE used (Total process time):
-      real time           0.00 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -133,7 +133,7 @@ NOTE: There were 4 observations read from the data set WORK.INCLUSION_TAB_T.
 NOTE: The data set WORK.DF_INCLUSIONS has 4 observations and 3 variables.
 NOTE: DATA statement used (Total process time):
       real time           0.00 seconds
-      cpu time            0.01 seconds
+      cpu time            0.00 seconds
       
 
 97         
@@ -169,7 +169,7 @@ NOTE: Missing values were generated as a result of performing an operation on mi
 NOTE: There were 4 observations read from the data set WORK.DF_INCLUSIONS.
 NOTE: The data set WORK.DF_INCLUSIONS has 4 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
+      real time           0.02 seconds
       cpu time            0.00 seconds
       
 
@@ -185,8 +185,8 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 291 observations read from the data set DATA.HC338351_FLOR_19AUG25.
 NOTE: The data set WORK.DB_MI has 201 observations and 266 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.01 seconds
+      real time           0.01 seconds
+      cpu time            0.00 seconds
       
 
 121        
@@ -199,36 +199,38 @@ NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\
 127        
                                                                                The SAS System
 
-128        * Print RTF report;
-129        proc report data = df_inclusions;
-130        	title 'Inclusion and Exclusion Criteria for Manuscript MS#1560';
-131        	ods noproctitle;
-132        	column order Label Inclusion p1 Exclusion p2;
-133        	define order / order=internal noprint;
-134        	define label / 'Inclusion criteria'  style=[width=3in just=left];
-135        	define p1 / analysis '%';
-136        	define p2 / analysis '%';
-137        	format p1 p2 8.2;
-138        run;
+128        	* Print RTF report;
+129        	
+129      !  proc report data = df_inclusions;
+130        		title 'Inclusion and Exclusion Criteria for Manuscript MS#1560';
+131        		ods noproctitle;
+132        		column order Label Inclusion p1 Exclusion p2;
+133        		define order / order=internal noprint;
+134        		define label / 'Inclusion criteria'  style=[width=3in just=left];
+135        		define p1 / analysis '%';
+136        		define p2 / analysis '%';
+137        		format p1 p2 8.2;
+138        	run;
 
 NOTE: There were 4 observations read from the data set WORK.DF_INCLUSIONS.
 NOTE: PROCEDURE REPORT used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.01 seconds
+      real time           0.03 seconds
+      cpu time            0.04 seconds
       
 
 139        
-140        * Print missingness pattern;
-141        title 'Missing data pattern';
-142        proc mi data = db_mi nimpute=0 displaypattern=nomeans;
-143        	ods select MissPattern;
-144        	var yrsv1birth slpdur  agg_ment agg_phys  hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
-145        		employedyn n_hc current_smoker income_c2 alcohol_use yrsus_c3 education_c3 marital_status;
-146        run;
+140        	* Print missingness pattern;
+141        	title 'Missing data pattern';
+142        	
+142      !  proc mi data = db_mi nimpute=0 displaypattern=nomeans;
+143        		ods select MissPattern;
+144        		var yrsv1birth slpdur  agg_ment agg_phys  hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
+145        			employedyn n_hc current_smoker income_c2 alcohol_use yrsus_c3 education_c3 marital_status;
+146        	run;
 
 NOTE: PROCEDURE MI used (Total process time):
-      real time           0.07 seconds
-      cpu time            0.00 seconds
+      real time           0.08 seconds
+      cpu time            0.01 seconds
       
 
 147        

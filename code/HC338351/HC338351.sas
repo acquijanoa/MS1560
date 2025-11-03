@@ -39,12 +39,15 @@ run;
 							- slpdur, slpdur_wkday, slpdur_wkend, baby1yn, daysv1birth, yrsv1birth and birthwt_ga_Z  
 								are not imported anymore, since the SC file includes them
 							- This file only imports prs data in this update
+					03nov25 - derive variables SLP_DUR_LT8HRS and MVPA_LT1P5
 
 * ----------------------------------------------------------
 *
-*  INPUT: 
+*  INPUT: HC338301_all (from J:\HCHS\SC\Review\HC3383)
+			flor_grs_child_iu2 (from J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\Internal_Use)
 *                                        
-*  OUTPUT: 
+*  OUTPUT: HC338351_flor_&sysdate.
+			HC338351_all_&sysdate.
 *
 **********************************************************/
 options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173; 
@@ -77,7 +80,19 @@ data &output_dataset2(label="All 1st live singleton births between V1 & V2 creat
 	merge hc3383.hc338301_all(in=in_a) 
 			flor_grs_child_iu2;
 	by id;
-	
+
+	* SLPDUR_L8HRS;
+	if missing(SLPDUR) then SLPDUR_L8HRS = .;
+	else if SLPDUR < 8 then SLPDUR_L8HRS = 1;
+	else SLPDUR_LT8HRS = 1;
+	label SLPDUR_LT8HRS = 'Sleep duration (<8 hours)';
+
+	* MVPA_LT1P5;
+	if missing(PCT_MVPA) then MVPA_LT1P5 = .;
+	else if pct_mvpa < 1.5 then MVPA_LT1P5 = 1;
+	else MVPA_LT1P5 = 0;
+	label MVPA_LT1P5 = "Less than 1.5% of time spent in MVPA";
+
 	* Include people in the the *_all file;
 	if in_a;
 run;

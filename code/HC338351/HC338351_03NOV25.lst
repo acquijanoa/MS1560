@@ -1,13 +1,13 @@
                                                                                The SAS System
 
-                            Data Set Name        OUTPUT.HC338351_FLOR_19AUG25                                          Observations          291 
-                            Member Type          DATA                                                                  Variables             266 
+                            Data Set Name        OUTPUT.HC338351_FLOR_03NOV25                                          Observations          291 
+                            Member Type          DATA                                                                  Variables             269 
                             Engine               V9                                                                    Indexes               0   
-                            Created              08/19/2025 10:47:45                                                   Observation Length    2104
-                            Last Modified        08/19/2025 10:47:45                                                   Deleted Observations  0   
+                            Created              11/03/2025 15:19:13                                                   Observation Length    2128
+                            Last Modified        11/03/2025 15:19:13                                                   Deleted Observations  0   
                             Protection                                                                                 Compressed            NO  
                             Data Set Type                                                                              Sorted                YES 
-                            Label                MS #1560 Analysis file (Only FLOR participants) created on 19AUG25                              
+                            Label                MS #1560 Analysis file (Only FLOR participants) created on 03NOV25                              
                             Data Representation  WINDOWS_32                                                                                      
                             Encoding             wlatin1  Western (Windows)                                                                      
 
@@ -17,11 +17,11 @@
                                 Data Set Page Size          172032                                                                           
                                 Number of Data Set Pages    4                                                                                
                                 First Data Page             1                                                                                
-                                Max Obs per Page            81                                                                               
-                                Obs in First Data Page      64                                                                               
+                                Max Obs per Page            80                                                                               
+                                Obs in First Data Page      63                                                                               
                                 Number of Data Set Repairs  0                                                                                
                                 ExtendObsCounter            YES                                                                              
-                                Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_flor_19aug25.sas7bdat
+                                Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_flor_03nov25.sas7bdat
                                 Release Created             9.0401M8                                                                         
                                 Host Created                W32_WIN+PRO                                                                      
                                 Owner Name                  CSCC\acquijanoa                                                                  
@@ -188,6 +188,7 @@
  16 MED_LLD                 Num    8                    Lipid lowering drugs/Antihyperlipidemics (LLD)                                                                      
 224 MODE1                   Num    8                    Completed Mode 1 of SOL FLOR                                                                                        
 225 MODE2                   Num    8                    Completed Mode 2 of SOL FLOR                                                                                        
+269 MVPA_LT1P5              Num    8                    Less than 1.5% of time spent in MVPA                                                                                
  83 MV_DAY                  Num    8                    min/day (average) of moderate or vigorous activity (>=1535 counts/min)                                              
  44 N_HC                    Num    8                    Health Insurance Coverage - Current                                                                                 
 108 N_HC_V2                 Num    8                    Current Health Insurance Coverage at Visit 2                                                                        
@@ -233,13 +234,13 @@
 218 PCE2A_WEEKS             Num    8                    Pregnancy Length (weeks)                                                                                            
 153 PCE3A                   Num    8 BEST12.            Number of Babies                                                                                                    
 157 PCE7A                   Num    8 BEST12.            Baby 1 Birth                                                                                                        
-158 PCE7B                   Num    8 BEST12.            Baby 1 gender                                                                                                       
                                                                                The SAS System
 
                                                                  Alphabetic List of Variables and Attributes
  
   # Variable                Type Len Format    Informat Label
 
+158 PCE7B                   Num    8 BEST12.            Baby 1 gender                                                                                                       
 159 PCE7C                   Num    8 BEST12.            Baby 1 Weight lbs                                                                                                   
 160 PCE7C1                  Num    8 BEST12.            Baby 1 Weight oz                                                                                                    
 161 PCE7C2                  Num    8 BEST12.            Baby 1 Weight g                                                                                                     
@@ -292,13 +293,13 @@
 254 PRIMIPARA_V1            Num    8                    FLOR baby is 1st live birth ever (1-yes, 0-no)                                                                      
   4 PSU_ID                  Num    8                    Primary Sampling Unit ID                                                                                            
 117 RME19                   Num    8 BEST12.            # Babies born alive-before V1                                                                                       
-115 RME12a                  Num    8 BEST12.            Times Pregnant Before V1                                                                                            
                                                                                The SAS System
 
                                                                  Alphabetic List of Variables and Attributes
  
   # Variable                Type Len Format    Informat Label
 
+115 RME12a                  Num    8 BEST12.            Times Pregnant Before V1                                                                                            
 116 RME13a                  Num    8 BEST12.            # Pregs of 6+ months-before V1                                                                                      
 121 SBP5                    Num    8 BEST12.            average systolic                                                                                                    
 122 SBP6                    Num    8 BEST12.            average diastolic                                                                                                   
@@ -310,6 +311,8 @@
 134 SGA                     Num    8                    Small for gestational age (< 10th pctl) for baby #1                                                                 
  53 SITE_BKGRD              Num    8                    Cross-Classification of Center and Hispanic/Latino Background                                                       
  56 SLPDUR                  Num    8                    Average sleep duration (hours)                                                                                      
+267 SLPDUR_L8HRS            Num    8                                                                                                                                        
+268 SLPDUR_LT8HRS           Num    8                    Sleep duration (<8 hours)                                                                                           
  54 SLPDUR_WKDAY            Num    8                    Weekday sleep duration (hours)                                                                                      
  55 SLPDUR_WKEND            Num    8                    Weekend sleep duration (hours)                                                                                      
  19 STAI10                  Num    8                    10-Item State Trait Anxiety Inventory                                                                               
@@ -341,14 +344,14 @@
                                                                              Character Set  ANSI
                                                                                The SAS System
 
-                             Data Set Name        OUTPUT.HC338351_ALL_19AUG25                                         Observations          550 
-                             Member Type          DATA                                                                Variables             266 
+                             Data Set Name        OUTPUT.HC338351_ALL_03NOV25                                         Observations          550 
+                             Member Type          DATA                                                                Variables             269 
                              Engine               V9                                                                  Indexes               0   
-                             Created              08/19/2025 10:47:45                                                 Observation Length    2104
-                             Last Modified        08/19/2025 10:47:45                                                 Deleted Observations  0   
+                             Created              11/03/2025 15:19:13                                                 Observation Length    2128
+                             Last Modified        11/03/2025 15:19:13                                                 Deleted Observations  0   
                              Protection                                                                               Compressed            NO  
                              Data Set Type                                                                            Sorted                YES 
-                             Label                All 1st live singleton births between V1 & V2 created on 19AUG25                              
+                             Label                All 1st live singleton births between V1 & V2 created on 03NOV25                              
                              Data Representation  WINDOWS_32                                                                                    
                              Encoding             wlatin1  Western (Windows)                                                                    
 
@@ -356,18 +359,18 @@
                                                                      Engine/Host Dependent Information
 
                                 Data Set Page Size          172032                                                                          
-                                Number of Data Set Pages    7                                                                               
+                                Number of Data Set Pages    8                                                                               
                                 First Data Page             1                                                                               
-                                Max Obs per Page            81                                                                              
-                                Obs in First Data Page      64                                                                              
+                                Max Obs per Page            80                                                                              
+                                Obs in First Data Page      63                                                                              
                                 Number of Data Set Repairs  0                                                                               
                                 ExtendObsCounter            YES                                                                             
-                                Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_all_19aug25.sas7bdat
+                                Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_all_03nov25.sas7bdat
                                 Release Created             9.0401M8                                                                        
                                 Host Created                W32_WIN+PRO                                                                     
                                 Owner Name                  CSCC\acquijanoa                                                                 
                                 File Size                   1MB                                                                             
-                                File Size (bytes)           1376256                                                                         
+                                File Size (bytes)           1548288                                                                         
 
 
                                                                  Alphabetic List of Variables and Attributes
@@ -529,6 +532,7 @@
  16 MED_LLD                 Num    8                    Lipid lowering drugs/Antihyperlipidemics (LLD)                                                                      
 224 MODE1                   Num    8                    Completed Mode 1 of SOL FLOR                                                                                        
 225 MODE2                   Num    8                    Completed Mode 2 of SOL FLOR                                                                                        
+269 MVPA_LT1P5              Num    8                    Less than 1.5% of time spent in MVPA                                                                                
  83 MV_DAY                  Num    8                    min/day (average) of moderate or vigorous activity (>=1535 counts/min)                                              
  44 N_HC                    Num    8                    Health Insurance Coverage - Current                                                                                 
 108 N_HC_V2                 Num    8                    Current Health Insurance Coverage at Visit 2                                                                        
@@ -574,13 +578,13 @@
 218 PCE2A_WEEKS             Num    8                    Pregnancy Length (weeks)                                                                                            
 153 PCE3A                   Num    8 BEST12.            Number of Babies                                                                                                    
 157 PCE7A                   Num    8 BEST12.            Baby 1 Birth                                                                                                        
-158 PCE7B                   Num    8 BEST12.            Baby 1 gender                                                                                                       
                                                                                The SAS System
 
                                                                  Alphabetic List of Variables and Attributes
  
   # Variable                Type Len Format    Informat Label
 
+158 PCE7B                   Num    8 BEST12.            Baby 1 gender                                                                                                       
 159 PCE7C                   Num    8 BEST12.            Baby 1 Weight lbs                                                                                                   
 160 PCE7C1                  Num    8 BEST12.            Baby 1 Weight oz                                                                                                    
 161 PCE7C2                  Num    8 BEST12.            Baby 1 Weight g                                                                                                     
@@ -633,13 +637,13 @@
 254 PRIMIPARA_V1            Num    8                    FLOR baby is 1st live birth ever (1-yes, 0-no)                                                                      
   4 PSU_ID                  Num    8                    Primary Sampling Unit ID                                                                                            
 117 RME19                   Num    8 BEST12.            # Babies born alive-before V1                                                                                       
-115 RME12a                  Num    8 BEST12.            Times Pregnant Before V1                                                                                            
                                                                                The SAS System
 
                                                                  Alphabetic List of Variables and Attributes
  
   # Variable                Type Len Format    Informat Label
 
+115 RME12a                  Num    8 BEST12.            Times Pregnant Before V1                                                                                            
 116 RME13a                  Num    8 BEST12.            # Pregs of 6+ months-before V1                                                                                      
 121 SBP5                    Num    8 BEST12.            average systolic                                                                                                    
 122 SBP6                    Num    8 BEST12.            average diastolic                                                                                                   
@@ -651,6 +655,8 @@
 134 SGA                     Num    8                    Small for gestational age (< 10th pctl) for baby #1                                                                 
  53 SITE_BKGRD              Num    8                    Cross-Classification of Center and Hispanic/Latino Background                                                       
  56 SLPDUR                  Num    8                    Average sleep duration (hours)                                                                                      
+267 SLPDUR_L8HRS            Num    8                                                                                                                                        
+268 SLPDUR_LT8HRS           Num    8                    Sleep duration (<8 hours)                                                                                           
  54 SLPDUR_WKDAY            Num    8                    Weekday sleep duration (hours)                                                                                      
  55 SLPDUR_WKEND            Num    8                    Weekend sleep duration (hours)                                                                                      
  19 STAI10                  Num    8                    10-Item State Trait Anxiety Inventory                                                                               

@@ -1,0 +1,275 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+5          
+6          /*********************************************************
+7          *                                                         *
+8          *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
+9          *                                                        *
+10         **********************************************************
+11         *                                                        *
+12         *  PROGRAM NAME: HC338351.sas
+13         *
+14         *  PROGRAMMER: Álvaro Quijano (AQ)
+15         *
+16         *  DESCRIPTION:
+17         				
+18         *
+19         * ---------------------------------------------------------
+20         *
+21         *  JOB NUMBER: HC338351
+22         *
+23         *  PREVIOUS JOB:
+24         *
+25         *  LANGUAGE: SAS 9.4
+26         *
+27         *  VERSION CONTROL:
+28         					21apr25 - (HC338351) Start file
+29         					22apr25 - add the new derived variables cesd10 and accult_mesa
+2                                                          The SAS System                             15:19 Monday, November 3, 2025
+
+30         					05may25 - Include the #_all dataset
+31         					08may25 - Updated to include the updates in cont#1(n_hc (v1 and v2) and alcohol_use variables)
+32         					12may25 - Includes SC file (already QC'ed) as the starting point
+33         					02jun25 - Include child_prs_bmi_a data
+34         					06jun25 - Include birthweight from pce_derv
+35         					23jun25 - Add cont#2 changes
+36         					28jul25 - update the missing value in hei2010_c3
+37         					19aug25 - Input SC datasets (hc3383.hc338301_all and *_flor) were updated and qc'ed in 18aug25
+38         							- In this updated income_c2, pct_mvpa and hei2010_c3 are no longer derived
+39         							- slpdur, slpdur_wkday, slpdur_wkend, baby1yn, daysv1birth, yrsv1birth and birthwt_ga_Z
+40         								are not imported anymore, since the SC file includes them
+41         							- This file only imports prs data in this update
+42         					03nov25 - derive variables SLP_DUR_LT8HRS and MVPA_LT1P5
+43         
+44         * ----------------------------------------------------------
+45         *
+46         *  INPUT: HC338301_all (from J:\HCHS\SC\Review\HC3383)
+47         			flor_grs_child_iu2 (from J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\Internal_Use)
+48         *
+49         *  OUTPUT: HC338351_flor_&sysdate.
+50         			HC338351_all_&sysdate.
+51         *
+52         **********************************************************/
+53         options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+54         
+55         * Set libraries name;
+56         libname invv1 "J:\HCHS\SC\Sasdata\INV_Use\Consolidated";
+NOTE: Libref INVV1 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Sasdata\INV_Use\Consolidated
+57         libname invv2 "J:\HCHS\SC\Sasdata\Visit2\INV_Use\Consolidated";
+NOTE: Libref INVV2 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Sasdata\Visit2\INV_Use\Consolidated
+58         libname flor "J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\INV_Use\Datasets";
+NOTE: Libref FLOR was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\INV_Use\Datasets
+59         libname confid 'J:\HCHS\SC\Confid\Sasdata\Visit2\Internal_Use';
+NOTE: Libref CONFID was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Confid\Sasdata\Visit2\Internal_Use
+60         libname output "&homepath.\data";
+NOTE: Libref OUTPUT was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+61         libname hc3383 "J:\HCHS\SC\Review\HC3383";
+NOTE: Libref HC3383 was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Review\HC3383
+62         libname floriu "J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\Internal_Use";
+NOTE: Libref FLORIU was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\Internal_Use
+63         
+64         * include macros;
+65         %include "J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338391\HC3383_anonymize_db.sas";
+                                                                               The SAS System
+
+NOTE: Libref ENCRP was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\SASDATA\Encrypted_IDs
+NOTE: Libref TRANSID was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\SC\SASDATA\Transfer_IDS
+143        
+144        * Set macro variables;
+145        %let pw = los_shch;
+146        %let job = HC338351;
+147        
+148        * Define the output dataset names;
+149        %let output_dataset = output.HC338351_flor_&sysdate.;
+150        %let output_dataset2 = output.HC338351_all_&sysdate.;
+151        
+152        * Mask the subject's IDs in the IU dataset;
+153        %anonymize_db(data = floriu.flor_grs_child_iu2(keep=subjectid child_prs_bmi_a),
+154        				out = flor_grs_child_iu2);
+
+NOTE: Input data set is already sorted; it has been copied to the output data set.
+NOTE: There were 15 observations read from the data set TRANSID.TRANSFER_IDS.
+NOTE: The data set WORK.TRANSFER_IDS has 15 observations and 5 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 15 observations read from the data set WORK.TRANSFER_IDS.
+NOTE: There were 16415 observations read from the data set ENCRP.MASTER_ENCRYPTION_FILE_INV3V1.
+NOTE: The data set WORK.TRANSFER0 has 15 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 16415 observations read from the data set ENCRP.MASTER_ENCRYPTION_FILE_INV3V1.
+NOTE: There were 15 observations read from the data set WORK.TRANSFER0.
+NOTE: The data set WORK.ENCRYPTO has 16430 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 16430 observations read from the data set WORK.ENCRYPTO.
+NOTE: The data set WORK.ENCRYPT has 16430 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 201 observations read from the data set FLORIU.FLOR_GRS_CHILD_IU2.
+NOTE: The data set WORK.DATASET has 201 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+                                                                               The SAS System
+
+      real time           0.05 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 16430 observations read from the data set WORK.ENCRYPT.
+NOTE: There were 201 observations read from the data set WORK.DATASET.
+NOTE: The data set WORK.FLOR_GRS_CHILD_IU2 has 201 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 201 observations read from the data set WORK.FLOR_GRS_CHILD_IU2.
+NOTE: The data set WORK.FLOR_GRS_CHILD_IU2 has 201 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+155        
+156        data &output_dataset2(label="All 1st live singleton births between V1 & V2 created on &sysdate.");
+157        	merge hc3383.hc338301_all(in=in_a)
+158        			flor_grs_child_iu2;
+159        	by id;
+160        
+161        	* SLPDUR_L8HRS;
+162        	if missing(SLPDUR) then SLPDUR_L8HRS = .;
+163        	else if SLPDUR < 8 then SLPDUR_L8HRS = 1;
+164        	else SLPDUR_LT8HRS = 1;
+165        	label SLPDUR_LT8HRS = 'Sleep duration (<8 hours)';
+166        
+167        	* MVPA_LT1P5;
+168        	if missing(PCT_MVPA) then MVPA_LT1P5 = .;
+169        	else if pct_mvpa < 1.5 then MVPA_LT1P5 = 1;
+170        	else MVPA_LT1P5 = 0;
+171        	label MVPA_LT1P5 = "Less than 1.5% of time spent in MVPA";
+172        
+173        	* Include people in the the *_all file;
+174        	if in_a;
+175        run;
+
+NOTE: There were 550 observations read from the data set HC3383.HC338301_ALL.
+NOTE: There were 201 observations read from the data set WORK.FLOR_GRS_CHILD_IU2.
+NOTE: The data set OUTPUT.HC338351_ALL_03NOV25 has 550 observations and 269 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.57 seconds
+      cpu time            0.01 seconds
+      
+
+176        
+177        * Create dataset for flor participants;
+178        data &output_dataset(label="MS #1560 Analysis file (Only FLOR participants) created on &sysdate.");
+179        	set &output_dataset2;
+180        
+181        	if flor_dyad;
+                                                                               The SAS System
+
+182        run;
+
+NOTE: There were 550 observations read from the data set OUTPUT.HC338351_ALL_03NOV25.
+NOTE: The data set OUTPUT.HC338351_FLOR_03NOV25 has 291 observations and 269 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.00 seconds
+      
+
+183        
+184        * Sort the dataset by id;
+185        proc sort data = &output_dataset; by id; run;
+
+NOTE: There were 291 observations read from the data set OUTPUT.HC338351_FLOR_03NOV25.
+NOTE: The data set OUTPUT.HC338351_FLOR_03NOV25 has 291 observations and 269 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.12 seconds
+      cpu time            0.00 seconds
+      
+
+186        proc sort data = &output_dataset2; by id; run;
+
+NOTE: There were 550 observations read from the data set OUTPUT.HC338351_ALL_03NOV25.
+NOTE: The data set OUTPUT.HC338351_ALL_03NOV25 has 550 observations and 269 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.00 seconds
+      
+
+187        
+188        * print the contents;
+189        ods rtf file = "&homepath.\code\&job\contents_flor_&sysdate..rtf";
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338351\contents_flor_03NOV25.rtf
+190        	
+190      !  proc contents data = &output_dataset;
+191        		ods noproctitle;
+192        	run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.06 seconds
+      
+NOTE: The PROCEDURE CONTENTS printed pages 1-6.
+
+193        ods rtf close;
+194        
+195        * print the contents;
+196        ods rtf file = "&homepath.\code\&job\contents_all_&sysdate..rtf";
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338351\contents_all_03NOV25.rtf
+197        	
+197      !  proc contents data = &output_dataset2;
+198        		ods noproctitle;
+199        	run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.04 seconds
+                                                                               The SAS System
+
+      
+NOTE: The PROCEDURE CONTENTS printed pages 7-12.
+
+200        ods rtf close;
+201        
+202        proc printto; run;
+
