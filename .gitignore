@@ -2,3 +2,5 @@
 *.sas7bdat
 /docs
 **/"old files"/
+**/old_files/
+**/gplot/
