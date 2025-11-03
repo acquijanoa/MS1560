@@ -31,6 +31,7 @@ run;
 					23jun25: Add slpdur and birthwt_ga_z to the model
 					19aug25: Update input dataset (&data)
 					20aug25: Use YRSV1BIRTH instead yrs_btwn_v1flor
+					03nov25: update input dataset to *_03nov25
 	
 * ----------------------------------------------------------
 *
@@ -42,15 +43,14 @@ run;
 options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173; 
 ods escapechar '^';
 
-
-* Set libraries name; 
+* Set libraries; 
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Set macro variables; 
 %let job = HC338353;
 %let prg = AQA;
-%let data = data.HC338351_flor_19aug25;
+%let data = data.HC338351_flor_03nov25;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
@@ -58,8 +58,7 @@ ods listing gpath = "&homepath.\code\&job.\gplot";
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
 ods rtf file = "&homepath\code\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
 
-
-* Transform variables to plot;
+* Transform variables to produce plots;
 data db;
 	set &data;
 	
@@ -67,7 +66,6 @@ data db;
 	log_anta10a = log(anta10a);
 	agg_ment_sq = (agg_ment **2  - 1) / 2;
 	agg_phys_cub = (agg_phys**3 - 1 )/ 3;
-
 run;
 
 
@@ -92,58 +90,44 @@ run;
 title 'Variable: Weight-for-age (WAZ)';
 %histogram_density(var = waz);
 
-title 'Variable: Body Mass Index in log-scale (log_BMI)';
-%histogram_density(var = log_bmi);
-
-title 'Variable: Waist girth in original scale (anta10a)';
-%histogram_density(var = anta10a);
-
-title 'Variable: Waist girth in log scale (log_anta10a)';
-%histogram_density(var = log_anta10a);
-
-title 'Variable: height';
-%histogram_density(var = height);
-	
 title 'Variable: agg_ment';
 %histogram_density(var = agg_ment_sq);
 
 title 'Variable: agg_phys';
 %histogram_density(var = agg_phys_cub);
 
-title 'Variable: hei2010';
-%histogram_density(var = hei2010);
+title 'Variable: hei2010_c3';
+%histogram_density(var = hei2010_c3);
 
 title 'Variable: parity_v1';
 %histogram_density(var = parity_v1);
 
 title 'Variable: pct_mvpa';
-%histogram_density(var = pct_mvpa);
+%histogram_density(var = mvpa_lt1p5);
 
 title 'Variable: child_prs_bmi_a';
 %histogram_density(var = child_prs_bmi_a);
 
 title 'Variable: sleep duration';
-%histogram_density(var=slpdur);
+%histogram_density(var=slpdur_lt8hrs);
 
 title 'Variable: birthwt_ga_z';
 %histogram_density(var=birthwt_ga_z);
 
 * Impute variables of interest;
 proc mi data=db out=data.&job._imputed_data_&sysdate. nimpute=10 seed=3383
-	minimum= . . . . . . . . . . . . . 0 . 0 . . 0 . . . .  . .
-	maximum= . . . . . . . . . . . . . 100 . . . . . . . . . . .;
+	minimum= . . . . . . . . . . 0 . 0 . . 0 . . . .  . .
+	maximum= . . . . . . . . . . 100 . . . . . . . . . . .;
   ods exclude modelinfo fcsmodel misspattern;
-   class centernum bkgrd1_c7nomiss lang_pref
-			employedyn n_hc current_smoker income_c2 /* binary variables */
-			alcohol_use yrsus_c3 education_c3 marital_status;
-   transform log(bmi) log(anta10a) 
-				boxcox(agg_ment / lambda = 2) boxcox(agg_phys / lambda = 3) power(povpct / lambda=0.5);
-   fcs reg(waz bmi anta10a agg_ment agg_phys height hei2010 povpct cesd10 stai10 pct_mvpa child_prs_bmi_a slpdur birthwt_ga_z)
+   class centernum bkgrd1_c7nomiss lang_pref employedyn n_hc current_smoker income_c2 /* binary variables */
+			alcohol_use yrsus_c3 education_c3 marital_status hei2010_c3 slpdur_lt8hrs mvpa_lt1p5;
+   transform boxcox(agg_ment / lambda = 2) boxcox(agg_phys / lambda = 3) power(povpct / lambda=0.5);
+   fcs reg(waz agg_ment agg_phys  povpct cesd10 stai10 child_prs_bmi_a  birthwt_ga_z)
 	   regpmm(parity_v1);
-   fcs logistic(employedyn n_hc current_smoker income_c2 / link=logit likelihood=augment)
-			logistic(alcohol_use yrsus_c3 education_c3 marital_status);
+   fcs logistic(employedyn n_hc current_smoker income_c2 slpdur_lt8hrs mvpa_lt1p5 / link=logit likelihood=augment)
+			logistic(alcohol_use yrsus_c3 education_c3 marital_status hei2010_c3);
    var waz centernum bkgrd1_c7nomiss YRSV1BIRTH age lang_pref
-		birthwt_ga_z slpdur bmi anta10a agg_ment agg_phys height hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa child_prs_bmi_a
+		birthwt_ga_z slpdur_lt8hrs agg_ment agg_phys hei2010_c3 povpct cesd10 stai10 parity_v1 mvpa_lt1p5 child_prs_bmi_a
 		employedyn n_hc current_smoker income_c2 /* binary variables */
 		alcohol_use yrsus_c3 education_c3 marital_status /* nominal/ordinal variables*/
 		;
@@ -166,30 +150,9 @@ run;
 
 * Summarize the imputated variables;
 title 'Imputed variables';
-%summary_imputation(vars=waz birthwt_ga_z slpdur bmi anta10a agg_ment agg_phys height hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa child_prs_bmi_a
+%summary_imputation(vars=waz birthwt_ga_z slpdur_lt8hrs agg_ment agg_phys hei2010_c3 povpct cesd10 stai10 parity_v1 mvpa_lt1p5 child_prs_bmi_a
 				employedyn n_hc current_smoker income_c2
 				alcohol_use yrsus_c3 education_c3 marital_status);
-
-proc reg DATA = db plots=none;
-	MODEL WAZ = accult_mesa centernum YRSV1BIRTH bkgrd1_c7nomiss age income_c2 lang_pref 
-				parity_v1 povpct  marital_status employedyn education_c3 yrsus_c3 n_hc  
-				bmi anta10a height agg_ment agg_phys cesd10 stai10
-				current_smoker hei2010 alcohol_use pct_mvpa birthwt_ga_z slpdur / vif collin;
-quit;
-
-proc means data = db;
-	var waz centernum YRSV1BIRTH bkgrd1_c7nomiss age income_c3 lang_pref child_prs_bmi_a
-				parity_v1 povpct accult_mesa marital_status employedyn education_c3 yrsus_c3 n_hc 
-				bmi anta10a height agg_ment agg_phys cesd10 stai10
-				current_smoker hei2010 alcohol_use pct_mvpa birthwt_ga_z slpdur;
-run;
-ods startpage = off;
-proc means data = data.&job._imputed_data_&sysdate.;
-	var waz centernum YRSV1BIRTH bkgrd1_c7nomiss age income_c3 lang_pref 
-				parity_v1 povpct accult_mesa marital_status employedyn education_c3 yrsus_c3 n_hc birthwt_ga_z slpdur
-				bmi anta10a height agg_ment agg_phys cesd10 stai10
-				current_smoker hei2010 alcohol_use pct_mvpa child_prs_bmi_a;
-run;
 
 ods rtf close;
 

@@ -33,6 +33,10 @@ run;
 								include slpdur variable in missing pattern table
 					19aug25: update input dataset to *_19aug25
 					02sep25: update response to be birthwt_ga_z and not WAZ
+					03nov25: update input dataset to *_03nov25
+							 add slpdur_lt8hrs and mvpa_lt1p5 to tables
+							 drop slpdur and pct_mvpar from tables
+							 drop anthropometrics (bmi, anta10a and height) from analysis
 
 * ----------------------------------------------------------
 *
@@ -52,11 +56,9 @@ libname hc3383 'J:\HCHS\SC\Review\HC3383';
 * Set macro variables; 
 %let job = HC338352;
 %let prg = AQA;
-%let data = data.hc338351_flor_19aug25;
+%let data = data.hc338351_flor_03nov25;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
-
-*proc contents data = &data; run;
 
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
 ods rtf file = "&homepath\code\&job.\&job._missing_pattern_&sysdate..rtf" bodytitle style=manuscrt;
@@ -82,7 +84,7 @@ run;
 		 footnote3 J=center height=10pt font='TIMES ROMAN' "&sysdate, &systime -- &job (&prg) using V1 and FLOR inv_use data";
 proc mi data = &data nimpute = 0 displaypattern=nomeans;
 	ods select MissPattern;
-	var birthwt_ga_z bmi anta10a height agg_ment agg_phys cesd10 stai10;
+	var birthwt_ga_z agg_ment agg_phys cesd10 stai10;
 run;
 
 * Maternal Health behaviors;
@@ -93,7 +95,7 @@ run;
 		 footnote2 J=center height=10pt font='TIMES ROMAN' "&sysdate, &systime -- &job (&prg) using V1 and FLOR inv_use data";
 proc mi data = &data nimpute = 0 displaypattern=nomeans;
 	ods select MissPattern;
-	var birthwt_ga_z current_smoker hei2010 alcohol_use pct_mvpa slpdur;
+	var birthwt_ga_z current_smoker hei2010 alcohol_use mvpa_lt1p5 slpdur_lt8hrs;
 run;
 
 ods rtf close;

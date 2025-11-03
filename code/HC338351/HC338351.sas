@@ -82,9 +82,9 @@ data &output_dataset2(label="All 1st live singleton births between V1 & V2 creat
 	by id;
 
 	* SLPDUR_L8HRS;
-	if missing(SLPDUR) then SLPDUR_L8HRS = .;
-	else if SLPDUR < 8 then SLPDUR_L8HRS = 1;
-	else SLPDUR_LT8HRS = 1;
+	if missing(SLPDUR) then SLPDUR_LT8HRS = .;
+	else if SLPDUR < 8 then SLPDUR_LT8HRS = 1;
+	else SLPDUR_LT8HRS = 0;
 	label SLPDUR_LT8HRS = 'Sleep duration (<8 hours)';
 
 	* MVPA_LT1P5;

@@ -1,6 +1,6 @@
 NOTE: PROCEDURE PRINTTO used (Total process time):
-      real time           0.03 seconds
-      cpu time            0.00 seconds
+      real time           0.07 seconds
+      cpu time            0.06 seconds
       
 
 5          
@@ -28,7 +28,7 @@ NOTE: PROCEDURE PRINTTO used (Total process time):
 27         *  VERSION CONTROL:
 28         					21apr25 - (HC338351) Start file
 29         					22apr25 - add the new derived variables cesd10 and accult_mesa
-2                                                          The SAS System                             15:19 Monday, November 3, 2025
+2                                                          The SAS System                             15:29 Monday, November 3, 2025
 
 30         					05may25 - Include the #_all dataset
 31         					08may25 - Updated to include the updates in cont#1(n_hc (v1 and v2) and alcohol_use variables)
@@ -112,7 +112,7 @@ NOTE: Input data set is already sorted; it has been copied to the output data se
 NOTE: There were 15 observations read from the data set TRANSID.TRANSFER_IDS.
 NOTE: The data set WORK.TRANSFER_IDS has 15 observations and 5 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.02 seconds
+      real time           0.03 seconds
       cpu time            0.00 seconds
       
 
@@ -121,7 +121,7 @@ NOTE: There were 15 observations read from the data set WORK.TRANSFER_IDS.
 NOTE: There were 16415 observations read from the data set ENCRP.MASTER_ENCRYPTION_FILE_INV3V1.
 NOTE: The data set WORK.TRANSFER0 has 15 observations and 2 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.03 seconds
+      real time           0.05 seconds
       cpu time            0.00 seconds
       
 
@@ -131,14 +131,14 @@ NOTE: There were 15 observations read from the data set WORK.TRANSFER0.
 NOTE: The data set WORK.ENCRYPTO has 16430 observations and 2 variables.
 NOTE: DATA statement used (Total process time):
       real time           0.01 seconds
-      cpu time            0.01 seconds
+      cpu time            0.00 seconds
       
 
 
 NOTE: There were 16430 observations read from the data set WORK.ENCRYPTO.
 NOTE: The data set WORK.ENCRYPT has 16430 observations and 2 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.08 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -148,8 +148,8 @@ NOTE: The data set WORK.DATASET has 201 observations and 2 variables.
 NOTE: DATA statement used (Total process time):
                                                                                The SAS System
 
-      real time           0.05 seconds
-      cpu time            0.01 seconds
+      real time           0.01 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -157,7 +157,7 @@ NOTE: There were 16430 observations read from the data set WORK.ENCRYPT.
 NOTE: There were 201 observations read from the data set WORK.DATASET.
 NOTE: The data set WORK.FLOR_GRS_CHILD_IU2 has 201 observations and 2 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -165,8 +165,8 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 201 observations read from the data set WORK.FLOR_GRS_CHILD_IU2.
 NOTE: The data set WORK.FLOR_GRS_CHILD_IU2 has 201 observations and 2 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.01 seconds
+      real time           0.01 seconds
+      cpu time            0.00 seconds
       
 
 155        
@@ -176,9 +176,9 @@ NOTE: PROCEDURE SORT used (Total process time):
 159        	by id;
 160        
 161        	* SLPDUR_L8HRS;
-162        	if missing(SLPDUR) then SLPDUR_L8HRS = .;
-163        	else if SLPDUR < 8 then SLPDUR_L8HRS = 1;
-164        	else SLPDUR_LT8HRS = 1;
+162        	if missing(SLPDUR) then SLPDUR_LT8HRS = .;
+163        	else if SLPDUR < 8 then SLPDUR_LT8HRS = 1;
+164        	else SLPDUR_LT8HRS = 0;
 165        	label SLPDUR_LT8HRS = 'Sleep duration (<8 hours)';
 166        
 167        	* MVPA_LT1P5;
@@ -193,9 +193,9 @@ NOTE: PROCEDURE SORT used (Total process time):
 
 NOTE: There were 550 observations read from the data set HC3383.HC338301_ALL.
 NOTE: There were 201 observations read from the data set WORK.FLOR_GRS_CHILD_IU2.
-NOTE: The data set OUTPUT.HC338351_ALL_03NOV25 has 550 observations and 269 variables.
+NOTE: The data set OUTPUT.HC338351_ALL_03NOV25 has 550 observations and 268 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.57 seconds
+      real time           0.09 seconds
       cpu time            0.01 seconds
       
 
@@ -210,9 +210,9 @@ NOTE: DATA statement used (Total process time):
 182        run;
 
 NOTE: There were 550 observations read from the data set OUTPUT.HC338351_ALL_03NOV25.
-NOTE: The data set OUTPUT.HC338351_FLOR_03NOV25 has 291 observations and 269 variables.
+NOTE: The data set OUTPUT.HC338351_FLOR_03NOV25 has 291 observations and 268 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.10 seconds
+      real time           0.06 seconds
       cpu time            0.00 seconds
       
 
@@ -221,18 +221,18 @@ NOTE: DATA statement used (Total process time):
 185        proc sort data = &output_dataset; by id; run;
 
 NOTE: There were 291 observations read from the data set OUTPUT.HC338351_FLOR_03NOV25.
-NOTE: The data set OUTPUT.HC338351_FLOR_03NOV25 has 291 observations and 269 variables.
+NOTE: The data set OUTPUT.HC338351_FLOR_03NOV25 has 291 observations and 268 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.12 seconds
-      cpu time            0.00 seconds
+      real time           0.10 seconds
+      cpu time            0.01 seconds
       
 
 186        proc sort data = &output_dataset2; by id; run;
 
 NOTE: There were 550 observations read from the data set OUTPUT.HC338351_ALL_03NOV25.
-NOTE: The data set OUTPUT.HC338351_ALL_03NOV25 has 550 observations and 269 variables.
+NOTE: The data set OUTPUT.HC338351_ALL_03NOV25 has 550 observations and 268 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.10 seconds
+      real time           0.07 seconds
       cpu time            0.00 seconds
       
 
@@ -246,8 +246,8 @@ NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\
 192        	run;
 
 NOTE: PROCEDURE CONTENTS used (Total process time):
-      real time           0.08 seconds
-      cpu time            0.06 seconds
+      real time           0.14 seconds
+      cpu time            0.12 seconds
       
 NOTE: The PROCEDURE CONTENTS printed pages 1-6.
 
@@ -262,8 +262,8 @@ NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\
 199        	run;
 
 NOTE: PROCEDURE CONTENTS used (Total process time):
-      real time           0.07 seconds
-      cpu time            0.04 seconds
+      real time           0.14 seconds
+      cpu time            0.10 seconds
                                                                                The SAS System
 
       

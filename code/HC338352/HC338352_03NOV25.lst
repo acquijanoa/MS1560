@@ -56,7 +56,7 @@
  
                          ^S={leftmargin=0.7in rightmargin=0.7in} Variables BKGRD1_C7, AGE and LANG_PREF are not included since have no missing data
                        ^S={leftmargin=0.7in rightmargin=0.7in} Abbrev: weight-for-age z-score (WAZ), health coverage (N_HC), years in the US (YRSUS).
-                                                       02SEP25, 11:27 -- HC338352 (AQA) using V1 and FLOR inv_use data
+                                                       03NOV25, 15:32 -- HC338352 (AQA) using V1 and FLOR inv_use data
                                                           MS#1560 SOL/FLOR preconceptional factors and child weight
                                                                                       
                                                                       Confidential/Not for distribution
@@ -67,16 +67,16 @@
 
                                                                             Missing Data Patterns
  
-                                       BIRTHWT_
-                              Group    GA_Z        BMI    ANTA10A    HEIGHT    AGG_MENT    AGG_PHYS    CESD10    STAI10        Freq     Percent
+                                                     BIRTHWT_
+                                            Group    GA_Z        AGG_MENT    AGG_PHYS    CESD10    STAI10        Freq     Percent
 
-                                  1    X           X      X          X         X           X           X         X              262       90.03
-                                  2    X           X      X          X         X           X           .         .                4        1.37
-                                  3    X           X      X          X         .           .           X         X                1        0.34
-                                  4    X           .      X          .         X           X           X         X                1        0.34
-                                  5    X           .      .          .         .           .           .         .                1        0.34
-                                  6    .           X      X          X         X           X           X         X               21        7.22
-                                  7    .           X      X          X         X           X           .         .                1        0.34
+                                                1    X           X           X           X         X              263       90.38
+                                                2    X           X           X           .         .                4        1.37
+                                                3    X           .           .           X         X                1        0.34
+                                                4    X           .           .           .         .                1        0.34
+                                                5    .           X           X           X         X               21        7.22
+                                                6    .           X           X           .         .                1        0.34
+ 
  
  
  
@@ -115,7 +115,7 @@
  
           ^S={leftmargin=0.7in rightmargin=0.7in} The variable STAI10 was not updated for participants born after Visit 2, since it was not measured at that visit.
 ^S={leftmargin=0.7in rightmargin=0.7in} Abbrev: weight-for-age z-score (WAZ), 10-items state-trait anxiety inventory (STAI10), waist girth (ANTA10a), Center for Epidemiologi
-                                                       02SEP25, 11:27 -- HC338352 (AQA) using V1 and FLOR inv_use data
+                                                       03NOV25, 15:32 -- HC338352 (AQA) using V1 and FLOR inv_use data
                                                           MS#1560 SOL/FLOR preconceptional factors and child weight
                                                                                       
                                                                       Confidential/Not for distribution
@@ -126,16 +126,16 @@
 
                                                                             Missing Data Patterns
  
-                                              BIRTHWT_    CURRENT_               ALCOHOL_
-                                     Group    GA_Z        SMOKER      HEI2010    USE         PCT_MVPA    SLPDUR        Freq     Percent
+                                               BIRTHWT_    CURRENT_               ALCOHOL_    MVPA_    SLPDUR_
+                                      Group    GA_Z        SMOKER      HEI2010    USE         LT1P5    LT8HRS         Freq     Percent
 
-                                         1    X           X           X          X           X           X              185       63.57
-                                         2    X           X           X          X           X           .               13        4.47
-                                         3    X           X           X          X           .           X               66       22.68
-                                         4    X           X           X          X           .           .                4        1.37
-                                         5    X           .           .          .           .           .                1        0.34
-                                         6    .           X           X          X           X           X               18        6.19
-                                         7    .           X           X          X           .           X                4        1.37
+                                          1    X           X           X          X           X        X               185       63.57
+                                          2    X           X           X          X           X        .                13        4.47
+                                          3    X           X           X          X           .        X                66       22.68
+                                          4    X           X           X          X           .        .                 4        1.37
+                                          5    X           .           .          .           .        .                 1        0.34
+                                          6    .           X           X          X           X        X                18        6.19
+                                          7    .           X           X          X           .        X                 4        1.37
  
  
  
@@ -174,4 +174,4 @@
  
  
                  ^S={leftmargin=0.7in rightmargin=0.7in} Abbrev: weight-for-age z-score (WAZ), health eating index 2010 (HEI2010), sleep duration (SLPDUR).
-                                                       02SEP25, 11:27 -- HC338352 (AQA) using V1 and FLOR inv_use data
+                                                       03NOV25, 15:32 -- HC338352 (AQA) using V1 and FLOR inv_use data

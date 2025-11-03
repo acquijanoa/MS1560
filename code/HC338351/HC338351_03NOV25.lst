@@ -1,10 +1,10 @@
                                                                                The SAS System
 
                             Data Set Name        OUTPUT.HC338351_FLOR_03NOV25                                          Observations          291 
-                            Member Type          DATA                                                                  Variables             269 
+                            Member Type          DATA                                                                  Variables             268 
                             Engine               V9                                                                    Indexes               0   
-                            Created              11/03/2025 15:19:13                                                   Observation Length    2128
-                            Last Modified        11/03/2025 15:19:13                                                   Deleted Observations  0   
+                            Created              11/03/2025 15:29:35                                                   Observation Length    2120
+                            Last Modified        11/03/2025 15:29:35                                                   Deleted Observations  0   
                             Protection                                                                                 Compressed            NO  
                             Data Set Type                                                                              Sorted                YES 
                             Label                MS #1560 Analysis file (Only FLOR participants) created on 03NOV25                              
@@ -17,8 +17,8 @@
                                 Data Set Page Size          172032                                                                           
                                 Number of Data Set Pages    4                                                                                
                                 First Data Page             1                                                                                
-                                Max Obs per Page            80                                                                               
-                                Obs in First Data Page      63                                                                               
+                                Max Obs per Page            81                                                                               
+                                Obs in First Data Page      64                                                                               
                                 Number of Data Set Repairs  0                                                                                
                                 ExtendObsCounter            YES                                                                              
                                 Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_flor_03nov25.sas7bdat
@@ -188,7 +188,7 @@
  16 MED_LLD                 Num    8                    Lipid lowering drugs/Antihyperlipidemics (LLD)                                                                      
 224 MODE1                   Num    8                    Completed Mode 1 of SOL FLOR                                                                                        
 225 MODE2                   Num    8                    Completed Mode 2 of SOL FLOR                                                                                        
-269 MVPA_LT1P5              Num    8                    Less than 1.5% of time spent in MVPA                                                                                
+268 MVPA_LT1P5              Num    8                    Less than 1.5% of time spent in MVPA                                                                                
  83 MV_DAY                  Num    8                    min/day (average) of moderate or vigorous activity (>=1535 counts/min)                                              
  44 N_HC                    Num    8                    Health Insurance Coverage - Current                                                                                 
 108 N_HC_V2                 Num    8                    Current Health Insurance Coverage at Visit 2                                                                        
@@ -311,8 +311,7 @@
 134 SGA                     Num    8                    Small for gestational age (< 10th pctl) for baby #1                                                                 
  53 SITE_BKGRD              Num    8                    Cross-Classification of Center and Hispanic/Latino Background                                                       
  56 SLPDUR                  Num    8                    Average sleep duration (hours)                                                                                      
-267 SLPDUR_L8HRS            Num    8                                                                                                                                        
-268 SLPDUR_LT8HRS           Num    8                    Sleep duration (<8 hours)                                                                                           
+267 SLPDUR_LT8HRS           Num    8                    Sleep duration (<8 hours)                                                                                           
  54 SLPDUR_WKDAY            Num    8                    Weekday sleep duration (hours)                                                                                      
  55 SLPDUR_WKEND            Num    8                    Weekend sleep duration (hours)                                                                                      
  19 STAI10                  Num    8                    10-Item State Trait Anxiety Inventory                                                                               
@@ -345,10 +344,10 @@
                                                                                The SAS System
 
                              Data Set Name        OUTPUT.HC338351_ALL_03NOV25                                         Observations          550 
-                             Member Type          DATA                                                                Variables             269 
+                             Member Type          DATA                                                                Variables             268 
                              Engine               V9                                                                  Indexes               0   
-                             Created              11/03/2025 15:19:13                                                 Observation Length    2128
-                             Last Modified        11/03/2025 15:19:13                                                 Deleted Observations  0   
+                             Created              11/03/2025 15:29:35                                                 Observation Length    2120
+                             Last Modified        11/03/2025 15:29:35                                                 Deleted Observations  0   
                              Protection                                                                               Compressed            NO  
                              Data Set Type                                                                            Sorted                YES 
                              Label                All 1st live singleton births between V1 & V2 created on 03NOV25                              
@@ -359,10 +358,10 @@
                                                                      Engine/Host Dependent Information
 
                                 Data Set Page Size          172032                                                                          
-                                Number of Data Set Pages    8                                                                               
+                                Number of Data Set Pages    7                                                                               
                                 First Data Page             1                                                                               
-                                Max Obs per Page            80                                                                              
-                                Obs in First Data Page      63                                                                              
+                                Max Obs per Page            81                                                                              
+                                Obs in First Data Page      64                                                                              
                                 Number of Data Set Repairs  0                                                                               
                                 ExtendObsCounter            YES                                                                             
                                 Filename                    J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data\hc338351_all_03nov25.sas7bdat
@@ -370,7 +369,7 @@
                                 Host Created                W32_WIN+PRO                                                                     
                                 Owner Name                  CSCC\acquijanoa                                                                 
                                 File Size                   1MB                                                                             
-                                File Size (bytes)           1548288                                                                         
+                                File Size (bytes)           1376256                                                                         
 
 
                                                                  Alphabetic List of Variables and Attributes
@@ -532,7 +531,7 @@
  16 MED_LLD                 Num    8                    Lipid lowering drugs/Antihyperlipidemics (LLD)                                                                      
 224 MODE1                   Num    8                    Completed Mode 1 of SOL FLOR                                                                                        
 225 MODE2                   Num    8                    Completed Mode 2 of SOL FLOR                                                                                        
-269 MVPA_LT1P5              Num    8                    Less than 1.5% of time spent in MVPA                                                                                
+268 MVPA_LT1P5              Num    8                    Less than 1.5% of time spent in MVPA                                                                                
  83 MV_DAY                  Num    8                    min/day (average) of moderate or vigorous activity (>=1535 counts/min)                                              
  44 N_HC                    Num    8                    Health Insurance Coverage - Current                                                                                 
 108 N_HC_V2                 Num    8                    Current Health Insurance Coverage at Visit 2                                                                        
@@ -655,8 +654,7 @@
 134 SGA                     Num    8                    Small for gestational age (< 10th pctl) for baby #1                                                                 
  53 SITE_BKGRD              Num    8                    Cross-Classification of Center and Hispanic/Latino Background                                                       
  56 SLPDUR                  Num    8                    Average sleep duration (hours)                                                                                      
-267 SLPDUR_L8HRS            Num    8                                                                                                                                        
-268 SLPDUR_LT8HRS           Num    8                    Sleep duration (<8 hours)                                                                                           
+267 SLPDUR_LT8HRS           Num    8                    Sleep duration (<8 hours)                                                                                           
  54 SLPDUR_WKDAY            Num    8                    Weekday sleep duration (hours)                                                                                      
  55 SLPDUR_WKEND            Num    8                    Weekend sleep duration (hours)                                                                                      
  19 STAI10                  Num    8                    10-Item State Trait Anxiety Inventory                                                                               
