@@ -39,7 +39,7 @@
 	if variable = 'EDUCATION_C3_N_HIGHSCHOOL_GED' then do; label = "{\b Education \b0 \line \li250   Not High school or GED}"; order = 4; ESTIMATE = 99; STD = 99; pv = 5; end;
 	if variable = 'EDUCATION_C3_AT_MOST_HIGHSCHOOL_GED' then do; label = "^S={indent=2mm} at most High school or GED"; order = 4.1; end;
 	if variable = 'EDUCATION_C3_G_HIGHSCHOOL' then do; label = "^S={indent=2mm} Greater than high school graduate"; order = 4.2; end;
-	if variable = 'EMPLOYEDYN_NOT_EMPLOYED' then do; label = "{\b Employment status \b0 \line \li250   Not employed}"; order = 5; std = 99; pv = 5; end;
+	if variable = 'EMPLOYEDYN_NOT_EMPLOYED' then do; label = "{\b Employment status \b0 \line \li250   Not employed}"; order = 5; estimate=99; std = 99; pv = 5; end;
 	if variable = 'EMPLOYEDYN_EMPLOYED' then do; label = "^S={indent=2mm} Employed"; order = 5.1; end;
 	if variable = 'INCOME_C2_>30' then do; label = "{\b Income \b0 \line \li250   >=$30,000}"; order = 6; ESTIMATE = 99; std = 99; pv = 5; end;
 	if variable = 'INCOME_C2_<30' then do; label = "^S={indent=2mm} <$30,000"; order = 6.1; end;
@@ -57,27 +57,34 @@
 	if variable = 'YRSUS_C3_G10' then do; label = "^S={indent=2mm} >=10 years"; order = 12.2; end;
 
 	* model 2 variables;
-	if variable = 'AGG_MENT' then do; label = "{\b SF-12v2 Health Survey \b0 \line \li250   Mental health summary score}"; order = 20; end;
-	if variable = 'AGG_PHYS' then do; label = "^S={indent=2mm} Physical health summary score"; order = 20.1; end;
-	if variable = 'CESD10' then do; label = "{\b Mental health \b0 \line \li250   Depression score (CESD-10)}"; order = 20.5; end;
-	if variable = 'STAI10' then do; label = "^S={indent=2mm} Anxiety score (STAI-10)"; order = 20.6; end;
-	if variable = 'HEIGHT' then do; label = "{\b Anthropometry \b0 \line \li250   Height (cm)}"; order = 23; end;
-	if variable = 'ANTA10A' then do; label = "^S={indent=2mm} Waist circumference (cm)"; order = 23.1; end;
-	if variable = 'BMI' then do; label = "^S={indent=2mm} Body Mass Index (BMI)"; order = 23.2; end;
+	if variable = 'AGG_MENT' then do; label = "{\b SF-12v2 Health Survey \b0 \line \li250   Mental health summary score}"; order = 0.030; end;
+	if variable = 'AGG_PHYS' then do; label = "^S={indent=2mm} Physical health summary score"; order = 0.031; end;
+	if variable = 'CESD10' then do; label = "{\b Mental health \b0 \line \li250   Depression score (CESD-10)}"; order = 0.032; end;
+	if variable = 'STAI10' then do; label = "^S={indent=2mm} Anxiety score (STAI-10)"; order = 0.033; end;
+	if variable = 'HEIGHT' then do; label = "{\b Anthropometry \b0 \line \li250   Height (cm)}"; order = 0.034; end;
+	if variable = 'ANTA10A' then do; label = "^S={indent=2mm} Waist circumference (cm)"; order = 0.035; end;
+	if variable = 'BMI' then do; label = "^S={indent=2mm} Body Mass Index (BMI)"; order = 0.036; end;
 
 	* model 3 variables;
-	if variable = 'ALCOHOL_USE_NEVER' then do; label = "{\b Alcohol use \b0 \line \li250   Never}"; order = 26; estimate = 98; std = 99; pv = 5; end;
-	if variable = 'ALCOHOL_USE_FORMER' then do; label = "^S={indent=2mm} Former"; order = 26.1; end;
-	if variable = 'ALCOHOL_USE_CURRENT' then do; label = "^S={indent=2mm} Current"; order = 26.2; end;
-	if variable = 'CURRENT_SMOKER_NO' then do; label = "{\b Smoking status \b0 \line \li250   Not currently smoking}"; order = 27; pv = 5; estimate = 98; std = 99; end;
-	if variable = 'CURRENT_SMOKER_YES' then do; label = "^S={indent=2mm} Current smoker"; order = 27.1; end;
-	if variable = 'CURRENT_SMOKER' then do; label = "^S={indent=2mm} Current smoker"; order = 27.1; end;
-	if variable = 'HEI2010' then do; label = "{\b Healthy Eating Index (HEI-2010) \b0}"; order = 28; end;
-	if variable = 'PCT_MVPA' then do; label = "{\b % Time in MVPA \b0}"; order = 29; end;
-	if variable = 'SLPDUR' then do; label = "{\b Sleeping duration \b0}"; order = 30; end;
+	if variable = 'ALCOHOL_USE_NEVER' then do; label = "{\b Alcohol use \b0 \line \li250   Never}"; order = 0.010; estimate = 98; std = 99; pv = 5; end;
+	if variable = 'ALCOHOL_USE_FORMER' then do; label = "^S={indent=2mm} Former"; order = 0.011; end;
+	if variable = 'ALCOHOL_USE_CURRENT' then do; label = "^S={indent=2mm} Current"; order = 0.012; end;
+	if variable = 'CURRENT_SMOKER_NO' then do; label = "{\b Smoking status \b0 \line \li250   Not currently smoking}"; order = 0.013; pv = 5; estimate = 98; std = 99; end;
+	if variable = 'CURRENT_SMOKER_YES' then do; label = "^S={indent=2mm} Current smoker"; order = 0.014; end;
+	if variable = 'CURRENT_SMOKER' then do; label = "^S={indent=2mm} Current smoker"; order = 0.015; end;
+	if variable = 'HEI2010' then do; label = "{\b Healthy Eating Index (HEI-2010) \b0}"; order = 0.016; end;
+	if variable = 'HEI2010_C3_HIGH' then do; label = "{\b Healthy Eating Index (HEI-2010) \b0 \line \li250   High}"; order = 0.01601;  estimate = 98; std = 99; pv = 5;  end;
+	if variable = 'HEI2010_C3_MEDIUM' then do; label = "^S={indent=2mm} Medium"; order = 0.01602; end;
+	if variable = 'HEI2010_C3_LOW' then do; label = "^S={indent=2mm} Low"; order = 0.01603; end;
+	if variable = 'PCT_MVPA' then do; label = "{\b % Time in MVPA \b0}"; order = 0.017; end;
+	if variable = 'SLPDUR' then do; label = "{\b Sleeping duration \b0}"; order = 0.018; end;
+	if variable = "PAG2008YN_YES" then do; label = "{\b Meets physical activity guideline \b0 \line \li250   Yes}"; order = 0.019; ESTIMATE = 99; std = 99; pv = 5; end;
+	if variable = "PAG2008YN_NO" then do; label = "^S={indent=2mm} No"; order = 0.020; end;
+	if variable = 'SLPDUR_LT8HRS_<8_hours' then do; label =  "{\b Sleep duration \b0 \line \li250   Less than 8 hours}"; order = 0.021; ESTIMATE = 99; std = 99; pv = 5; end;
+	if variable = 'SLPDUR_LT8HRS_>=8_hours' then do; label = "^S={indent=2mm} More than 8 hours"; order = 0.022; end;
 
 	*model 5 variable; 
-	if variable = 'CHILD_PRS_BMI_A' then do; label = "{\b Child Polygenic Risk Score \b0 \li250}"; order = 40; end;
+	if variable = 'CHILD_PRS_BMI_A' then do; label = "{\b Child Polygenic Risk Score \b0 \li250}"; order = 0.04; end;
 
 	* adjusted by these variables;
 	if variable = 'CENTERNUM_BRONX' then do; label = "{\b Field center \line \b0 \li250   Bronx}"; order = 93; ESTIMATE = 99; std=99; pv = 5; end;

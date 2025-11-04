@@ -39,7 +39,9 @@ run;
 							- slpdur, slpdur_wkday, slpdur_wkend, baby1yn, daysv1birth, yrsv1birth and birthwt_ga_Z  
 								are not imported anymore, since the SC file includes them
 							- This file only imports prs data in this update
-					03nov25 - derive variables SLP_DUR_LT8HRS and MVPA_LT1P5
+					03nov25 - derive variables SLP_DUR_LT8HRS
+					04nov25 - add flags to indicate completeness of child_prs_bmi and child anthropometry
+							  bring PAG2008YN and PAG2008YN_BOUT from PA_DERV_INV5
 
 * ----------------------------------------------------------
 *
@@ -76,9 +78,11 @@ libname floriu "J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\Internal_Use";
 %anonymize_db(data = floriu.flor_grs_child_iu2(keep=subjectid child_prs_bmi_a), 
 				out = flor_grs_child_iu2);
 
+* Derive and bring variables of interest;
 data &output_dataset2(label="All 1st live singleton births between V1 & V2 created on &sysdate.");
-	merge hc3383.hc338301_all(in=in_a) 
-			flor_grs_child_iu2;
+	merge hc3383.hc338301_all(in=in_hc3383) 
+			flor_grs_child_iu2
+			invv1.pa_derv_inv5(keep=id pag2008yn pag2008yn_bout);
 	by id;
 
 	* SLPDUR_L8HRS;
@@ -87,14 +91,18 @@ data &output_dataset2(label="All 1st live singleton births between V1 & V2 creat
 	else SLPDUR_LT8HRS = 0;
 	label SLPDUR_LT8HRS = 'Sleep duration (<8 hours)';
 
-	* MVPA_LT1P5;
-	if missing(PCT_MVPA) then MVPA_LT1P5 = .;
-	else if pct_mvpa < 1.5 then MVPA_LT1P5 = 1;
-	else MVPA_LT1P5 = 0;
-	label MVPA_LT1P5 = "Less than 1.5% of time spent in MVPA";
+	* ANTHRO_CHILD_COMPLETE;
+	if ^missing(child_weight) or ^missing(child_height) then ANTHRO_CHILD_COMPLETE = 1;
+	else ANTHRO_CHILD_COMPLETE = 0;
+	label ANTHRO_CHILD_COMPLETE = "Flag - child anthropometry data are complete";
+
+	* PRS_BMI_COMPLETE;
+	if ^missing(child_prs_bmi_a) then PRS_BMI_COMPLETE = 1;
+	else PRS_BMI_COMPLETE=0;
+	label PRS_BMI_COMPLETE="Flag - child BMI polygenic risk score is complete";
 
 	* Include people in the the *_all file;
-	if in_a;
+	if in_hc3383;
 run;
 
 * Create dataset for flor participants;

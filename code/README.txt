@@ -9,45 +9,71 @@ Domains:
 Model description:
 
 	job: 54 and 54a
-	response: birthwt_ga_z (updated on 02sep25, 'waz' used before) 
-	adjusted by: centernum, yrsv1birth
-	covariates: 
-		1st domain: bkgrd1_c7nomiss age income_c2 lang_pref parity_v1 povpct marital_status 
-						employedyn education_c3 yrsus_c3 n_hc
-		2nd domain: bmi anta10a height agg_ment agg_phys cesd10 stai10
-		3rd domain: current_smoker hei2010 alcohol_use pct_mvpa slpdur
-		Full model: bkgrd1_c7nomiss marital_status height anta10a bmi slpdur child_prs_bmi_a
+	response: waz (updated on 02sep25, 'waz' used before) 
+					(on 04nov25 updated back to waz)
+	adjusted by: centernum, yrs_btwn_v1fplor (yrs_v1birth before 04nov25)
+	covariates (updated on 04nov25): 
+		1st domain: 
+		Model 1: bkgrd1_c7nomiss age parity_v1 marital_status employedyn education_c3 yrsus_c3 n_hc
+		Model 2: model 1 + current_smoker alcohol_use + 
+				(hei2010 or hei2010_c3) + (pct_mvpa or pag2008yn) + (slpdur or slpdur_lt8hrs)
+		Model 3: Model 2 + CESD10 + STAI10 
+		Model 4: Model 3 + child_prs_bmi_a
 
 JOB:
-
 51: Create the dataset used for QC'ing the analytic file
-	output: hc338351_flor_19aug25.sas7bdat  
-		  hc338351_all_19aug25.sas7bdat
+	output: hc338351_flor_ddmmyy.sas7bdat  
+		  hc338351_all_ddmmyy.sas7bdat
 
-52: Missing data pattern by predefined domains (see list above)
-	input:  hc338351_flor_19aug25.sas7bdat 				
-	output: hc338352_missing_pattern_23jun25.rtf
+52: Missing data pattern by original defined domains (in the manuscript)
+	input:  hc338351_flor_ddmmyy.sas7bdat 				
+	output: hc338352_missing_pattern_ddmmyy.rtf
 
 ### Imputation model ####
 
-53: Imputation model (including child_prs_bmi_a) [n=291x10]
-	input: hc338351_flor_19aug25.sas7bdat 
-	output: hc338353_imputed_data_19aug25.sas7bdat 		
+53: Imputation model [227 x 10imp]
+	note: child anthropometry is not imputed
+		PCT_MVPA, HEI2010 and SLPDUR variables in the imputation model
+	input: hc338351_flor_ddmmyy.sas7bdat 
+	output: hc338353_imputed_data_ddmmyy.sas7bdat 		
 
-53a: Imputation model (child_prs_bmi_a not included) [n=201x10]
-	input: hc338351_flor_20aug25.sas7bdat
-	output: hc338353a_imputed_data_20aug25.sas7bdat 		 
+53a: Imputation model [n=201x10]
+	note: child anthropometry and child_prs_bmi_a are not imputed
+		PCT_MVPA, HEI2010 and SLPDUR variables in the imputation model
+	input: hc338351_flor_ddmmyy.sas7bdat
+	output: hc338353a_imputed_data_ddmmyy.sas7bdat
+
+53b: Imputation model [n=227x10]
+	note: child anthropometry is not imputed
+		PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the imputation model
+	input: hc338351_flor_ddmmyy.sas7bdat
+	output: hc338353b_imputed_data_ddmmyy.sas7bdat 		 
+
+53c: Imputation model [n=201x10]
+	note: child anthropometry and child_prs_bmi_a are not imputed
+		PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the imputation model
+	input: hc338351_flor_ddmmyy.sas7bdat
+	output: hc338353c_imputed_data_ddmmyy.sas7bdat
 
 ### Regression and Mediation Analysis ###
 
-54: Regression model by predefined domains [n=291]
-	input: hc338353_imputed_data_20aug25.sas7bdat
-	output: hc338354_Table2_20aug25.rtf
+54: Regression model [n=227]
+	input: hc338353_imputed_data_ddmmyy.sas7bdat
+	output: hc338354_Table2_ddmmyy.rtf	 
 
-54a: Regression model by predefined domains [n=201] 
-		(child_prs_bmi_a not imputed)
-	input: hc338353a_imputed_data_20aug25.sas7bdat
-	output: hc338354a_Table2_20aug25.rtf
+54a: Regression model [n=201] 
+	input: hc338353a_imputed_data_ddmmyy.sas7bdat
+	output: hc338354a_Table2_ddmmyy.rtf
+
+54b: Regression model [n=227] 
+	note: PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the model
+	input: hc338353b_imputed_data_ddmmyy.sas7bdat
+	output: hc338354b_Table2.1_ddmmyy.rtf
+
+54c: Regression model [n=201] 
+	note: PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the model
+	input: hc338353c_imputed_data_ddmmyy.sas7bdat
+	output: hc338354c_Table2.1_ddmmyy.rtf
 
 55:  Table for individual associations (descriptive). 
 

@@ -1,0 +1,49 @@
+1                                                          The SAS System                            14:21 Tuesday, November 4, 2025
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2023 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M8) 
+      Licensed to UNIVERSITY OF NORTH CAROLINA CHAPEL HILL - SFA T&R, Site 70022629.
+NOTE: This session is executing on the W32_WIN+PRO  platform.
+
+
+
+NOTE: Analytical products:
+      
+      SAS/STAT 15.3
+      SAS/ETS 15.3
+      SAS/OR 15.3
+      SAS/IML 15.3
+      SAS/QC 15.3
+
+NOTE: Additional host information:
+
+ W32_WIN+PRO WIN 10.0.22631  Workstation
+
+NOTE: SAS initialization used:
+      real time           0.17 seconds
+      cpu time            0.12 seconds
+      
+1          %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+2          proc printto log="&homepath.\code\HC338353c\HC338353c_&sysdate..log"
+3          	print = "&homepath.\code\HC338353c\HC338353c_&sysdate..lst" new;
+4          run;
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+ERROR: Errors printed on page 5.
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           18.40 seconds
+      cpu time            14.70 seconds
+      

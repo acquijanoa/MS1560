@@ -24,7 +24,11 @@ run;
 *
 *  VERSION CONTROL: 
 *					03nov25: create the file
-							 excluded bmi, anta10a and height
+							 exclude bmi, anta10a and height
+					04nov25: update input dataset
+							 drop agg_ment, agg_phys, povpct
+								income_c2	
+							 use yrs_btwn_v1flor instead of yrsv1flor
 *
 * ----------------------------------------------------------
 *
@@ -42,7 +46,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Set macro variables;
 %let prg = AQA;
-%let db_in = data.hc338351_flor_19aug25;
+%let db_in = data.hc338351_flor_04nov25;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
@@ -61,8 +65,8 @@ data indicators_df;
 	if ^missing(child_prs_bmi_a) then inclusion_prs = 1*inclusion_ant; else inclusion_prs = 0;
 
 	* ;
-	if nmiss(of yrsv1birth slpdur agg_ment agg_phys hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
-		employedyn n_hc current_smoker income_c2 alcohol_use yrsus_c3 education_c3 marital_status) = 0 then inclusion_covs = 1*inclusion_prs; else inclusion_covs = 0; 
+	if nmiss(of yrs_btwn_v1flor slpdur hei2010 cesd10 stai10 parity_v1 pct_mvpa
+		employedyn n_hc current_smoker alcohol_use yrsus_c3 education_c3 marital_status) = 0 then inclusion_covs = 1*inclusion_prs; else inclusion_covs = 0; 
 run;
 
 * Calculate the frequency for each class;
@@ -123,9 +127,9 @@ run;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
 ods rtf file = "&homepath.\code\&job.\&job._Inclusion_&sysdate..rtf" style = manuscrt bodytitle;
-footnote1 j=left HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %sysfunc(time(), timeampm.) }";
-
-	* Print RTF report;
+footnote j=center HEIGHT=10pt FONT='times roman' "covariates: yrs_btwn_v1flor, slpdur, hei2010, cesd10, stai10, parity_v1, pct_mvpa, employedyn, n_hc, current_smoker, alcohol_use, yrsus_c3, education_c3 and marital_status";
+footnote2 j=left HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %sysfunc(time(), timeampm.) }";
+* Print RTF report;
 	proc report data = df_inclusions; 
 		title 'Inclusion and Exclusion Criteria for Manuscript MS#1560';
 		ods noproctitle;
@@ -141,8 +145,8 @@ footnote1 j=left HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &P
 	title 'Missing data pattern';
 	proc mi data = db_mi nimpute=0 displaypattern=nomeans;
 		ods select MissPattern;
-		var yrsv1birth slpdur  agg_ment agg_phys  hei2010 povpct cesd10 stai10 parity_v1 pct_mvpa
-			employedyn n_hc current_smoker income_c2 alcohol_use yrsus_c3 education_c3 marital_status;
+		var yrs_btwn_v1flor slpdur hei2010 cesd10 stai10 parity_v1 pct_mvpa
+		employedyn n_hc current_smoker alcohol_use yrsus_c3 education_c3 marital_status;
 	run;
 
 * close rtf file;
