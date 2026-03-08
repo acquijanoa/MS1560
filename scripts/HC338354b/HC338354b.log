@@ -1,0 +1,40 @@
+1                                                          The SAS System                            10:08 Tuesday, December 2, 2025
+
+NOTE: Copyright (c) 2023 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M8) 
+      Licensed to UNIVERSITY OF NORTH CAROLINA CHAPEL HILL - SFA T&R, Site 70022629.
+NOTE: This session is executing on the W32_WIN+PRO  platform.
+
+
+
+NOTE: Analytical products:
+      
+      SAS/STAT 15.3
+      SAS/ETS 15.3
+      SAS/OR 15.3
+      SAS/IML 15.3
+      SAS/QC 15.3
+
+NOTE: Additional host information:
+
+ W32_WIN+PRO WIN 10.0.22631  Workstation
+
+NOTE: SAS initialization used:
+      real time           1.24 seconds
+      cpu time            0.09 seconds
+      
+1          %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+2          proc printto log="&homepath.\code\HC338354b\HC338354b_&sysdate..log"
+3          				print = "&homepath.\code\HC338354b\HC338354b_&sysdate..lst" new;
+4          run;
+
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           2.61 seconds
+      cpu time            0.42 seconds
+      
