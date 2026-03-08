@@ -1,7 +1,7 @@
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
 %let job = HC338359a;
-proc printto log="&homepath.\code\&job.\&job._&sysdate..log" 
-	print = "&homepath.\code\&job.\&job._&sysdate..lst" new; 
+proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
+	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
 
 /*********************************************************
@@ -50,8 +50,8 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let rg_margin = 0.7in;
 
 * Include sas scripts with formats and macros;
-%include "&homepath.\code\HC338390\HC338390.sas";
-%include "&homepath.\code\HC338391\HC3383_labels.sas";
+%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC338391\HC3383_labels.sas";
 
 %macro process_imputed_or(in_db=, out_db=, model=);
 
@@ -78,8 +78,10 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 		model = "Model &model.";
 
 		* Handle CI variable names across MIANALYZE outputs;
-		lcl = inputn(strip(coalescec(vvaluex('LCLMean'), vvaluex('Lower'))), best32.);
-		ucl = inputn(strip(coalescec(vvaluex('UCLMean'), vvaluex('Upper'))), best32.);
+		lcl = inputn(strip(vvaluex('LCLMean')), best32.);
+		if missing(lcl) then lcl = inputn(strip(vvaluex('Lower')), best32.);
+		ucl = inputn(strip(vvaluex('UCLMean')), best32.);
+		if missing(ucl) then ucl = inputn(strip(vvaluex('Upper')), best32.);
 
 		%labels;
 		if variable not in ('Scale', 'Intercept');
@@ -197,7 +199,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\code\&job.\&job._Table3a_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath\scripts\&job.\&job._Table3a_&sysdate..rtf" style = manuscrt bodytitle;
 %let fs = 11pt;
 %let fs_body = 11pt;
 %let fs_titles = 11pt;
