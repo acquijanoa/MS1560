@@ -15,39 +15,39 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 ## Scripts Summary
 | Code | Task |
 |------|------|
-| HC338302/HC338302.sas | Generates Table 1 with maternal preconception and child characteristics by FLOR participation. |
-| HC338351/HC338351.sas | Creates the analytic datasets used for QC and downstream analyses. |
-| HC338352/HC338352.sas | Produces missing data patterns by manuscript domains. |
-| HC338353/HC338353.sas | Runs multiple imputation model (n~227 x 10 imputations). |
-| HC338353a/HC338353a.sas | Runs multiple imputation model variant (n~201 x 10 imputations). |
-| HC338353b/HC338353b.sas | Runs alternate imputation model with PAG2008YN, HEI2010_C3, and SLPDUR_LT8HRS (n~227). |
-| HC338353c/HC338353c.sas | Runs alternate imputation model with PAG2008YN, HEI2010_C3, and SLPDUR_LT8HRS (n~201). |
-| HC338354/HC338354.sas | Fits regression models and generates Table 2 (n~227). |
-| HC338354a/HC338354a.sas | Fits regression models and generates Table 2 for the n~201 analytic sample. |
-| HC338354a/HC338354a_20NOV25.sas | Archived/snapshot version of HC338354a used for November 2025 runs. |
-| HC338354b/HC338354b.sas | Fits alternate regression models and generates Table 2.1 (n~227). |
-| HC338354c/HC338354c.sas | Fits alternate regression models and generates Table 2.1 for n~201 sample. |
-| HC338355/HC338355.sas | Produces descriptive/univariate table of individual associations. |
-| HC338356a/HC338356a.sas | Performs mediation analysis excluding PRS from the model. |
-| HC338356b/HC338356b.sas | Performs mediation analysis including PRS in the model. |
-| HC338357/HC338357.sas | Generates inclusion/exclusion flow table. |
-| HC338358/HC338358.sas | Fits logistic models and generates Table 3 (response: BMIPCT_C2). |
-| HC338358a/HC338358a.sas | Fits logistic models and generates Table 3a for the n~201 sample. |
-| HC338390/HC338390.sas | Centralized variable formats used across manuscript scripts. |
-| HC338391/HC3383_labels.sas | Defines labels/macros used in reporting workflows (e.g., regression table labels). |
-| HC338391/HC3383_mi_lasso.sas | Supports MI model feature selection using lasso-based workflow. |
-| HC338391/HC3383_process_imputed.sas | Processes imputed datasets for downstream modeling. |
-| HC338391/HC3383_anonymize_db.sas | Applies anonymization/processing utilities to project datasets. |
-| HC338391/HC3383_partial_r2.sas | Computes partial R2/sensitivity metrics for model interpretation. |
-| HC338398/HC33839801.sas | QC check (Cont #1) for derived analytic files. |
-| HC338398/HC33839802.sas | QC check (Cont #2) for derived analytic files. |
-| HC338398/HC33839803.sas | Post-QC comparison script after feedback updates. |
-| HC338398/HC33839804.sas | Quality check script for Table 1 outputs. |
-| HC338398/HC33839805.sas | Computes supplemental frequencies to support manuscript flow chart/QC. |
-| HC338399/HC33839901.sas | Creates HEI-2010 tertiles and related summaries. |
-| HC338399/HC33839902.sas | Generates correlation analyses for selected covariates. |
-| HC338399/HC33839903.sas | Miscellaneous project support analysis (job 9903). |
-| HC338399/HC33839904.sas | Miscellaneous project support analysis (job 9904). |
+| HC338302/HC338302.sas | Builds Table 1 with maternal preconception and child characteristics by FLOR dyad status, including group-wise summary statistics and p-values. |
+| HC338351/HC338351.sas | Creates the core analysis datasets (FLOR-only and all eligible births), merges PRS and PA variables, and derives inclusion flags (KEEP_MS1560, PRS_COMPLETE, SLPDUR_LT8HRS). |
+| HC338352/HC338352.sas | Generates missing-data pattern tables (PROC MI displaypattern) across manuscript domains for the FLOR analytic dataset. |
+| HC338353/HC338353.sas | Runs multiple imputation (10 imputations) for the main FLOR analytic sample and derives post-imputation HEI2010_C3 and SLPDUR_LT8HRS. |
+| HC338353a/HC338353a.sas | Runs multiple imputation for the PRS-complete subset (WHERE PRS_COMPLETE), with the same variable set as the main MI pipeline. |
+| HC338353b/HC338353b.sas | Runs alternate multiple imputation using categorized HEI2010_C3 and SLPDUR_LT8HRS in the anthropometry-complete subset. |
+| HC338353c/HC338353c.sas | Runs alternate multiple imputation (categorized HEI2010_C3/SLPDUR_LT8HRS) restricted to participants with complete PRS data. |
+| HC338354/HC338354.sas | Fits pooled linear GENMOD models for WAZ across imputed datasets and produces Table 2 model estimates (Models 1-4; includes additional exploratory model run). |
+| HC338354a/HC338354a.sas | Fits pooled linear GENMOD models for WAZ in the PRS-complete sample and generates the Table 2 counterpart for this restricted cohort. |
+| HC338354a/HC338354a_20NOV25.sas | Frozen November 2025 snapshot of HC338354a used to reproduce the Table 2 restricted-sample results. |
+| HC338354b/HC338354b.sas | Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (main sample). |
+| HC338354c/HC338354c.sas | Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (restricted sample). |
+| HC338355/HC338355.sas | Runs pooled univariate linear models across imputed datasets and summarizes top pairwise correlations among continuous variables for exploratory screening. |
+| HC338356a/HC338356a.sas | Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3a direct/indirect/total effects without child PRS in the covariate set. |
+| HC338356b/HC338356b.sas | Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3b direct/indirect/total effects including child PRS in the covariate set. |
+| HC338357/HC338357.sas | Creates the inclusion/exclusion table and supporting missingness pattern output for the analytic sample construction workflow. |
+| HC338358/HC338358.sas | Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3 (main sample). |
+| HC338358a/HC338358a.sas | Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3a (restricted sample). |
+| HC338390/HC338390.sas | Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts. |
+| HC338391/HC3383_labels.sas | Defines the %labels macro that standardizes variable labels, ordering, and display conventions for manuscript tables. |
+| HC338391/HC3383_mi_lasso.sas | Provides the MI-lasso macro (Chen & Wang method) for variable selection in multiply imputed long-format data. |
+| HC338391/HC3383_process_imputed.sas | Defines %process_imputed to pool parameter estimates across imputations via PROC MIANALYZE and attach reporting labels. |
+| HC338391/HC3383_anonymize_db.sas | Defines %ANONYMIZE_DB to map SUBJECTID to study ID using transfer/encryption files and produce de-identified datasets. |
+| HC338391/HC3383_partial_r2.sas | Defines %get_all_partial_r2 to compute variable-specific partial R2 across imputed GENMOD models using full vs reduced deviance. |
+| HC338398/HC33839801.sas | Performs QC comparison (cont #1) between project-derived datasets and Statistical Computing comparison datasets using PROC COMPARE. |
+| HC338398/HC33839802.sas | Performs QC comparison (cont #2) between project-derived datasets and updated Statistical Computing comparison datasets using PROC COMPARE. |
+| HC338398/HC33839803.sas | Performs post-feedback QC comparison for cont #2 after incorporating review updates to derived datasets. |
+| HC338398/HC33839804.sas | Runs QC reconstruction of Table 1 components (frequencies, summary stats, and p-values by FLOR status) against the all-participant analysis dataset. |
+| HC338398/HC33839805.sas | Computes supplemental frequency counts used to document flow-chart and protocol eligibility/supporting manuscript denominator checks. |
+| HC338399/HC33839901.sas | Computes HEI-2010 tertile cut points from the FLOR comparison dataset and exports the tertile summary report. |
+| HC338399/HC33839902.sas | Calculates Pearson correlation between YRS_BTWN_V1V2 and YRSV1BIRTH in the FLOR comparison dataset. |
+| HC338399/HC33839903.sas | Duplicate correlation script of HC33839902 (same PROC CORR analysis between YRS_BTWN_V1V2 and YRSV1BIRTH). |
+| HC338399/HC33839904.sas | Runs an additional pooled Model 4 GENMOD analysis for WAZ including child sex and sex-by-alcohol interaction, then pools estimates with %process_imputed. |
 
 ---
 

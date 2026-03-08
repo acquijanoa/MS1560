@@ -8,199 +8,199 @@ project:
 
 scripts:
   - code: HC338302/HC338302.sas
-    task: "Generates Table 1 with maternal preconception and child characteristics by FLOR participation."
+    task: "Builds Table 1 with maternal preconception and child characteristics by FLOR dyad status, including group-wise summary statistics and p-values."
     software: SAS
     created: 2026-03-08
     status: "ongoing"
 
   - code: HC338351/HC338351.sas
-    task: "Creates the analytic datasets used for QC and downstream analyses."
+    task: "Creates the core analysis datasets (FLOR-only and all eligible births), merges PRS and PA variables, and derives inclusion flags (KEEP_MS1560, PRS_COMPLETE, SLPDUR_LT8HRS)."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338352/HC338352.sas
-    task: "Produces missing data patterns by manuscript domains."
+    task: "Generates missing-data pattern tables (PROC MI displaypattern) across manuscript domains for the FLOR analytic dataset."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338353/HC338353.sas
-    task: "Runs multiple imputation model (n~227 x 10 imputations)."
+    task: "Runs multiple imputation (10 imputations) for the main FLOR analytic sample and derives post-imputation HEI2010_C3 and SLPDUR_LT8HRS."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338353a/HC338353a.sas
-    task: "Runs multiple imputation model variant (n~201 x 10 imputations)."
+    task: "Runs multiple imputation for the PRS-complete subset (WHERE PRS_COMPLETE), with the same variable set as the main MI pipeline."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338353b/HC338353b.sas
-    task: "Runs alternate imputation model with PAG2008YN, HEI2010_C3, and SLPDUR_LT8HRS (n~227)."
+    task: "Runs alternate multiple imputation using categorized HEI2010_C3 and SLPDUR_LT8HRS in the anthropometry-complete subset."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338353c/HC338353c.sas
-    task: "Runs alternate imputation model with PAG2008YN, HEI2010_C3, and SLPDUR_LT8HRS (n~201)."
+    task: "Runs alternate multiple imputation (categorized HEI2010_C3/SLPDUR_LT8HRS) restricted to participants with complete PRS data."
     software: SAS
     created: 2025-11-04
     status: "completed"
 
   - code: HC338354/HC338354.sas
-    task: "Fits regression models and generates Table 2 (n~227)."
+    task: "Fits pooled linear GENMOD models for WAZ across imputed datasets and produces Table 2 model estimates (Models 1-4; includes additional exploratory model run)."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338354a/HC338354a.sas
-    task: "Fits regression models and generates Table 2 for the n~201 analytic sample."
+    task: "Fits pooled linear GENMOD models for WAZ in the PRS-complete sample and generates the Table 2 counterpart for this restricted cohort."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338354a/HC338354a_20NOV25.sas
-    task: "Archived/snapshot version of HC338354a used for November 2025 runs."
+    task: "Frozen November 2025 snapshot of HC338354a used to reproduce the Table 2 restricted-sample results."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338354b/HC338354b.sas
-    task: "Fits alternate regression models and generates Table 2.1 (n~227)."
+    task: "Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (main sample)."
     software: SAS
     created: 2025-11-04
     status: "completed"
 
   - code: HC338354c/HC338354c.sas
-    task: "Fits alternate regression models and generates Table 2.1 for n~201 sample."
+    task: "Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (restricted sample)."
     software: SAS
     created: 2025-11-04
     status: "completed"
 
   - code: HC338355/HC338355.sas
-    task: "Produces descriptive/univariate table of individual associations."
+    task: "Runs pooled univariate linear models across imputed datasets and summarizes top pairwise correlations among continuous variables for exploratory screening."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338356a/HC338356a.sas
-    task: "Performs mediation analysis excluding PRS from the model."
+    task: "Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3a direct/indirect/total effects without child PRS in the covariate set."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338356b/HC338356b.sas
-    task: "Performs mediation analysis including PRS in the model."
+    task: "Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3b direct/indirect/total effects including child PRS in the covariate set."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338357/HC338357.sas
-    task: "Generates inclusion/exclusion flow table."
+    task: "Creates the inclusion/exclusion table and supporting missingness pattern output for the analytic sample construction workflow."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338358/HC338358.sas
-    task: "Fits logistic models and generates Table 3 (response: BMIPCT_C2)."
+    task: "Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3 (main sample)."
     software: SAS
     created: 2025-11-04
     status: "completed"
 
   - code: HC338358a/HC338358a.sas
-    task: "Fits logistic models and generates Table 3a for the n~201 sample."
+    task: "Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3a (restricted sample)."
     software: SAS
     created: 2025-11-04
     status: "completed"
 
   - code: HC338390/HC338390.sas
-    task: "Centralized variable formats used across manuscript scripts."
+    task: "Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338391/HC3383_labels.sas
-    task: "Defines labels/macros used in reporting workflows (e.g., regression table labels)."
+    task: "Defines the %labels macro that standardizes variable labels, ordering, and display conventions for manuscript tables."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338391/HC3383_mi_lasso.sas
-    task: "Supports MI model feature selection using lasso-based workflow."
+    task: "Provides the MI-lasso macro (Chen & Wang method) for variable selection in multiply imputed long-format data."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338391/HC3383_process_imputed.sas
-    task: "Processes imputed datasets for downstream modeling."
+    task: "Defines %process_imputed to pool parameter estimates across imputations via PROC MIANALYZE and attach reporting labels."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338391/HC3383_anonymize_db.sas
-    task: "Applies anonymization/processing utilities to project datasets."
+    task: "Defines %ANONYMIZE_DB to map SUBJECTID to study ID using transfer/encryption files and produce de-identified datasets."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338391/HC3383_partial_r2.sas
-    task: "Computes partial R2/sensitivity metrics for model interpretation."
+    task: "Defines %get_all_partial_r2 to compute variable-specific partial R2 across imputed GENMOD models using full vs reduced deviance."
     software: SAS
     created: 2026-03-08
     status: "ongoing"
 
   - code: HC338398/HC33839801.sas
-    task: "QC check (Cont #1) for derived analytic files."
+    task: "Performs QC comparison (cont #1) between project-derived datasets and Statistical Computing comparison datasets using PROC COMPARE."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338398/HC33839802.sas
-    task: "QC check (Cont #2) for derived analytic files."
+    task: "Performs QC comparison (cont #2) between project-derived datasets and updated Statistical Computing comparison datasets using PROC COMPARE."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338398/HC33839803.sas
-    task: "Post-QC comparison script after feedback updates."
+    task: "Performs post-feedback QC comparison for cont #2 after incorporating review updates to derived datasets."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338398/HC33839804.sas
-    task: "Quality check script for Table 1 outputs."
+    task: "Runs QC reconstruction of Table 1 components (frequencies, summary stats, and p-values by FLOR status) against the all-participant analysis dataset."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338398/HC33839805.sas
-    task: "Computes supplemental frequencies to support manuscript flow chart/QC."
+    task: "Computes supplemental frequency counts used to document flow-chart and protocol eligibility/supporting manuscript denominator checks."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338399/HC33839901.sas
-    task: "Creates HEI-2010 tertiles and related summaries."
+    task: "Computes HEI-2010 tertile cut points from the FLOR comparison dataset and exports the tertile summary report."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338399/HC33839902.sas
-    task: "Generates correlation analyses for selected covariates."
+    task: "Calculates Pearson correlation between YRS_BTWN_V1V2 and YRSV1BIRTH in the FLOR comparison dataset."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338399/HC33839903.sas
-    task: "Miscellaneous project support analysis (job 9903)."
+    task: "Duplicate correlation script of HC33839902 (same PROC CORR analysis between YRS_BTWN_V1V2 and YRSV1BIRTH)."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338399/HC33839904.sas
-    task: "Miscellaneous project support analysis (job 9904)."
+    task: "Runs an additional pooled Model 4 GENMOD analysis for WAZ including child sex and sex-by-alcohol interaction, then pools estimates with %process_imputed."
     software: SAS
     created: 2026-03-08
     status: "ongoing"
