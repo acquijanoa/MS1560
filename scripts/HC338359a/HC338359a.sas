@@ -78,10 +78,10 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 		model = "Model &model.";
 
 		* Handle CI variable names across MIANALYZE outputs;
-		lcl = inputn(strip(vvaluex('LCLMean')), best32.);
-		if missing(lcl) then lcl = inputn(strip(vvaluex('Lower')), best32.);
-		ucl = inputn(strip(vvaluex('UCLMean')), best32.);
-		if missing(ucl) then ucl = inputn(strip(vvaluex('Upper')), best32.);
+		lcl = inputn(strip(vvaluex('LCLMean')), 'best32.');
+		if missing(lcl) then lcl = inputn(strip(vvaluex('Lower')), 'best32.');
+		ucl = inputn(strip(vvaluex('UCLMean')), 'best32.');
+		if missing(ucl) then ucl = inputn(strip(vvaluex('Upper')), 'best32.');
 
 		%labels;
 		if variable not in ('Scale', 'Intercept');

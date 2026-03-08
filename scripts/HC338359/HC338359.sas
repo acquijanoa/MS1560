@@ -83,10 +83,10 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 		model="Model &model.";
 
 		* Handle CI variable names across MIANALYZE outputs;
-		lcl=inputn(strip(vvaluex('LCLMean')), best32.);
-		if missing(lcl) then lcl=inputn(strip(vvaluex('Lower')), best32.);
-		ucl=inputn(strip(vvaluex('UCLMean')), best32.);
-		if missing(ucl) then ucl=inputn(strip(vvaluex('Upper')), best32.);
+		lcl=inputn(strip(vvaluex('LCLMean')), 'best32.');
+		if missing(lcl) then lcl=inputn(strip(vvaluex('Lower')), 'best32.');
+		ucl=inputn(strip(vvaluex('UCLMean')), 'best32.');
+		if missing(ucl) then ucl=inputn(strip(vvaluex('Upper')), 'best32.');
 
 		%labels;
 		if variable not in ('Scale', 'Intercept');
@@ -217,7 +217,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file="&homepath\code\&job.\&job._Table3_&sysdate..rtf" style=manuscrt
+ods rtf file="&homepath\scripts\&job.\&job._Table3_&sysdate..rtf" style=manuscrt
 	bodytitle;
 %let fs=11pt;
 %let fs_body=11pt;
