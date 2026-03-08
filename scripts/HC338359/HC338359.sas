@@ -1,7 +1,7 @@
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
 %let job = HC338359;
-proc printto log="&homepath.\code\&job.\&job._&sysdate..log" 
-	print = "&homepath.\code\&job.\&job._&sysdate..lst" new; 
+proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
+	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
 
 /*********************************************************
@@ -50,8 +50,8 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let rg_margin = 0.7in;
 
 * Include sas scripts with formats and macros;
-%include "&homepath.\code\HC338390\HC338390.sas";
-%include "&homepath.\code\HC338391\HC3383_labels.sas";
+%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC338391\HC3383_labels.sas";
 
 %macro process_imputed_or(in_db=, out_db=, model=);
 
