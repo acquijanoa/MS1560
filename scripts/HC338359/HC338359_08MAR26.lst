@@ -9394,3 +9394,8 @@ NOTE: The scale parameter was held fixed.
            Parameter        Estimate      Std Error    95% Confidence Limits        DF        Minimum        Maximum         Theta0   Parameter=Theta0   Pr > |t|
 
            Estimate         0.112453       0.144122     -0.17004     0.394943    21526       0.088667       0.140996              0               0.78     0.4352
+                                                                           Model 4: Model 3 + PRS
+
+                                                                                         n
+                                                                                  --------
+                                                                                       227

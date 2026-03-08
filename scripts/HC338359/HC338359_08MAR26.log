@@ -1,66 +1,66 @@
 NOTE: PROCEDURE PRINTTO used (Total process time):
       real time           0.03 seconds
-      cpu time            0.00 seconds
+      cpu time            0.01 seconds
       
 
-7          
-8          /*********************************************************
-9           *                                                         *
-10          *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
-11          *                                                        *
-12          **********************************************************
-13          *                                                        *
-14          *  PROGRAM NAME: HC338359.sas
-15          *
-16          *  PROGRAMMER: Álvaro Quijano (AQ)
-17          *
-18          *  DESCRIPTION: Logistic model with Overweight/Obese as
-19         the response; report OR and 95% CI
-20          *
-21          * ---------------------------------------------------------
-22          *
-23          *  JOB NUMBER: HC338359
-24          *
-25          *  PREVIOUS JOB:
-26          *
-27          *  LANGUAGE: SAS 9.4
-28          *
-29          *  VERSION CONTROL:
-2                                                          The SAS System                                15:45 Sunday, March 8, 2026
+6          
+7          /*********************************************************
+8           *                                                         *
+9           *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
+10          *                                                        *
+11          **********************************************************
+12          *                                                        *
+13          *  PROGRAM NAME: HC338359.sas
+14          *
+15          *  PROGRAMMER: A�lvaro Quijano (AQ)
+16          *
+17          *  DESCRIPTION: Logistic model with Overweight/Obese as
+18         the response; report OR and 95% CI
+19          *
+20          * ---------------------------------------------------------
+21          *
+22          *  JOB NUMBER: HC338359
+23          *
+24          *  PREVIOUS JOB:
+25          *
+26          *  LANGUAGE: SAS 9.4
+27          *
+28          *  VERSION CONTROL:
+29          *					03dec25: create file
+2                                                          The SAS System                                16:51 Sunday, March 8, 2026
 
-30          *					03dec25: create file
-31          *
-32          * ----------------------------------------------------------
-33          *
-34          *  INPUT:
-35          *
-36          *  OUTPUT:
-37          *
-38          **********************************************************/
-39         options orientation=portrait nodate formchar="|----|+|---+=|-/\<>*" nonumber
-40         	PS=59 LS=173;
-41         ods escapechar '^';
-42         
-43         * Set libraries name;
-44         libname data "&homepath.\data";
+30          *
+31          * ----------------------------------------------------------
+32          *
+33          *  INPUT:
+34          *
+35          *  OUTPUT:
+36          *
+37          **********************************************************/
+38         options orientation=portrait nodate formchar="|----|+|---+=|-/\<>*" nonumber
+39         	PS=59 LS=173;
+40         ods escapechar '^';
+41         
+42         * Set libraries name;
+43         libname data "&homepath.\data";
 NOTE: Libref DATA was successfully assigned as follows: 
       Engine:        V9 
       Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
-45         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+44         libname hchstyle 'J:\hchs\sc\styledef\sty904';
 NOTE: Libref HCHSTYLE was successfully assigned as follows: 
       Engine:        V9 
       Physical Name: J:\hchs\sc\styledef\sty904
-46         
-47         * Set macro variables;
-48         %put JOB=&job.;
+45         
+46         * Set macro variables;
+47         %put JOB=&job.;
 JOB=HC338359
-49         %let prg=AQA;
-50         %let impdb=data.HC338353_imputed_data_12nov25;
-51         %let lf_margin=0.7in;
-52         %let rg_margin=0.7in;
-53         
-54         * Include sas scripts with formats and macros;
-55         %include "&homepath.\scripts\HC338390\HC338390.sas";
+48         %let prg=AQA;
+49         %let impdb=data.HC338353_imputed_data_12nov25;
+50         %let lf_margin=0.7in;
+51         %let rg_margin=0.7in;
+52         
+53         * Include sas scripts with formats and macros;
+54         %include "&homepath.\scripts\HC338390\HC338390.sas";
 NOTE: Format BKGRD1_C7NOMISS_FMT has been output.
 NOTE: Format PV has been output.
 NOTE: Format CENTERNUM_FMT has been output.
@@ -85,104 +85,94 @@ NOTE: Format BLANKDOT has been output.
 NOTE: Format REFNUM has been output.
 NOTE: The NEGPAREN (in)format was specified on the right-hand side of an equal sign, but without a length specification. PROC FORMAT will assume a default length of at 
       least 40 for the format being generated. If this is an insufficient width, you can rerun PROC FORMAT with an explicit width for the NEGPAREN (in)format, or provide a 
+      sufficient DEFAULT= option.
                                                                                The SAS System
 
-      sufficient DEFAULT= option.
 NOTE: Format PAREN has been output.
 
 NOTE: PROCEDURE FORMAT used (Total process time):
-      real time           0.03 seconds
+      real time           0.02 seconds
       cpu time            0.01 seconds
       
 
-155        %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
-258        
+154        %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
+257        
+258        * Define macro to process imputed ORs;
 259        %macro process_imputed_or(in_db=, out_db=, model=);
-260        
-261        	data &in_db.;
-262        		set &in_db.;
-263        		length EffectName $50;
-264        		if missing(Level1) then EffectName=Parameter;
-265        		else EffectName=catx('_', Parameter, Level1);
-266        	run;
-267        
-268        	proc sort data=&in_db.;
-269        		by EffectName;
-270        	run;
-271        
-272        	ods output ParameterEstimates=&out_db._p;
-273        
-274        	proc mianalyze data=&in_db.;
-275        		by EffectName;
-276        		modeleffects Estimate;
-277        		stderr StdErr;
-278        	run;
-279        	ods output close;
-280        
-281        	data &out_db.;
-282        		length model $10 or_txt $20 ci_txt $30;
-283        		set &out_db._p(rename=(EffectName=variable));
-284        		model="Model &model.";
+260        	data &in_db.;
+261        		set &in_db.;
+262        		length EffectName $50;
+263        		if missing(Level1) then EffectName=Parameter;
+264        		else EffectName=catx('_', Parameter, Level1);
+265        	run;
+266        	proc sort data=&in_db.;
+267        		by EffectName;
+268        	run;
+269        
+270        	ods output ParameterEstimates=&out_db._p;
+271        	proc mianalyze data=&in_db.;
+272        		by EffectName;
+273        		modeleffects Estimate;
+274        		stderr StdErr;
+275        	run;
+276        	ods output close;
+277        
+278        	data &out_db.(keep=order model label or_txt ci_txt pv);
+279        		length model $10 or_txt $20 ci_txt $30;
+280        		set &out_db._p(rename=(EffectName=variable));
+281        		model=&model.;
+282        		
+283        		%labels;
+284        		if variable not in ('Scale', 'Intercept');
 285        
-286        		* Handle CI variable names across MIANALYZE outputs;
-287        		lcl=inputn(strip(vvaluex('LCLMean')), best32.);
-288        		if missing(lcl) then lcl=inputn(strip(vvaluex('Lower')), best32.);
-289        		ucl=inputn(strip(vvaluex('UCLMean')), best32.);
-290        		if missing(ucl) then ucl=inputn(strip(vvaluex('Upper')), best32.);
-291        
-292        		%labels;
-293        		if variable not in ('Scale', 'Intercept');
-294        
-295        		if std=99 then do;
-296        			or_txt='Ref.';
-297        			ci_txt=' ';
-298        		end;
-299        		else do;
-300        			or_txt=strip(put(exp(estimate), 8.2));
-301        			ci_txt=cats('(', strip(put(exp(lcl), 8.2)), ', ',
-302        				strip(put(exp(ucl), 8.2)), ')');
-303        		end;
-304        	run;
-305        
+286        		if std=99 then do;
+287        			or_txt='Ref.';
+288        			ci_txt=' ';
+289        		end;
+290        		else do;
+291        			or_txt=strip(put(exp(estimate), 8.2));
+292        			ci_txt=cats('(', strip(put(exp(LCLMean), 8.2)), ', ',
+293        				strip(put(exp(UCLMean), 8.2)), ')');
+294        		end;
+295        run;
+296        %mend process_imputed_or;
+297        
+298        * ;
+299        data impdb;
+300        	set &impdb.;
+301        
+302        	if BMIPCT_C3 in (2,3) then BMIPCT_C2=1;
+303        	else if BMIPCT_C3=1 then BMIPCT_C2=0;
+304        	else BMIPCT_C2=.;
+305        	label BMIPCT_C2='Respondent is Overweight or Obese';
                                                                                The SAS System
 
-306        %mend process_imputed_or;
-307        
-308        * ;
-309        data impdb;
-310        	set &impdb.;
-311        
-312        	if BMIPCT_C3 in (2,3) then BMIPCT_C2=1;
-313        	else if BMIPCT_C3=1 then BMIPCT_C2=0;
-314        	else BMIPCT_C2=.;
-315        	label BMIPCT_C2='Respondent is Overweight or Obese';
-316        run;
+306        run;
 
 NOTE: There were 2270 observations read from the data set DATA.HC338353_IMPUTED_DATA_12NOV25.
 NOTE: The data set WORK.IMPDB has 2270 observations and 273 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.25 seconds
-      cpu time            0.03 seconds
+      real time           0.24 seconds
+      cpu time            0.00 seconds
       
 
-317        
-318        * Fit the models using the imputed data;
-319        title 'Model 1 - Sociodemographics';
-320        
-321        proc genmod data=impdb;
-322        	by _imputation_;
-323        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
-324        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-325        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-326        		yrsus_c3(ref='US_BORN') bmipct_c2(ref='NORMAL');
-327        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
-328        		education_c3 parity_v1 employedyn marital_status yrsus_c3 / d=binomial;
-329        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
-330        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
-331        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-332        		bmipct_c2 bmipct_c2_fmt. ;
-333        	ods output ParameterEstimates=genmod_results_1;
-334        run;
+307        
+308        * Fit the models using the imputed data;
+309        title 'Model 1 - Sociodemographics';
+310        proc genmod data=impdb;
+311        	by _imputation_;
+312        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+313        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+314        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+315        		yrsus_c3(ref='US_BORN') bmipct_c2(ref='NORMAL');
+316        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
+317        		education_c3 parity_v1 employedyn marital_status yrsus_c3 / d=binomial;
+318        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+319        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+320        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+321        		bmipct_c2 bmipct_c2_fmt. ;
+322        	ods output ParameterEstimates=genmod_results_1;
+323        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
       the DESCENDING option in the PROC statement.
@@ -203,8 +193,6 @@ NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBES
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
-                                                                               The SAS System
-
 NOTE: The above message was for the following BY group:
       Imputation Number=3
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
@@ -216,6 +204,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=4
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
       the DESCENDING option in the PROC statement.
+                                                                               The SAS System
+
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
@@ -259,33 +249,32 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 1-20.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.10 seconds
-      cpu time            0.07 seconds
+      real time           0.13 seconds
+      cpu time            0.06 seconds
       
+
+324        
+325        title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur) ';
+326        proc genmod data=impdb;
+327        	by _imputation_;
+328        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+329        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+330        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+331        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+332        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+333        		bmipct_c2(ref='NORMAL');
                                                                                The SAS System
 
-
-335        
-336        title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur) ';
-337        
-338        proc genmod data=impdb;
-339        	by _imputation_;
-340        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
-341        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-342        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-343        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
-344        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
-345        		bmipct_c2(ref='NORMAL');
-346        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
-347        		education_c3 parity_v1 employedyn marital_status yrsus_c3 current_smoker
-348        		hei2010_c3 alcohol_use pag2008yn slpdur / dist=binomial;
-349        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
-350        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
-351        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-352        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
-353        		hei2010_c3 hei2010_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
-354        	ods output ParameterEstimates=genmod_results_2;
-355        run;
+334        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
+335        		education_c3 parity_v1 employedyn marital_status yrsus_c3 current_smoker
+336        		hei2010_c3 alcohol_use pag2008yn slpdur / dist=binomial;
+337        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+338        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+339        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+340        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+341        		hei2010_c3 hei2010_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
+342        	ods output ParameterEstimates=genmod_results_2;
+343        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
       the DESCENDING option in the PROC statement.
@@ -321,8 +310,6 @@ NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE o
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
-                                                                               The SAS System
-
       Imputation Number=5
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
       the DESCENDING option in the PROC statement.
@@ -335,6 +322,8 @@ NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBES
       the DESCENDING option in the PROC statement.
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
+                                                                               The SAS System
+
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
       Imputation Number=7
@@ -366,35 +355,34 @@ NOTE: PROCEDURE GENMOD used (Total process time):
       cpu time            0.06 seconds
       
 
-356        
-357        title 'Model 3: Model 2 + mental health';
-358        
-359        proc genmod data=impdb;
-360        	by _imputation_;
-361        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
-362        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-363        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-364        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
-365        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
-366        		cesd10(ref="NODEPRE") stai10(ref="NOANX") bmipct_c2(ref='NORMAL');
-367        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
-368        		education_c3 parity_v1 employedyn marital_status yrsus_c3 current_smoker
-369        		hei2010_c3 alcohol_use pag2008yn slpdur cesd10 stai10/ dist=binomial;
-                                                                               The SAS System
-
-370        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
-371        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
-372        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-373        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
-374        		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
-375        		bmipct_c2 bmipct_c2_fmt.;
-376        	ods output ParameterEstimates=genmod_results_3;
-377        run;
+344        
+345        title 'Model 3: Model 2 + mental health';
+346        proc genmod data=impdb;
+347        	by _imputation_;
+348        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+349        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+350        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+351        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+352        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+353        		cesd10(ref="NODEPRE") stai10(ref="NOANX") bmipct_c2(ref='NORMAL');
+354        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
+355        		education_c3 parity_v1 employedyn marital_status yrsus_c3 current_smoker
+356        		hei2010_c3 alcohol_use pag2008yn slpdur cesd10 stai10/ dist=binomial;
+357        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+358        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+359        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+360        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+361        		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
+362        		bmipct_c2 bmipct_c2_fmt.;
+363        	ods output ParameterEstimates=genmod_results_3;
+364        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
       the DESCENDING option in the PROC statement.
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
+                                                                               The SAS System
+
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
       Imputation Number=1
@@ -439,8 +427,6 @@ NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE o
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
-                                                                               The SAS System
-
       Imputation Number=7
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
       the DESCENDING option in the PROC statement.
@@ -454,6 +440,8 @@ NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBES
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
+                                                                               The SAS System
+
 NOTE: The above message was for the following BY group:
       Imputation Number=9
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
@@ -466,40 +454,37 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 440 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 51-80.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.12 seconds
+      real time           0.10 seconds
       cpu time            0.07 seconds
       
 
-378        
-379        title 'Model 4: Model 3 + PRS';
-380        
-381        proc genmod data=impdb;
-382        	by _imputation_;
-383        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
-384        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-385        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-386        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
-387        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
-388        		cesd10(ref="NODEPRE") stai10(ref="NOANX") bmipct_c2(ref='NORMAL');
-389        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
-390        		education_c3 parity_v1 employedyn marital_status yrsus_c3 current_smoker
-391        		hei2010_c3 alcohol_use pag2008yn slpdur cesd10 stai10 child_prs_bmi_a/
-392        		dist=binomial;
-393        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
-394        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
-395        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-396        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
-397        		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
-398        		bmipct_c2 bmipct_c2_fmt.;
-399        	ods output ParameterEstimates=genmod_results_4;
-400        run;
+365        
+366        title 'Model 4: Model 3 + PRS';
+367        proc genmod data=impdb;
+368        	by _imputation_;
+369        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+370        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+371        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+372        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+373        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+374        		cesd10(ref="NODEPRE") stai10(ref="NOANX") bmipct_c2(ref='NORMAL');
+375        	model bmipct_c2=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc
+376        		education_c3 parity_v1 employedyn marital_status yrsus_c3 current_smoker
+377        		hei2010_c3 alcohol_use pag2008yn slpdur cesd10 stai10 child_prs_bmi_a/
+378        		dist=binomial;
+379        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+380        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+381        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+382        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+383        		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
+384        		bmipct_c2 bmipct_c2_fmt.;
+385        	ods output ParameterEstimates=genmod_results_4;
+386        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
       the DESCENDING option in the PROC statement.
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
-                                                                               The SAS System
-
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
       Imputation Number=1
@@ -514,6 +499,8 @@ NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBES
       the DESCENDING option in the PROC statement.
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
+                                                                               The SAS System
+
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
       Imputation Number=3
@@ -557,8 +544,6 @@ NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBES
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
-                                                                               The SAS System
-
 NOTE: The above message was for the following BY group:
       Imputation Number=9
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
@@ -571,13 +556,15 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 450 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 81-110.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.08 seconds
-      cpu time            0.06 seconds
+      real time           0.09 seconds
+      cpu time            0.07 seconds
+                                                                               The SAS System
+
       
 
-401        
-402        * Process the imputed estimates;
-403        %process_imputed_or(in_db=genmod_results_1, out_db=mianalize_1, model=1);
+387        
+388        * Process the imputed estimates;
+389        %process_imputed_or(in_db=genmod_results_1, out_db=mianalize_1, model=1);
 
 NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
@@ -590,8 +577,8 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.04 seconds
-      cpu time            0.00 seconds
+      real time           0.00 seconds
+      cpu time            0.01 seconds
       
 
 
@@ -616,8 +603,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
-                                                                               The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EffectName=CENTERNUM_BRONX
@@ -632,6 +617,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
+                                                                               The SAS System
+
       EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
@@ -675,8 +662,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
-                                                                               The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -691,6 +676,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
@@ -698,49 +685,21 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_1_P has 29 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 111-139.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.05 seconds
-      cpu time            0.03 seconds
-      
-
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-403         Handle CI variable names across MIANALYZE outputs;   lcl=inputn(strip(vvaluex('LCLMean')), best32.);   if missing(lcl) then lcl=inputn(strip(vvaluex('Lower')),
-                                                                                                       _______
-_______                                                                                                                                                                      
-_______                                                                                                                                                                      
-                                                                                                       386                                                                  
-386
-386
-                                                                                                       201                                                                  
-201
-201
-                                                                                                       76                                                                   
-76
-76
-403      ! best32.);   ucl=inputn(strip(vvaluex('UCLMean')), best32.);   if missing(ucl) then ucl=inputn
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-403        (strip(vvaluex('Upper')), best32.);    %labels;   if variable not in ('Scale', 'Intercept');    if std=99 then do;    or_txt='Ref.';    ci_txt=' ';   end;   else
-                                     _______
-                                     386
-                                     201
-                                     76
-403      ! do;    or_txt=strip(put(exp(estimate), 8.2));    ci_txt=cats('(', strip(put(exp(lcl), 8.2)),
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
+      real time           0.03 seconds
       cpu time            0.00 seconds
       
-FATAL: DATA STEP compilation stopped due to syntax errors.
-NOTE: The SAS System stopped processing this step because of errors.
-ERROR 386-185: Expecting an arithmetic expression.
-
-ERROR 201-322: The option is not recognized and will be ignored.
-
-                                                                               The SAS System
-
-ERROR 76-322: Syntax error, statement will be ignored.
-
-404        %process_imputed_or(in_db=genmod_results_2, out_db=mianalize_2, model=2);
 
 
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      389:1   
+NOTE: There were 29 observations read from the data set WORK.MIANALIZE_1_P.
+NOTE: The data set WORK.MIANALIZE_1 has 27 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+390        %process_imputed_or(in_db=genmod_results_2, out_db=mianalize_2, model=2);
 
 NOTE: There were 400 observations read from the data set WORK.GENMOD_RESULTS_2.
 NOTE: The data set WORK.GENMOD_RESULTS_2 has 400 observations and 11 variables.
@@ -776,6 +735,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -793,8 +754,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-                                                                               The SAS System
-
       EffectName=CENTERNUM_BRONX
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
@@ -835,6 +794,8 @@ NOTE: The above message was for the following BY group:
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
@@ -852,8 +813,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
-                                                                               The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
@@ -894,6 +853,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EffectName=Scale
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -909,49 +870,21 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_2_P has 40 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 140-179.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.03 seconds
-      cpu time            0.01 seconds
-                                                                               The SAS System
-
+      real time           0.04 seconds
+      cpu time            0.00 seconds
       
 
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-404         Handle CI variable names across MIANALYZE outputs;   lcl=inputn(strip(vvaluex('LCLMean')), best32.);   if missing(lcl) then lcl=inputn(strip(vvaluex('Lower')),
-                                                                                                       _______
-_______                                                                                                                                                                      
-_______                                                                                                                                                                      
-                                                                                                       386                                                                  
-386
-386
-                                                                                                       201                                                                  
-201
-201
-                                                                                                       76                                                                   
-76
-76
-404      ! best32.);   ucl=inputn(strip(vvaluex('UCLMean')), best32.);   if missing(ucl) then ucl=inputn
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-404        (strip(vvaluex('Upper')), best32.);    %labels;   if variable not in ('Scale', 'Intercept');    if std=99 then do;    or_txt='Ref.';    ci_txt=' ';   end;   else
-                                     _______
-                                     386
-                                     201
-                                     76
-404      ! do;    or_txt=strip(put(exp(estimate), 8.2));    ci_txt=cats('(', strip(put(exp(lcl), 8.2)),
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      390:1   
+NOTE: There were 40 observations read from the data set WORK.MIANALIZE_2_P.
+NOTE: The data set WORK.MIANALIZE_2 has 38 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
       real time           0.00 seconds
       cpu time            0.00 seconds
       
-FATAL: DATA STEP compilation stopped due to syntax errors.
-NOTE: The SAS System stopped processing this step because of errors.
-ERROR 386-185: Expecting an arithmetic expression.
 
-ERROR 201-322: The option is not recognized and will be ignored.
-
-ERROR 76-322: Syntax error, statement will be ignored.
-
-405        %process_imputed_or(in_db=genmod_results_3, out_db=mianalize_3, model=3);
-
-
+391        %process_imputed_or(in_db=genmod_results_3, out_db=mianalize_3, model=3);
 
 NOTE: There were 440 observations read from the data set WORK.GENMOD_RESULTS_3.
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 440 observations and 11 variables.
@@ -970,8 +903,6 @@ NOTE: PROCEDURE SORT used (Total process time):
 
 
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-                                                                               The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -981,6 +912,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+                                                                               The SAS System
+
 NOTE: The above message was for the following BY group:
       EffectName=ALCOHOL_USE_NEVER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
@@ -1029,8 +962,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
-                                                                               The SAS System
-
 NOTE: The above message was for the following BY group:
       EffectName=CURRENT_SMOKER_NO
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
@@ -1040,6 +971,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
@@ -1088,8 +1021,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
-                                                                               The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
@@ -1099,6 +1030,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
@@ -1146,54 +1079,28 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_3_P has 44 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 180-223.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.05 seconds
-                                                                               The SAS System
-
+      real time           0.02 seconds
       cpu time            0.01 seconds
       
 
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-405         Handle CI variable names across MIANALYZE outputs;   lcl=inputn(strip(vvaluex('LCLMean')), best32.);   if missing(lcl) then lcl=inputn(strip(vvaluex('Lower')),
-                                                                                                       _______
-_______                                                                                                                                                                      
-_______                                                                                                                                                                      
-                                                                                                       386                                                                  
-386
-386
-                                                                                                       201                                                                  
-201
-201
-                                                                                                       76                                                                   
-76
-76
-405      ! best32.);   ucl=inputn(strip(vvaluex('UCLMean')), best32.);   if missing(ucl) then ucl=inputn
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-405        (strip(vvaluex('Upper')), best32.);    %labels;   if variable not in ('Scale', 'Intercept');    if std=99 then do;    or_txt='Ref.';    ci_txt=' ';   end;   else
-                                     _______
-                                     386
-                                     201
-                                     76
-405      ! do;    or_txt=strip(put(exp(estimate), 8.2));    ci_txt=cats('(', strip(put(exp(lcl), 8.2)),
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      391:1   
+NOTE: There were 44 observations read from the data set WORK.MIANALIZE_3_P.
+NOTE: The data set WORK.MIANALIZE_3 has 42 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
+                                                                               The SAS System
+
       real time           0.00 seconds
       cpu time            0.00 seconds
       
-FATAL: DATA STEP compilation stopped due to syntax errors.
-NOTE: The SAS System stopped processing this step because of errors.
-ERROR 386-185: Expecting an arithmetic expression.
 
-ERROR 201-322: The option is not recognized and will be ignored.
-
-ERROR 76-322: Syntax error, statement will be ignored.
-
-406        %process_imputed_or(in_db=genmod_results_4, out_db=mianalize_4, model=4);
-
-
+392        %process_imputed_or(in_db=genmod_results_4, out_db=mianalize_4, model=4);
 
 NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 450 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1205,8 +1112,6 @@ NOTE: PROCEDURE SORT used (Total process time):
       cpu time            0.00 seconds
       
 
-
-                                                                               The SAS System
 
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
@@ -1243,6 +1148,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
+                                                                               The SAS System
+
       EffectName=CENTERNUM_BRONX
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
@@ -1265,8 +1172,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
-                                                                               The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EffectName=CURRENT_SMOKER_NO
@@ -1302,6 +1207,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
@@ -1324,8 +1231,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
-                                                                               The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -1361,6 +1266,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+                                                                               The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
@@ -1383,146 +1290,231 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_4_P has 45 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 224-268.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      392:1   
+NOTE: There were 45 observations read from the data set WORK.MIANALIZE_4_P.
+NOTE: The data set WORK.MIANALIZE_4 has 43 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+393        
+394        * Merge datasets from different models;
+395        data db_join;
+396        	set mianalize_1 mianalize_2 mianalize_3 mianalize_4;
+397        run;
+
+NOTE: There were 27 observations read from the data set WORK.MIANALIZE_1.
+NOTE: There were 38 observations read from the data set WORK.MIANALIZE_2.
+NOTE: There were 42 observations read from the data set WORK.MIANALIZE_3.
+NOTE: There were 43 observations read from the data set WORK.MIANALIZE_4.
+NOTE: The data set WORK.DB_JOIN has 150 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+398        
+399        * Convert to wide format;
+400        proc sort data=db_join; by order label model; run;
+
+NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
                                                                                The SAS System
 
+NOTE: The data set WORK.DB_JOIN has 150 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+401        data db_wide;
+402            length label $300
+403                   or_txt_1-or_txt_4 $40
+404                   ci_txt_1-ci_txt_4 $60
+405                   pv_1-pv_4 $20;
+406        
+407            retain or_txt_1-or_txt_4 ci_txt_1-ci_txt_4 pv_1-pv_4;
+408        
+409            set db_join;
+410            by order label;
+411        
+412            if first.label then do;
+413                call missing(of or_txt_1-or_txt_4);
+414                call missing(of ci_txt_1-ci_txt_4);
+415                call missing(of pv_1-pv_4);
+416            end;
+417        
+418            select (model);
+419                when (1) do;
+420                    or_txt_1 = or_txt;
+421                    ci_txt_1 = ci_txt;
+422                    pv_1     = pv;
+423        			sig_1	 = (pv=1);
+424                end;
+425                when (2) do;
+426                    or_txt_2 = or_txt;
+427                    ci_txt_2 = ci_txt;
+428                    pv_2     = pv;
+429        			sig_2 	 = (pv=2);
+430                end;
+431                when (3) do;
+432              		or_txt_3 = or_txt;
+433                    ci_txt_3 = ci_txt;
+434                    pv_3     = pv;
+435        			sig_3 	 = (pv=3);
+436                end;
+437                when (4) do;
+438                    or_txt_4 = or_txt;
+439                    ci_txt_4 = ci_txt;
+440                    pv_4     = pv;
+441        			sig_4 	 = (pv=4);
+442                end;
+443                otherwise;
+444            end;
+445        
+446            if last.label then output;
+447            keep order label
+448                 or_txt_1 ci_txt_1 sig_1
+449                 or_txt_2 ci_txt_2 sig_2
+450                 or_txt_3 ci_txt_3 sig_3
+451                 or_txt_4 ci_txt_4 sig_4;
+                                                                               The SAS System
+
+452        run;
+
+NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
+      419:15   425:15   431:15   437:15   
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      422:24   428:24   434:24   440:24   
+NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
+NOTE: The data set WORK.DB_WIDE has 43 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+453        proc sort data = db_wide; by order; run;
+
+NOTE: There were 43 observations read from the data set WORK.DB_WIDE.
+NOTE: The data set WORK.DB_WIDE has 43 observations and 14 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+454        
+455        * Obtain ids and save it in a macro variable ;
+456        proc sql;
+457        	select count(distinct(id)) as n into:n_ids from &impdb;
+458        quit;
+NOTE: The PROCEDURE SQL printed page 269.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+459        
+460        * Print final report;
+461        ods listing close;
+462        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+463        ods rtf file="&homepath\scripts\&job.\&job._Table3_&sysdate..rtf" style=manuscrt
+464        	bodytitle;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\scripts\HC338359\HC338359_Table3_08MAR26.rtf
+465        %let fs=11pt;
+466        %let fs_body=11pt;
+467        %let fs_titles=11pt;
+468        %let lft_mgn=0.3in;
+469        %let rgt_mgn=0.1in;
+470        proc report data=db_wide;
+471        	title j=center height=&fs font='times roman' bold
+472        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3. Association among maternal preconception socio-behavioral factors and overweight or obesity, HCHS/SOL
+472      ! FLOR Ancillary Study (n=%qtrim(&n_ids))";
+473        	footnote1 J=LEFT HEIGHT=&fs_titles FONT='times roman'
+474        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
+475        	footnote2 J=LEFT HEIGHT=&fs_titles FONT='times roman'
+476        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and FLOR
+476      ! visit.";
+477        	footnote3 J=LEFT HEIGHT=&fs_titles FONT='times roman'
+478        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR visit."
+478      ! ;
+                                                                               The SAS System
+
+479        	footnote4 J=LEFT HEIGHT=&fs_titles FONT='times roman'
+480        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit.";
+481        	footnote5 J=LEFT HEIGHT=&fs_titles FONT='times roman'
+482        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + childs obesity genetic risk score.";
+483        	footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
+484        		"{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+485        	 columns order label
+486                    ('Model 1' or_txt_1 ci_txt_1)
+487                    ('Model 2' or_txt_2 ci_txt_2)
+488                    ('Model 3' or_txt_3 ci_txt_3)
+489                    ('Model 4' or_txt_4 ci_txt_4)
+490        			sig_1 sig_2 sig_3 sig_4;
+491            define order / order=internal noprint;
+492            define label / display "Predictor"
+493                style(header)=[fontsize=&fs just=left]
+494                style=[fontsize=&fs width=2.5in];
+495            define or_txt_1 / display "OR"     style=[fontsize=&fs just=center];
+496            define ci_txt_1 / display "95% CI" style=[fontsize=&fs just=center];
+497        
+498            define or_txt_2 / display "OR"     style=[fontsize=&fs just=center];
+499            define ci_txt_2 / display "95% CI" style=[fontsize=&fs just=center];
+500        
+501            define or_txt_3 / display "OR"     style=[fontsize=&fs just=center];
+502            define ci_txt_3 / display "95% CI" style=[fontsize=&fs just=center];
+503            define or_txt_4 / display "OR"     style=[fontsize=&fs just=center];
+504            define ci_txt_4 / display "95% CI" style=[fontsize=&fs just=center];
+505        	define sig_1 / noprint;
+506            define sig_2 / noprint;
+507            define sig_3 / noprint;
+508            define sig_4 / noprint;
+509            compute or_txt_1;
+510                if sig_1 = 1 then do;
+511                    call define('or_txt_1', 'style', 'style=[font_weight=bold]');
+512                    call define('ci_txt_1', 'style', 'style=[font_weight=bold]');
+513                end;
+514            endcomp;
+515            compute or_txt_2;
+516                if sig_2 = 1 then do;
+517                    call define('or_txt_2', 'style', 'style=[font_weight=bold]');
+518                    call define('ci_txt_2', 'style', 'style=[font_weight=bold]');
+519                end;
+520            endcomp;
+521            compute or_txt_3;
+522                if sig_3 = 1 then do;
+523                    call define('or_txt_3', 'style', 'style=[font_weight=bold]');
+524                    call define('ci_txt_3', 'style', 'style=[font_weight=bold]');
+525                end;
+526            endcomp;
+527            compute or_txt_4;
+528                if sig_4 = 1 then do;
+529                    call define('or_txt_4', 'style', 'style=[font_weight=bold]');
+530                    call define('ci_txt_4', 'style', 'style=[font_weight=bold]');
+531                end;
+532            endcomp;
+533        run;
+
+NOTE: Variable sig_1 is uninitialized.
+                                                                               The SAS System
+
+NOTE: Variable sig_2 is uninitialized.
+NOTE: Variable sig_3 is uninitialized.
+NOTE: Variable sig_4 is uninitialized.
+NOTE: PROCEDURE REPORT used (Total process time):
       real time           0.05 seconds
       cpu time            0.04 seconds
       
+NOTE: There were 43 observations read from the data set WORK.DB_WIDE.
 
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-406         Handle CI variable names across MIANALYZE outputs;   lcl=inputn(strip(vvaluex('LCLMean')), best32.);   if missing(lcl) then lcl=inputn(strip(vvaluex('Lower')),
-                                                                                                       _______
-_______                                                                                                                                                                      
-_______                                                                                                                                                                      
-                                                                                                       386                                                                  
-386
-386
-                                                                                                       201                                                                  
-201
-201
-                                                                                                       76                                                                   
-76
-76
-406      ! best32.);   ucl=inputn(strip(vvaluex('UCLMean')), best32.);   if missing(ucl) then ucl=inputn
-NOTE: Line generated by the invoked macro "PROCESS_IMPUTED_OR".
-406        (strip(vvaluex('Upper')), best32.);    %labels;   if variable not in ('Scale', 'Intercept');    if std=99 then do;    or_txt='Ref.';    ci_txt=' ';   end;   else
-                                     _______
-                                     386
-                                     201
-                                     76
-406      ! do;    or_txt=strip(put(exp(estimate), 8.2));    ci_txt=cats('(', strip(put(exp(lcl), 8.2)),
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-FATAL: DATA STEP compilation stopped due to syntax errors.
-NOTE: The SAS System stopped processing this step because of errors.
-ERROR 386-185: Expecting an arithmetic expression.
-
-ERROR 201-322: The option is not recognized and will be ignored.
-
-ERROR 76-322: Syntax error, statement will be ignored.
-
-407        
-408        * Merge datasets from different models;
-
-
-409        data db_join;
-410        	set mianalize_1 mianalize_2 mianalize_3 mianalize_4;
-ERROR: File WORK.MIANALIZE_1.DATA does not exist.
-ERROR: File WORK.MIANALIZE_2.DATA does not exist.
-ERROR: File WORK.MIANALIZE_3.DATA does not exist.
-ERROR: File WORK.MIANALIZE_4.DATA does not exist.
-411        run;
-
-NOTE: The SAS System stopped processing this step because of errors.
-NOTE: Due to ERROR(s) above, SAS set option OBS=0, enabling syntax check mode. This prevents execution of subsequent data modification statements.
-WARNING: The data set WORK.DB_JOIN may be incomplete.  When this step was stopped there were 0 observations and 0 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.00 seconds
-      
-                                                                               The SAS System
-
-
-412        
-413        * Obtain ids and save it in a macro variable ;
-414        proc sql;
-NOTE: PROC SQL set option NOEXEC and will continue to check the syntax of statements.
-415        	select count(distinct(id)) as n into:n_ids from &impdb;
-NOTE: Statement not executed due to NOEXEC option.
-416        quit;
-NOTE: The SAS System stopped processing this step because of errors.
-NOTE: PROCEDURE SQL used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-417        
-418        * Print final report;
-419        ods listing close;
-420        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-421        ods rtf file="&homepath\code\&job.\&job._Table3_&sysdate..rtf" style=manuscrt
-422        	bodytitle;
-ERROR: Physical file does not exist, J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338359\HC338359_Table3_08MAR26.rtf.
-ERROR: Fatal ODS error has occurred. Unable to continue processing this output destination.
-WARNING: No body file. RTF output will not be created.
-423        %let fs=11pt;
-424        %let fs_body=11pt;
-425        %let fs_titles=11pt;
-426        %let lft_mgn=0.3in;
-427        %let rgt_mgn=0.1in;
-428        
-
-
-429        proc report data=db_join;
-430        	title j=center height=&fs font='times roman' bold
-431        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3. Association among maternal preconception socio-behavioral factors and overweight or obesity, HCHS/SOL
-431      ! FLOR Ancillary Study (n=%qtrim(&n_ids))";
-WARNING: Apparent symbolic reference N_IDS not resolved.
-WARNING: Apparent symbolic reference N_IDS not resolved.
-WARNING: Apparent symbolic reference N_IDS not resolved.
-WARNING: Apparent symbolic reference N_IDS not resolved.
-432        	footnote1 J=LEFT HEIGHT=&fs_titles FONT='times roman'
-433        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
-434        	footnote2 J=LEFT HEIGHT=&fs_titles FONT='times roman'
-435        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and FLOR
-435      ! visit.";
-436        	footnote3 J=LEFT HEIGHT=&fs_titles FONT='times roman'
-437        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR visit."
-437      ! ;
-438        	footnote4 J=LEFT HEIGHT=&fs_titles FONT='times roman'
-439        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit.";
-440        	footnote5 J=LEFT HEIGHT=&fs_titles FONT='times roman'
-441        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + childs obesity genetic risk score.";
-442        	footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
-443        		"{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
-444        	columns order label model,(or_txt ci_txt pv);
-445        	define order / order group noprint order=internal;
-446        	define label / display group ' ' style(HEADER)=[FONTSIZE=&fs JUST=left]
-447        		style=[FONTSIZE=&fs width=2.5in];
-448        	define model / across ' ' style=[FONTSIZE=&fs];
-                                                                               The SAS System
-
-449        	define or_txt / display 'OR' style=[fontsize=&fs vjust=bottom];
-450        	define ci_txt / display '95% CI' style=[fontsize=&fs VJUST=bottom];
-451        	define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
-452        		style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
-453        	FORMAT PV PV.;
-WARNING: Variable PV not found in data set WORK.DB_JOIN.
-454        	COMPUTE AFTER _PAGE_ / STYLE=[JUST=LEFT font_size=&fs];
-455        	LINE "* p <=.10, ** p <=.05, *** p <=.01 ";
-456        	ENDCOMP;
-457        RUN;
-
-NOTE: The SAS System stopped processing this step because of errors.
-NOTE: PROCEDURE REPORT used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.00 seconds
-      
-458        ods rtf close;
-459        
-
-
-460        proc printto;
-461        run;
+534        ods rtf close;
+535        
+536        proc printto;
+537        run;
 
