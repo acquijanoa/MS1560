@@ -1,0 +1,206 @@
+project:
+  id: HC3383
+  title: "HC3383 - Manuscript 1560 - Association of Preconception Socio-Behavioral Factors and Child Weight in HCHS/SOL"
+  programmer: "Alvaro Quijano-Angarita"
+  created: 2025-04-23
+  description: "This project contains SAS code and outputs for Manuscript 1560, focused on maternal preconception socio-behavioral factors and child weight outcomes in the HCHS/SOL FLOR study."
+  status: "ongoing"
+
+scripts:
+  - code: HC338302/HC338302.sas
+    task: "Generates Table 1 with maternal preconception and child characteristics by FLOR participation."
+    software: SAS
+    created: 2026-03-08
+    status: "ongoing"
+
+  - code: HC338351/HC338351.sas
+    task: "Creates the analytic datasets used for QC and downstream analyses."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338352/HC338352.sas
+    task: "Produces missing data patterns by manuscript domains."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338353/HC338353.sas
+    task: "Runs multiple imputation model (n~227 x 10 imputations)."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338353a/HC338353a.sas
+    task: "Runs multiple imputation model variant (n~201 x 10 imputations)."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338353b/HC338353b.sas
+    task: "Runs alternate imputation model with PAG2008YN, HEI2010_C3, and SLPDUR_LT8HRS (n~227)."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338353c/HC338353c.sas
+    task: "Runs alternate imputation model with PAG2008YN, HEI2010_C3, and SLPDUR_LT8HRS (n~201)."
+    software: SAS
+    created: 2025-11-04
+    status: "completed"
+
+  - code: HC338354/HC338354.sas
+    task: "Fits regression models and generates Table 2 (n~227)."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338354a/HC338354a.sas
+    task: "Fits regression models and generates Table 2 for the n~201 analytic sample."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338354a/HC338354a_20NOV25.sas
+    task: "Archived/snapshot version of HC338354a used for November 2025 runs."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338354b/HC338354b.sas
+    task: "Fits alternate regression models and generates Table 2.1 (n~227)."
+    software: SAS
+    created: 2025-11-04
+    status: "completed"
+
+  - code: HC338354c/HC338354c.sas
+    task: "Fits alternate regression models and generates Table 2.1 for n~201 sample."
+    software: SAS
+    created: 2025-11-04
+    status: "completed"
+
+  - code: HC338355/HC338355.sas
+    task: "Produces descriptive/univariate table of individual associations."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338356a/HC338356a.sas
+    task: "Performs mediation analysis excluding PRS from the model."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338356b/HC338356b.sas
+    task: "Performs mediation analysis including PRS in the model."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338357/HC338357.sas
+    task: "Generates inclusion/exclusion flow table."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338358/HC338358.sas
+    task: "Fits logistic models and generates Table 3 (response: BMIPCT_C2)."
+    software: SAS
+    created: 2025-11-04
+    status: "completed"
+
+  - code: HC338358a/HC338358a.sas
+    task: "Fits logistic models and generates Table 3a for the n~201 sample."
+    software: SAS
+    created: 2025-11-04
+    status: "completed"
+
+  - code: HC338390/HC338390.sas
+    task: "Centralized variable formats used across manuscript scripts."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338391/HC3383_labels.sas
+    task: "Defines labels/macros used in reporting workflows (e.g., regression table labels)."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338391/HC3383_mi_lasso.sas
+    task: "Supports MI model feature selection using lasso-based workflow."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338391/HC3383_process_imputed.sas
+    task: "Processes imputed datasets for downstream modeling."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338391/HC3383_anonymize_db.sas
+    task: "Applies anonymization/processing utilities to project datasets."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338391/HC3383_partial_r2.sas
+    task: "Computes partial R2/sensitivity metrics for model interpretation."
+    software: SAS
+    created: 2026-03-08
+    status: "ongoing"
+
+  - code: HC338398/HC33839801.sas
+    task: "QC check (Cont #1) for derived analytic files."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338398/HC33839802.sas
+    task: "QC check (Cont #2) for derived analytic files."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338398/HC33839803.sas
+    task: "Post-QC comparison script after feedback updates."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338398/HC33839804.sas
+    task: "Quality check script for Table 1 outputs."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338398/HC33839805.sas
+    task: "Computes supplemental frequencies to support manuscript flow chart/QC."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338399/HC33839901.sas
+    task: "Creates HEI-2010 tertiles and related summaries."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338399/HC33839902.sas
+    task: "Generates correlation analyses for selected covariates."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338399/HC33839903.sas
+    task: "Miscellaneous project support analysis (job 9903)."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
+  - code: HC338399/HC33839904.sas
+    task: "Miscellaneous project support analysis (job 9904)."
+    software: SAS
+    created: 2026-03-08
+    status: "ongoing"
