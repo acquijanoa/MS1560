@@ -1,4 +1,4 @@
-1                                                          The SAS System                                15:33 Sunday, March 8, 2026
+1                                                          The SAS System                                15:45 Sunday, March 8, 2026
 
 NOTE: Copyright (c) 2023 by SAS Institute Inc., Cary, NC, USA. 
 NOTE: SAS (r) Proprietary Software 9.4 (TS1M8) 
@@ -20,26 +20,25 @@ NOTE: Additional host information:
  W32_WIN+PRO WIN 10.0.22631  Workstation
 
 NOTE: SAS initialization used:
-      real time           0.16 seconds
-      cpu time            0.03 seconds
+      real time           0.14 seconds
+      cpu time            0.07 seconds
       
-1          %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
-2          %let job = HC338359;
-3          proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
-4          	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
-5          run;
+1          %let homepath=J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+2          %let job=HC338359;
+3          
+4          proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" print=
+5          	"&homepath.\scripts\&job.\&job._&sysdate..lst" new;
+6          run;
 
 NOTE: PROCEDURE PRINTTO used (Total process time):
-                                                                               The SAS System
-
       real time           0.01 seconds
       cpu time            0.00 seconds
       
 
-ERROR: Errors printed on pages 13,14,15,16,17.
+ERROR: Errors printed on pages 13,14,17,21,25,26.
 
 NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
 NOTE: The SAS System used:
-      real time           1.21 seconds
-      cpu time            0.29 seconds
+      real time           1.42 seconds
+      cpu time            0.54 seconds
       
