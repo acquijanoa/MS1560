@@ -226,28 +226,29 @@ data db_wide;
 			or_txt_1=or_txt;
 			ci_txt_1=ci_txt;
 			pv_1=pv;
-			sig_1=(pv=1);
 		end;
 		when (2) do;
 			or_txt_2=or_txt;
 			ci_txt_2=ci_txt;
 			pv_2=pv;
-			sig_2=(pv=1);
 		end;
 		when (3) do;
 			or_txt_3=or_txt;
 			ci_txt_3=ci_txt;
 			pv_3=pv;
-			sig_3=(pv=1);
 		end;
 		when (4) do;
 			or_txt_4=or_txt;
 			ci_txt_4=ci_txt;
 			pv_4=pv;
-			sig_4=(pv=1);
 		end;
 		otherwise;
 	end;
+	* Significance;
+	sig_1 = (pv_1 = 1);
+	sig_2 = (pv_2 = 1);
+	sig_3 = (pv_3 = 1);
+	sig_4 = (pv_4 = 1);
 
 	if last.label then output;
 	keep order label or_txt_1 ci_txt_1 sig_1 or_txt_2 ci_txt_2 sig_2 or_txt_3
@@ -286,12 +287,14 @@ proc report data=db_wide;
 	footnote4 J=LEFT HEIGHT=&fs_titles FONT='times roman'
 		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit.";
 	footnote5 J=LEFT HEIGHT=&fs_titles FONT='times roman'
-		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + childÂ’s obesity genetic risk score.";
+		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child’s obesity genetic risk score.";
 	footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
 		"{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
-	columns order label ('Model 1' or_txt_1 ci_txt_1) ('Model 2' or_txt_2
-		ci_txt_2) ('Model 3' or_txt_3 ci_txt_3) ('Model 4' or_txt_4 ci_txt_4)
-		sig_1 sig_2 sig_3 sig_4;
+	columns order label
+        sig_1 ('Model 1' or_txt_1 ci_txt_1)
+        sig_2 ('Model 2' or_txt_2 ci_txt_2)
+        sig_3 ('Model 3' or_txt_3 ci_txt_3)
+        sig_4 ('Model 4' or_txt_4 ci_txt_4);
 	define order / order=internal noprint;
 	define label / display "Predictor" style(header)=[fontsize=&fs just=left]
 		style=[fontsize=&fs width=2.5in];
@@ -309,30 +312,33 @@ proc report data=db_wide;
 	define sig_2 / noprint;
 	define sig_3 / noprint;
 	define sig_4 / noprint;
-	compute or_txt_1;
-	if sig_1=1 then do;
-		call define('or_txt_1', 'style', 'style=[font_weight=bold]');
-		call define('ci_txt_1', 'style', 'style=[font_weight=bold]');
-	end;
+	compute sig_1;
+	  if sig_1 = 1 then do;
+	    call define('or_txt_1', 'style', 'style={font_weight=bold}');
+	    call define('ci_txt_1', 'style', 'style={font_weight=bold}');
+	  end;
 	endcomp;
-	compute or_txt_2;
-	if sig_2=1 then do;
-		call define('or_txt_2', 'style', 'style=[font_weight=bold]');
-		call define('ci_txt_2', 'style', 'style=[font_weight=bold]');
-	end;
+	compute sig_2;
+	  if sig_2 = 1 then do;
+	    call define('or_txt_2', 'style', 'style={font_weight=bold}');
+	    call define('ci_txt_2', 'style', 'style={font_weight=bold}');
+	  end;
 	endcomp;
-	compute or_txt_3;
-	if sig_3=1 then do;
-		call define('or_txt_3', 'style', 'style=[font_weight=bold]');
-		call define('ci_txt_3', 'style', 'style=[font_weight=bold]');
-	end;
+
+	compute sig_3;
+	  if sig_3 = 1 then do;
+	    call define('or_txt_3', 'style', 'style={font_weight=bold}');
+	    call define('ci_txt_3', 'style', 'style={font_weight=bold}');
+	  end;
 	endcomp;
-	compute or_txt_4;
-	if sig_4=1 then do;
-		call define('or_txt_4', 'style', 'style=[font_weight=bold]');
-		call define('ci_txt_4', 'style', 'style=[font_weight=bold]');
-	end;
+
+	compute sig_4;
+	  if sig_4 = 1 then do;
+	    call define('or_txt_4', 'style', 'style={font_weight=bold}');
+	    call define('ci_txt_4', 'style', 'style={font_weight=bold}');
+	  end;
 	endcomp;
+run; 
 run;
 ods rtf close;
 
