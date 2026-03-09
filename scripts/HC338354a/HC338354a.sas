@@ -141,7 +141,6 @@ proc genmod data = &impdb;
 	output out=_full_res resraw=e_full;
 run;
 
-
 * Process the imputed estimates;
 %process_imputed(in_db = genmod_results_1, out_db = mianalize_1, model = 1);
 %process_imputed(in_db = genmod_results_2, out_db = mianalize_2, model = 2);
@@ -152,6 +151,7 @@ run;
 data db_join;
 	set mianalize_1 mianalize_2 mianalize_3 mianalize_4; 
 run;
+proc sort data = db_join; by model order; run;
 
 * Run the macro using your imputed dataset;
 %get_all_partial_r2(impdata=&impdb, class_vars=&pr2_class_vars, cont_vars=&pr2_cont_vars, outds=partial_r2_summary);
@@ -189,7 +189,6 @@ data db_join;
 	drop effect_name;
 	format partial_r2_pct 8.1;
 run;
-
 * Obtain ids and save it in a macro variable ;
 proc sql;
 	select count(distinct(id)) as n into:n_ids
@@ -213,7 +212,7 @@ proc report data = db_join;
 	footnote4 J=left HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit.";
 	footnote5 J=left HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
 	footnote6 J=LEFT HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
-	columns order label model,(estimate STD PV partial_r2_pct);
+	columns order label model,(estimate STD PV) partial_r2_pct;
 	define order / order group noprint order = internal;
 	define label / display group ' ' style(HEADER)=[FONTSIZE = &fs JUST = left] style = [FONTSIZE=&fs width = 2.5in];
 	define model / across ' ' style = [FONTSIZE=&fs];
@@ -222,11 +221,8 @@ proc report data = db_join;
 	define pv / analysis ' ' group 
 				style=[fontsize = &fs vjust=bottom just = left] 
 				style(header)=[cellpadding = 0in cellheight=0in cellspacing=0in];
-	define partial_r2_pct / display "Model 4 Partial R2 (%)" style=[fontsize=&fs just=center];
-	compute partial_r2_pct;
-		if model ne 'Model 4' then call define(_col_, 'style', 'style=[visibility=hidden]');
-	endcomp;
-	FORMAT PV PV. STD paren. ESTIMATE refnum.;
+	define partial_r2_pct / mean "% variance" style=[fontsize=&fs  vjust=top just=center];
+	FORMAT PV PV. STD paren. ESTIMATE refnum. partial_r2_pct pct_blank. ;
 	COMPUTE AFTER _PAGE_ / STYLE = [JUST = LEFT font_size = &fs];
 		LINE "* p <=.10, ** p <=.05, *** p <=.01 ";
 	ENDCOMP;

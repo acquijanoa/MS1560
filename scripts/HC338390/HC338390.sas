@@ -95,5 +95,8 @@ PROC FORMAT;
 	VALUE PAREN (ROUND)
 		99 = ' '
 		. = ' '
-		OTHER = [negparen.2]; 
+		OTHER = [negparen.2];
+ 	PICTURE pct_blank (round)
+        . = ' '
+        low-high = '009.99%'; 
 RUN;

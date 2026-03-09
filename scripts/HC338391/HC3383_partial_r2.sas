@@ -125,7 +125,7 @@
     set &outds;
     length Dropped_Var $32;
     Dropped_Var = upcase(Dropped_Var);
-    Partial_R2_Pct = round(Partial_R2*100, .1);
+    Partial_R2_Pct = round(Partial_R2*100, .01);
   run;
   
 %mend;
