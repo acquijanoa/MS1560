@@ -1,6 +1,6 @@
 NOTE: PROCEDURE PRINTTO used (Total process time):
-      real time           0.93 seconds
-      cpu time            0.03 seconds
+      real time           0.02 seconds
+      cpu time            0.01 seconds
       
 
 7          
@@ -26,7 +26,7 @@ NOTE: PROCEDURE PRINTTO used (Total process time):
 27          *  LANGUAGE: SAS 9.4
 28          *
 29          *  VERSION CONTROL:
-2                                                          The SAS System                                12:18 Monday, March 9, 2026
+2                                                          The SAS System                                13:13 Monday, March 9, 2026
 
 30          *					03dec25: create file
 31          *
@@ -154,7 +154,7 @@ NOTE: PROCEDURE FORMAT used (Total process time):
 NOTE: There were 2270 observations read from the data set DATA.HC338353_IMPUTED_DATA_12NOV25.
 NOTE: The data set WORK.IMPDB has 2270 observations and 273 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.05 seconds
+      real time           0.10 seconds
       cpu time            0.00 seconds
       
 
@@ -252,8 +252,8 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 1-20.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.21 seconds
-      cpu time            0.06 seconds
+      real time           0.09 seconds
+      cpu time            0.03 seconds
       
 
 328        
@@ -355,8 +355,8 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_2 has 400 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 21-50.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.16 seconds
-      cpu time            0.09 seconds
+      real time           0.10 seconds
+      cpu time            0.04 seconds
       
 
 349        
@@ -460,7 +460,7 @@ NOTE: The data set WORK.GENMOD_RESULTS_3 has 440 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 51-80.
 NOTE: PROCEDURE GENMOD used (Total process time):
       real time           0.10 seconds
-      cpu time            0.11 seconds
+      cpu time            0.03 seconds
       
 
 371        
@@ -564,8 +564,8 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 450 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 81-110.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.13 seconds
-      cpu time            0.09 seconds
+      real time           0.16 seconds
+      cpu time            0.06 seconds
       
 
 394        
@@ -575,7 +575,7 @@ NOTE: PROCEDURE GENMOD used (Total process time):
 NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -583,8 +583,8 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.01 seconds
+      real time           0.00 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -691,8 +691,8 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_1_P has 29 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 111-139.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.04 seconds
-      cpu time            0.03 seconds
+      real time           0.07 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -876,7 +876,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_2_P has 40 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 140-179.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.04 seconds
+      real time           0.03 seconds
       cpu time            0.03 seconds
       
 
@@ -896,7 +896,7 @@ NOTE: There were 440 observations read from the data set WORK.GENMOD_RESULTS_3.
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 440 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
       real time           0.00 seconds
-      cpu time            0.00 seconds
+      cpu time            0.01 seconds
       
 
 
@@ -1085,7 +1085,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_3_P has 44 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 180-223.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.04 seconds
+      real time           0.03 seconds
       cpu time            0.01 seconds
       
                                                                                The SAS System
@@ -1114,7 +1114,7 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 450 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1296,7 +1296,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.MIANALIZE_4_P has 45 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 224-268.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.04 seconds
+      real time           0.03 seconds
       cpu time            0.01 seconds
       
 
@@ -1306,7 +1306,7 @@ NOTE: Numeric values have been converted to character values at the places given
 NOTE: There were 45 observations read from the data set WORK.MIANALIZE_4_P.
 NOTE: The data set WORK.MIANALIZE_4 has 43 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -1322,7 +1322,7 @@ NOTE: There were 42 observations read from the data set WORK.MIANALIZE_3.
 NOTE: There were 43 observations read from the data set WORK.MIANALIZE_4.
 NOTE: The data set WORK.DB_JOIN has 150 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
                                                                                The SAS System
 
@@ -1334,7 +1334,7 @@ NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
 NOTE: The data set WORK.DB_JOIN has 150 observations and 6 variables.
 NOTE: PROCEDURE SORT used (Total process time):
       real time           0.00 seconds
-      cpu time            0.00 seconds
+      cpu time            0.01 seconds
       
 
 406        
@@ -1426,7 +1426,7 @@ NOTE: PROCEDURE SORT used (Total process time):
 NOTE: The PROCEDURE SQL printed page 269.
 NOTE: PROCEDURE SQL used (Total process time):
       real time           0.01 seconds
-      cpu time            0.00 seconds
+      cpu time            0.01 seconds
       
 
 460        
@@ -1519,8 +1519,8 @@ NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\scrip
 539        run;
 
 NOTE: PROCEDURE REPORT used (Total process time):
-      real time           0.05 seconds
-      cpu time            0.03 seconds
+      real time           0.09 seconds
+      cpu time            0.01 seconds
       
 NOTE: There were 43 observations read from the data set WORK.DB_WIDE.
 
