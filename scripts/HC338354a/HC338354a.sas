@@ -199,7 +199,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\code\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
 %let fs = 11pt;
 %let fs_body = 11pt;
 %let fs_titles = 11pt;
