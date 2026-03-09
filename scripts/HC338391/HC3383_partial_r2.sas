@@ -2,10 +2,10 @@
 
   /* 1. Define the variables to loop through */
   %if %superq(class_vars)= %then %let class_test = bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc 
-                    yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10;
+                    yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10 centernum;
   %else %let class_test = &class_vars;
 
-  %if %superq(cont_vars)= %then %let cont_test  = age parity_v1 slpdur child_prs_bmi_a;
+  %if %superq(cont_vars)= %then %let cont_test  = age parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
   %else %let cont_test = &cont_vars;
 
   %let all_test = &class_test &cont_test;
@@ -17,8 +17,10 @@
   ods output ModelFit=fit_full;
   proc genmod data=&impdata;
     by _imputation_;
-    class centernum &class_test;
-    model waz = centernum yrs_btwn_v1flor &all_test / dist=normal;
+    %if %superq(class_test) ne %then %do;
+      class &class_test;
+    %end;
+    model waz = &all_test / dist=normal;
     
     /* KEEP FORMATS: Vital to prevent continuous/categorical mismatches */
     format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
@@ -51,8 +53,8 @@
     %let drop_v = %scan(&all_test, &i);
     
     /* Build the reduced model lists dynamically */
-    %let red_class = centernum; 
-    %let red_model = centernum yrs_btwn_v1flor;
+    %let red_class = ; 
+    %let red_model = ;
     
     /* Add back all class variables EXCEPT the current one being dropped */
     %let n_class = %sysfunc(countw(&class_test));
@@ -77,7 +79,9 @@
     ods output ModelFit=fit_red;
     proc genmod data=&impdata;
       by _imputation_;
-      class &red_class;
+      %if %superq(red_class) ne %then %do;
+        class &red_class;
+      %end;
       model waz = &red_model / dist=normal;
       
       /* Safely leave all formats here; SAS ignores formats for variables not in the model */

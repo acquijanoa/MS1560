@@ -27,13 +27,13 @@ run;
  *
  *  VERSION CONTROL:
  *					04nov25: cc'ed HC338354
-							 update job to 54a and table's title
-							 update input dataset
-					12nov25: Update input dataset to *_12nov25
-					18nov25: update row labels and footnote
-							 portrait orientation
-							 LOW is the ref value for HEI2010_C3 now
-					09mar26: include %variance in Table
+update job to 54a and table's title
+update input dataset
+12nov25: Update input dataset to *_12nov25
+18nov25: update row labels and footnote
+portrait orientation
+LOW is the ref value for HEI2010_C3 now
+09mar26: include %variance in Table
 
  * ----------------------------------------------------------
  *
@@ -64,8 +64,10 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
 
 %let pr2_class_vars=bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
-	yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10 centernum;
+	yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10
+	centernum;
 %let pr2_cont_vars=age parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
+%let pr2_table_vars=&pr2_cont_vars centernum;
 
 %macro normalize_effect(var=);
 	%local _i _effect;
@@ -198,9 +200,8 @@ data db_join;
 	set db_join;
 	* Add ref levels;
 	if std=99 then estimate=98;
-	if model="Model 4" and (std=99 or
-		findw(upcase("&pr2_cont_vars"), strip(effect_name), ' ')>0)
-	then partial_r2_pct=partial_r2_pct;
+	if model="Model 4" and (std=99 or findw(upcase("&pr2_table_vars"),
+		strip(effect_name), ' ')>0) then partial_r2_pct=partial_r2_pct;
 	else partial_r2_pct=.;
 	drop effect_name;
 	format partial_r2_pct 8.1;
@@ -246,7 +247,8 @@ proc report data=db_join;
 	define std / analysis '(SE)' style=[fontsize=&fs VJUST=bottom];
 	define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
 		style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
-	define partial_r2_pct / mean "% Variance" style=[fontsize=&fs vjust=top just=center];
+	define partial_r2_pct / mean "% Variance" style=[fontsize=&fs vjust=top
+		just=center];
 	compute partial_r2_pct;
 	if model ne 'Model 4' then call define(_col_, 'style',
 		'style=[visibility=hidden]');
