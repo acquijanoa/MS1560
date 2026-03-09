@@ -1,10 +1,13 @@
-%macro get_all_partial_r2(impdata=);
+%macro get_all_partial_r2(impdata=, class_vars=, cont_vars=, outds=partial_r2_summary);
 
   /* 1. Define the variables to loop through */
-  %let class_test = bkgrdl_c7nomiss marital_status employedyn education_c3 n_hc 
+  %if %superq(class_vars)= %then %let class_test = bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc 
                     yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10;
-  %let cont_test  = age parity_v1 slpdur child_prs_bmi_a;
-  
+  %else %let class_test = &class_vars;
+
+  %if %superq(cont_vars)= %then %let cont_test  = age parity_v1 slpdur child_prs_bmi_a;
+  %else %let cont_test = &cont_vars;
+
   %let all_test = &class_test &cont_test;
   
   /* Suppress model output to keep your results viewer clean */
@@ -18,7 +21,7 @@
     model waz = centernum yrs_btwn_v1flor &all_test / dist=normal;
     
     /* KEEP FORMATS: Vital to prevent continuous/categorical mismatches */
-    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrdl_c7nomiss bkgrdl_c7nomiss_fmt. 
+    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
            marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
            education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
@@ -78,10 +81,10 @@
       model waz = &red_model / dist=normal;
       
       /* Safely leave all formats here; SAS ignores formats for variables not in the model */
-      format centernum centernum_fmt. n_hc n_hc_fmt. bkgrdl_c7nomiss bkgrdl_c7nomiss_fmt. 
-             marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
-             education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
-             pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
+      format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
+            marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
+            education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
     run;
     
     data sse_red(keep=_imputation_ SSE_R);
@@ -112,11 +115,17 @@
   ods select all;
   
   /* 7. Summarize the pooled results across imputations */
-  proc means data=all_partial_r2 mean min max maxdec=4;
+  proc means data=all_partial_r2 nway noprint;
     class Dropped_Var;
     var Partial_R2;
-    title "Corrected Pooled Partial R-squared (Using Deviance / SSE)";
+    output out=&outds(drop=_type_ _freq_) mean=Partial_R2;
   run;
-  title;
+
+  data &outds;
+    set &outds;
+    length Dropped_Var $32;
+    Dropped_Var = upcase(Dropped_Var);
+    Partial_R2_Pct = round(Partial_R2*100, .1);
+  run;
   
 %mend;
