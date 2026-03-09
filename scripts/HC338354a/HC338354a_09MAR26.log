@@ -1,67 +1,69 @@
 NOTE: PROCEDURE PRINTTO used (Total process time):
-      real time           0.14 seconds
+      real time           0.02 seconds
       cpu time            0.00 seconds
       
 
-2217   
-2218   /*********************************************************
-2219   *                                                         *
-2220   *  SAS PROGRAM - QC DATASET JOB HC3383                           *
-2221   *                                                        *
-2222   **********************************************************
-2223   *                                                        *
-2224   *  PROGRAM NAME: HC338354a.sas
-2225   *
-2226   *  PROGRAMMER: �lvaro Quijano (AQ)
-2227   *
-2228   *  DESCRIPTION: Imputation model
-2229   
-2230   *
-2231   * ---------------------------------------------------------
-2232   *
-2233   *  JOB NUMBER: HC338354a
-2234   *
-2235   *  PREVIOUS JOB: HC338354
-2236   *
-2237   *  LANGUAGE: SAS 9.4
-2238   *
-2239   *  VERSION CONTROL:
-2240   *                   04nov25: cc'ed HC338354
-2241                                update job to 54a and table's title
-2242                                update input dataset
-2243                       12nov25: Update input dataset to *_12nov25
-2244                       18nov25: update row labels and footnote
-2245                                portrait orientation
-2246                                LOW is the ref value for HEI2010_C3 now
-2247   
-2248   * ----------------------------------------------------------
-2249   *
-2250   *  INPUT: HC338353a_imputed_data_ddmmyy;
-2251   *
-2252   *  OUTPUT:
-2253   *
-2254   **********************************************************/
-2255   options orientation=portrait nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
-2256   ods escapechar '^';
-2257   
-2258   * Set libraries name;
-2259   libname data "&homepath.\data";
+2559   
+2560   /*********************************************************
+2561    *                                                         *
+2562    *  SAS PROGRAM - QC DATASET JOB HC3383                              *
+2563    *                                                        *
+2564    **********************************************************
+2565    *                                                        *
+2566    *  PROGRAM NAME: HC338354a.sas
+2567    *
+2568    *  PROGRAMMER: Alvaro Quijano (AQ)
+2569    *
+2570    *  DESCRIPTION: Imputation model
+2571   
+2572    *
+2573    * ---------------------------------------------------------
+2574    *
+2575    *  JOB NUMBER: HC338354a
+2576    *
+2577    *  PREVIOUS JOB: HC338354
+2578    *
+2579    *  LANGUAGE: SAS 9.4
+2580    *
+2581    *  VERSION CONTROL:
+2582    *                  04nov25: cc'ed HC338354
+2583                                update job to 54a and table's title
+2584                                update input dataset
+2585                       12nov25: Update input dataset to *_12nov25
+2586                       18nov25: update row labels and footnote
+2587                                portrait orientation
+2588                                LOW is the ref value for HEI2010_C3 now
+2589                       09mar26: include %variance in Table
+2590   
+2591    * ----------------------------------------------------------
+2592    *
+2593    *  INPUT: HC338353a_imputed_data_ddmmyy;
+2594    *
+2595    *  OUTPUT:
+2596    *
+2597    **********************************************************/
+2598   options orientation=portrait nodate formchar="|----|+|---+=|-/\<>*" nonumber
+2599       PS=59 LS=173;
+2600   ods escapechar '^';
+2601   
+2602   * Set libraries name;
+2603   libname data "&homepath.\data";
 NOTE: Libref DATA was successfully assigned as follows: 
       Engine:        V9 
       Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
-2260   libname hchstyle 'J:\hchs\sc\styledef\sty904';
+2604   libname hchstyle 'J:\hchs\sc\styledef\sty904';
 ERROR: Unable to clear or re-assign the library HCHSTYLE because it is still in use.
 ERROR: Error in the LIBNAME statement.
-2261   
-2262   * Set macro variables;
-2263   %let job = HC338354a;
-2264   %let prg = AQA;
-2265   %let impdb = data.HC338353a_imputed_data_12nov25;
-2266   %let lf_margin = 0.7in;
-2267   %let rg_margin = 0.7in;
-2268   
-2269   * Include sas scripts with formats and macros;
-2270   %include "&homepath.\scripts\HC338390\HC338390.sas";
+2605   
+2606   * Set macro variables;
+2607   %let job=HC338354a;
+2608   %let prg=AQA;
+2609   %let impdb=data.HC338353a_imputed_data_12nov25;
+2610   %let lf_margin=0.7in;
+2611   %let rg_margin=0.7in;
+2612   
+2613   * Include sas scripts with formats and macros;
+2614   %include "&homepath.\scripts\HC338390\HC338390.sas";
 NOTE: Format BKGRD1_C7NOMISS_FMT is already on the library WORK.FORMATS.
 NOTE: Format BKGRD1_C7NOMISS_FMT has been output.
 NOTE: Format PV is already on the library WORK.FORMATS.
@@ -117,34 +119,40 @@ NOTE: PROCEDURE FORMAT used (Total process time):
       cpu time            0.00 seconds
       
 
-2373   %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
-2476   %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
-2520   %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
-2652   
-2653   %let pr2_class_vars = BKGRD1_C7NOMISS MARITAL_STATUS EMPLOYEDYN EDUCATION_C3 N_HC YRSUS_C3 CURRENT_SMOKER ALCOHOL_USE PAG2008YN HEI2010_C3 CESD10 STAI10;
-2654   %let pr2_cont_vars  = AGE PARITY_V1 SLPDUR CHILD_PRS_BMI_A;
-2655   
-2656   %macro normalize_effect(var=);
-2657       %local _i _effect;
-2658       %let _i = 1;
-2659       %do %while(%scan(&pr2_class_vars, &_i) ne );
-2660           %let _effect = %upcase(%scan(&pr2_class_vars, &_i));
-2661           if index(&var, cats("&_effect","_")) = 1 then &var = "&_effect";
-2662           %let _i = %eval(&_i + 1);
-2663       %end;
-2664   %mend;
-2665   
-2666   * Fit the models using the imputed data;
-2667   title 'Model 1 - Sociodemographics';
-2668   proc genmod data = &impdb;
-2669       by _imputation_;
-2670       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-2671               education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN');
-2672       model waz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3 / d=normal ;
-2673       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt.
-2674               employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.;
-2675       ods output ParameterEstimates=genmod_results_1;
-2676   run;
+2717   %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
+2820   %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
+2864   %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
+2996   
+2997   %let pr2_class_vars=bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
+2998       yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10 centernum;
+2999   %let pr2_cont_vars=age parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
+3000   
+3001   %macro normalize_effect(var=);
+3002       %local _i _effect;
+3003       %let _i=1;
+3004       %do %while(%scan(&pr2_class_vars, &_i) ne );
+3005           %let _effect=%upcase(%scan(&pr2_class_vars, &_i));
+3006           if index(&var, cats("&_effect","_"))=1 then &var="&_effect";
+3007           %let _i=%eval(&_i + 1);
+3008       %end;
+3009   %mend;
+3010   
+3011   * Fit the models using the imputed data;
+3012   title 'Model 1 - Sociodemographics';
+3013   
+3014   proc genmod data=&impdb;
+3015       by _imputation_;
+3016       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+3017           marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+3018           education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+3019           yrsus_c3(ref='US_BORN');
+3020       model waz=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+3021           parity_v1 employedyn marital_status yrsus_c3 / d=normal ;
+3022       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+3023           bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+3024           employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.;
+3025       ods output ParameterEstimates=genmod_results_1;
+3026   run;
 
 NOTE: Algorithm converged.
 NOTE: The scale parameter was estimated by maximum likelihood.
@@ -185,95 +193,33 @@ NOTE: The above message was for the following BY group:
 NOTE: Algorithm converged.
 NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.29 seconds
-      cpu time            0.18 seconds
+      real time           0.31 seconds
+      cpu time            0.20 seconds
       
 NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 10 variables.
 
-2677   
-2678   title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur) ';
-2679   proc genmod data = &impdb;
-2680       by _imputation_;
-2681       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-2682               education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-2683               current_smoker(REF="NO") alcohol_use(REF="NEVER")
-2684               pag2008yn(ref="YES") hei2010_c3(ref="LOW");
-2685       model waz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-2686               current_smoker hei2010_c3 alcohol_use pag2008yn slpdur / dist = normal;
-2687       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt.
-2688               employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-2689               alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
-2690               pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.;
-2691       ods output ParameterEstimates=genmod_results_2;
-2692   run;
-
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=1
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=2
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=3
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=4
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=5
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=6
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=7
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=8
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=9
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.35 seconds
-      cpu time            0.21 seconds
-      
-NOTE: The above message was for the following BY group:
-      Imputation Number=10
-NOTE: The data set WORK.GENMOD_RESULTS_2 has 400 observations and 10 variables.
-
-2693   
-2694   title 'Model 3: Model 2 + mental health';
-2695   proc genmod data = &impdb;
-2696       by _imputation_;
-2697       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-2698               education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-2699               current_smoker(REF="NO") alcohol_use(REF="NEVER")
-2700               pag2008yn(ref="YES") hei2010_c3(ref="LOW")
-2701               cesd10(ref="NODEPRE") stai10(ref="NOANX");
-2702       model waz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-2703               current_smoker hei2010_c3 alcohol_use pag2008yn slpdur
-2704               cesd10 stai10/ dist = normal;
-2705       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt.
-2706               employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-2707               alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
-2708               pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.
-2709               cesd10 cesd10_fmt. stai10 stai10_fmt.;
-2710       ods output ParameterEstimates=genmod_results_3;
-2711   run;
+3027   
+3028   title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur) ';
+3029   
+3030   proc genmod data=&impdb;
+3031       by _imputation_;
+3032       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+3033           marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+3034           education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+3035           yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+3036           alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW");
+3037       model waz=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+3038           parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+3039           alcohol_use pag2008yn slpdur / dist=normal;
+3040       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+3041           bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+3042           employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+3043           alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+3044           hei2010_c3 hei2010_c3_fmt.;
+3045       ods output ParameterEstimates=genmod_results_2;
+3046   run;
 
 NOTE: Algorithm converged.
 NOTE: The scale parameter was estimated by maximum likelihood.
@@ -315,33 +261,33 @@ NOTE: Algorithm converged.
 NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: PROCEDURE GENMOD used (Total process time):
       real time           0.36 seconds
-      cpu time            0.26 seconds
+      cpu time            0.23 seconds
       
 NOTE: The above message was for the following BY group:
       Imputation Number=10
-NOTE: The data set WORK.GENMOD_RESULTS_3 has 440 observations and 10 variables.
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 400 observations and 10 variables.
 
-2712   
-2713   title 'Model 4: Model 3 + PRS';
-2714   proc genmod data = &impdb;
-2715       by _imputation_;
-2716       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
-2717               education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-2718               current_smoker(REF="NO") alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
-2719               cesd10(ref="NODEPRE") stai10(ref="NOANX");
-2720       model waz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-2721               current_smoker hei2010_c3 alcohol_use pag2008yn slpdur
-2722               cesd10 stai10
-2723               child_prs_bmi_a/ dist = normal type3;
-2724       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt.
-2725               employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-2726               alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
-2727               pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.
-2728               cesd10 cesd10_fmt. stai10 stai10_fmt.;
-2729       ods output ParameterEstimates=genmod_results_4
-2730                   ModelANOVA=type3;
-2731       output out=_full_res resraw=e_full;
-2732   run;
+3047   
+3048   title 'Model 3: Model 2 + mental health';
+3049   
+3050   proc genmod data=&impdb;
+3051       by _imputation_;
+3052       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+3053           marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+3054           education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+3055           yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+3056           alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+3057           cesd10(ref="NODEPRE") stai10(ref="NOANX");
+3058       model waz=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+3059           parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+3060           alcohol_use pag2008yn slpdur cesd10 stai10/ dist=normal;
+3061       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+3062           bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+3063           employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+3064           alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+3065           hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
+3066       ods output ParameterEstimates=genmod_results_3;
+3067   run;
 
 NOTE: Algorithm converged.
 NOTE: The scale parameter was estimated by maximum likelihood.
@@ -382,8 +328,78 @@ NOTE: The above message was for the following BY group:
 NOTE: Algorithm converged.
 NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.49 seconds
-      cpu time            0.42 seconds
+      real time           0.52 seconds
+      cpu time            0.39 seconds
+      
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 440 observations and 10 variables.
+
+3068   
+3069   title 'Model 4: Model 3 + PRS';
+3070   
+3071   proc genmod data=&impdb;
+3072       by _imputation_;
+3073       class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+3074           marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+3075           education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+3076           yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+3077           alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+3078           cesd10(ref="NODEPRE") stai10(ref="NOANX");
+3079       model waz=centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+3080           parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+3081           alcohol_use pag2008yn slpdur cesd10 stai10 child_prs_bmi_a/ dist=normal
+3082           type3;
+3083       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+3084           bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+3085           employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+3086           alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+3087           hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
+3088       ods output ParameterEstimates=genmod_results_4 ModelANOVA=type3;
+3089       output out=_full_res resraw=e_full;
+3090   run;
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.60 seconds
+      cpu time            0.43 seconds
       
 NOTE: The above message was for the following BY group:
       Imputation Number=10
@@ -391,9 +407,9 @@ NOTE: The data set WORK.TYPE3 has 180 observations and 6 variables.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 450 observations and 10 variables.
 NOTE: The data set WORK._FULL_RES has 2010 observations and 273 variables.
 
-2733   
-2734   * Process the imputed estimates;
-2735   %process_imputed(in_db = genmod_results_1, out_db = mianalize_1, model = 1);
+3091   
+3092   * Process the imputed estimates;
+3093   %process_imputed(in_db=genmod_results_1, out_db=mianalize_1, model=1);
 
 NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
@@ -406,7 +422,7 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -528,8 +544,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 NOTE: The above message was for the following BY group:
       EffectName=YRSUS_C3_US_BORN
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.29 seconds
-      cpu time            0.18 seconds
+      real time           0.33 seconds
+      cpu time            0.23 seconds
       
 NOTE: The above message was for the following BY group:
       EffectName=YRS_BTWN_V1FLOR
@@ -545,7 +561,7 @@ NOTE: DATA statement used (Total process time):
       cpu time            0.00 seconds
       
 
-2736   %process_imputed(in_db = genmod_results_2, out_db = mianalize_2, model = 2);
+3094   %process_imputed(in_db=genmod_results_2, out_db=mianalize_2, model=2);
 
 NOTE: There were 400 observations read from the data set WORK.GENMOD_RESULTS_2.
 NOTE: The data set WORK.GENMOD_RESULTS_2 has 400 observations and 11 variables.
@@ -746,8 +762,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 NOTE: The above message was for the following BY group:
       EffectName=YRSUS_C3_US_BORN
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.43 seconds
-      cpu time            0.29 seconds
+      real time           0.55 seconds
+      cpu time            0.31 seconds
       
 NOTE: The above message was for the following BY group:
       EffectName=YRS_BTWN_V1FLOR
@@ -763,7 +779,7 @@ NOTE: DATA statement used (Total process time):
       cpu time            0.00 seconds
       
 
-2737   %process_imputed(in_db = genmod_results_3, out_db = mianalize_3, model = 3);
+3095   %process_imputed(in_db=genmod_results_3, out_db=mianalize_3, model=3);
 
 NOTE: There were 440 observations read from the data set WORK.GENMOD_RESULTS_3.
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 440 observations and 11 variables.
@@ -992,8 +1008,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 NOTE: The above message was for the following BY group:
       EffectName=YRSUS_C3_US_BORN
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.43 seconds
-      cpu time            0.39 seconds
+      real time           0.48 seconds
+      cpu time            0.31 seconds
       
 NOTE: The above message was for the following BY group:
       EffectName=YRS_BTWN_V1FLOR
@@ -1009,7 +1025,7 @@ NOTE: DATA statement used (Total process time):
       cpu time            0.00 seconds
       
 
-2738   %process_imputed(in_db = genmod_results_4, out_db = mianalize_4, model = 4);
+3096   %process_imputed(in_db=genmod_results_4, out_db=mianalize_4, model=4);
 
 NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 450 observations and 11 variables.
@@ -1022,7 +1038,7 @@ NOTE: DATA statement used (Total process time):
 NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 450 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1240,8 +1256,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 NOTE: The above message was for the following BY group:
       EffectName=YRSUS_C3_US_BORN
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.44 seconds
-      cpu time            0.28 seconds
+      real time           0.57 seconds
+      cpu time            0.48 seconds
       
 NOTE: The above message was for the following BY group:
       EffectName=YRS_BTWN_V1FLOR
@@ -1257,11 +1273,11 @@ NOTE: DATA statement used (Total process time):
       cpu time            0.00 seconds
       
 
-2739   
-2740   * Merge datasets from different models;
-2741   data db_join;
-2742       set mianalize_1 mianalize_2 mianalize_3 mianalize_4;
-2743   run;
+3097   
+3098   * Merge datasets from different models;
+3099   data db_join;
+3100       set mianalize_1 mianalize_2 mianalize_3 mianalize_4;
+3101   run;
 
 NOTE: There were 27 observations read from the data set WORK.MIANALIZE_1.
 NOTE: There were 38 observations read from the data set WORK.MIANALIZE_2.
@@ -1269,22 +1285,14 @@ NOTE: There were 42 observations read from the data set WORK.MIANALIZE_3.
 NOTE: There were 43 observations read from the data set WORK.MIANALIZE_4.
 NOTE: The data set WORK.DB_JOIN has 150 observations and 9 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.02 seconds
       cpu time            0.00 seconds
       
 
-2744   proc sort data = db_join; by model order; run;
-
-NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
-NOTE: The data set WORK.DB_JOIN has 150 observations and 9 variables.
-NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-
-2745   
-2746   * Run the macro using your imputed dataset;
-2747   %get_all_partial_r2(impdata=&impdb, class_vars=&pr2_class_vars, cont_vars=&pr2_cont_vars, outds=partial_r2_summary);
+3102   
+3103   * Run the macro using your imputed dataset;
+3104   %get_all_partial_r2(impdata=&impdb, class_vars=&pr2_class_vars,
+3105       cont_vars=&pr2_cont_vars, outds=partial_r2_summary);
 
 
 NOTE: Algorithm converged.
@@ -1329,8 +1337,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_FULL has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.10 seconds
-      cpu time            0.03 seconds
+      real time           0.15 seconds
+      cpu time            0.09 seconds
       
 
 
@@ -1394,8 +1402,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.07 seconds
-      cpu time            0.03 seconds
+      real time           0.12 seconds
+      cpu time            0.04 seconds
       
 
 
@@ -1423,7 +1431,7 @@ NOTE: 10 observations added.
 NOTE: The data set WORK.ALL_PARTIAL_R2 has 10 observations and 5 variables.
 NOTE: PROCEDURE APPEND used (Total process time):
       real time           0.00 seconds
-      cpu time            0.01 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -1470,8 +1478,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.11 seconds
-      cpu time            0.03 seconds
+      real time           0.14 seconds
+      cpu time            0.06 seconds
       
 
 
@@ -1480,7 +1488,7 @@ NOTE: There were 10 observations read from the data set WORK.FIT_RED.
 NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
 NOTE: DATA statement used (Total process time):
       real time           0.00 seconds
-      cpu time            0.01 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -1488,7 +1496,7 @@ NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
 NOTE: There were 10 observations read from the data set WORK.SSE_RED.
 NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1547,7 +1555,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
       real time           0.09 seconds
-      cpu time            0.06 seconds
+      cpu time            0.04 seconds
       
 
 
@@ -1565,7 +1573,7 @@ NOTE: There were 10 observations read from the data set WORK.SSE_RED.
 NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
 NOTE: DATA statement used (Total process time):
       real time           0.00 seconds
-      cpu time            0.01 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -1623,7 +1631,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
       real time           0.08 seconds
-      cpu time            0.04 seconds
+      cpu time            0.06 seconds
       
 
 
@@ -1698,8 +1706,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.09 seconds
-      cpu time            0.01 seconds
+      real time           0.10 seconds
+      cpu time            0.04 seconds
       
 
 
@@ -1774,8 +1782,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.10 seconds
-      cpu time            0.06 seconds
+      real time           0.14 seconds
+      cpu time            0.07 seconds
       
 
 
@@ -1792,7 +1800,7 @@ NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
 NOTE: There were 10 observations read from the data set WORK.SSE_RED.
 NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1801,82 +1809,6 @@ NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
 NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
 NOTE: 10 observations added.
 NOTE: The data set WORK.ALL_PARTIAL_R2 has 60 observations and 5 variables.
-NOTE: PROCEDURE APPEND used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.01 seconds
-      
-
-
-
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=1
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=2
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=3
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=4
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=5
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=6
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=7
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=8
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=9
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=10
-NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
-NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.07 seconds
-      cpu time            0.06 seconds
-      
-
-
-NOTE: There were 10 observations read from the data set WORK.FIT_RED.
-      WHERE Criterion='Deviance';
-NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.00 seconds
-      
-
-
-NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
-NOTE: There were 10 observations read from the data set WORK.SSE_RED.
-NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.00 seconds
-      
-
-
-NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
-NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
-NOTE: 10 observations added.
-NOTE: The data set WORK.ALL_PARTIAL_R2 has 70 observations and 5 variables.
 NOTE: PROCEDURE APPEND used (Total process time):
       real time           0.00 seconds
       cpu time            0.00 seconds
@@ -1927,7 +1859,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
       real time           0.08 seconds
-      cpu time            0.07 seconds
+      cpu time            0.01 seconds
       
 
 
@@ -1935,7 +1867,7 @@ NOTE: There were 10 observations read from the data set WORK.FIT_RED.
       WHERE Criterion='Deviance';
 NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1945,6 +1877,82 @@ NOTE: There were 10 observations read from the data set WORK.SSE_RED.
 NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
 NOTE: DATA statement used (Total process time):
       real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 70 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
       cpu time            0.01 seconds
       
 
@@ -1953,6 +1961,158 @@ NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
 NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
 NOTE: 10 observations added.
 NOTE: The data set WORK.ALL_PARTIAL_R2 has 80 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.10 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 90 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 100 observations and 5 variables.
 NOTE: PROCEDURE APPEND used (Total process time):
       real time           0.00 seconds
       cpu time            0.00 seconds
@@ -2020,160 +2180,8 @@ NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
 NOTE: There were 10 observations read from the data set WORK.SSE_RED.
 NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.01 seconds
-      
-
-
-NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
-NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
-NOTE: 10 observations added.
-NOTE: The data set WORK.ALL_PARTIAL_R2 has 90 observations and 5 variables.
-NOTE: PROCEDURE APPEND used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-
-
-
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=1
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=2
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=3
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=4
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=5
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=6
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=7
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=8
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=9
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=10
-NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
-NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.08 seconds
-      cpu time            0.03 seconds
-      
-
-
-NOTE: There were 10 observations read from the data set WORK.FIT_RED.
-      WHERE Criterion='Deviance';
-NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.01 seconds
-      
-
-
-NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
-NOTE: There were 10 observations read from the data set WORK.SSE_RED.
-NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
-NOTE: DATA statement used (Total process time):
       real time           0.01 seconds
-      cpu time            0.00 seconds
-      
-
-
-NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
-NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
-NOTE: 10 observations added.
-NOTE: The data set WORK.ALL_PARTIAL_R2 has 100 observations and 5 variables.
-NOTE: PROCEDURE APPEND used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-
-
-
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=1
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=2
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=3
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=4
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=5
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=6
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=7
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=8
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=9
-NOTE: Algorithm converged.
-NOTE: The scale parameter was estimated by maximum likelihood.
-NOTE: The above message was for the following BY group:
-      Imputation Number=10
-NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
-NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.10 seconds
-      cpu time            0.03 seconds
-      
-
-
-NOTE: There were 10 observations read from the data set WORK.FIT_RED.
-      WHERE Criterion='Deviance';
-NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-
-
-NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
-NOTE: There were 10 observations read from the data set WORK.SSE_RED.
-NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
+      cpu time            0.01 seconds
       
 
 
@@ -2183,7 +2191,7 @@ NOTE: 10 observations added.
 NOTE: The data set WORK.ALL_PARTIAL_R2 has 110 observations and 5 variables.
 NOTE: PROCEDURE APPEND used (Total process time):
       real time           0.00 seconds
-      cpu time            0.01 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -2230,8 +2238,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.08 seconds
-      cpu time            0.07 seconds
+      real time           0.11 seconds
+      cpu time            0.06 seconds
       
 
 
@@ -2239,7 +2247,7 @@ NOTE: There were 10 observations read from the data set WORK.FIT_RED.
       WHERE Criterion='Deviance';
 NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -2259,7 +2267,7 @@ NOTE: 10 observations added.
 NOTE: The data set WORK.ALL_PARTIAL_R2 has 120 observations and 5 variables.
 NOTE: PROCEDURE APPEND used (Total process time):
       real time           0.00 seconds
-      cpu time            0.01 seconds
+      cpu time            0.00 seconds
       
 
 
@@ -2306,8 +2314,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.15 seconds
-      cpu time            0.07 seconds
+      real time           0.14 seconds
+      cpu time            0.11 seconds
       
 
 
@@ -2382,8 +2390,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.09 seconds
-      cpu time            0.06 seconds
+      real time           0.10 seconds
+      cpu time            0.01 seconds
       
 
 
@@ -2458,8 +2466,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.08 seconds
-      cpu time            0.04 seconds
+      real time           0.11 seconds
+      cpu time            0.06 seconds
       
 
 
@@ -2534,8 +2542,8 @@ NOTE: The above message was for the following BY group:
       Imputation Number=10
 NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.10 seconds
-      cpu time            0.03 seconds
+      real time           0.13 seconds
+      cpu time            0.09 seconds
       
 
 
@@ -2567,44 +2575,230 @@ NOTE: PROCEDURE APPEND used (Total process time):
       
 
 
-NOTE: There were 160 observations read from the data set WORK.ALL_PARTIAL_R2.
-NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 16 observations and 2 variables.
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 170 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.07 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 180 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 180 observations read from the data set WORK.ALL_PARTIAL_R2.
+NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 18 observations and 2 variables.
 NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 18 observations read from the data set WORK.PARTIAL_R2_SUMMARY.
+NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 18 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+3106   
+3107   data partial_r2_summary;
+3108       set partial_r2_summary;
+3109       length effect_name $32;
+3110       effect_name=Dropped_Var;
+3111       partial_r2_pct=Partial_R2_Pct;
+3112       keep effect_name partial_r2_pct;
+3113   run;
+
+NOTE: There were 18 observations read from the data set WORK.PARTIAL_R2_SUMMARY.
+NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 18 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+3114   
+3115   data db_join;
+3116       set db_join;
+3117       length effect_name $32;
+3118       effect_name=upcase(variable);
+3119       %normalize_effect(var=effect_name);
+3120   run;
+
+NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
+NOTE: The data set WORK.DB_JOIN has 150 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+3121   
+3122   proc sql;
+3123       create table db_join as select a.*, b.partial_r2_pct from db_join as a left
+3124           join partial_r2_summary as b on a.effect_name=b.effect_name;
+WARNING: This CREATE TABLE statement recursively references the target table. A consequence of this is a possible data integrity problem.
+NOTE: Table WORK.DB_JOIN created, with 150 rows and 11 columns.
+
+3125   quit;
+NOTE: PROCEDURE SQL used (Total process time):
       real time           0.01 seconds
       cpu time            0.01 seconds
       
 
-
-NOTE: There were 16 observations read from the data set WORK.PARTIAL_R2_SUMMARY.
-NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 16 observations and 3 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-
-2748   
-2749   data partial_r2_summary;
-2750       set partial_r2_summary;
-2751       length effect_name $32;
-2752       effect_name = Dropped_Var;
-2753       partial_r2_pct = Partial_R2_Pct;
-2754       keep effect_name partial_r2_pct;
-2755   run;
-
-NOTE: There were 16 observations read from the data set WORK.PARTIAL_R2_SUMMARY.
-NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 16 observations and 2 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-
-2756   
-2757   data db_join;
-2758       set db_join;
-2759       length effect_name $32;
-2760       effect_name = upcase(variable);
-2761       %normalize_effect(var=effect_name);
-2762   run;
+3126   
+3127   * Edit dataset to include reference values;
+3128   data db_join;
+3129       set db_join;
+3130       * Add ref levels;
+3131       if std=99 then estimate=98;
+3132       if model="Model 4" and (std=99 or
+3133           findw(upcase("&pr2_cont_vars"), strip(effect_name), ' ')>0)
+3134       then partial_r2_pct=partial_r2_pct;
+3135       else partial_r2_pct=.;
+3136       drop effect_name;
+3137       format partial_r2_pct 8.1;
+3138   run;
 
 NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
 NOTE: The data set WORK.DB_JOIN has 150 observations and 10 variables.
@@ -2613,100 +2807,165 @@ NOTE: DATA statement used (Total process time):
       cpu time            0.00 seconds
       
 
-2763   
-2764   proc sql;
-2765       create table db_join as
-2766       select a.*, b.partial_r2_pct
-2767       from db_join as a
-2768       left join partial_r2_summary as b
-2769           on a.effect_name = b.effect_name;
-WARNING: This CREATE TABLE statement recursively references the target table. A consequence of this is a possible data integrity problem.
-NOTE: Table WORK.DB_JOIN created, with 150 rows and 11 columns.
-
-2770   quit;
+3139   
+3140   * Obtain ids and save it in a macro variable ;
+3141   proc sql;
+3142       select count(distinct(id)) as n into:n_ids from &impdb;
+3143   quit;
 NOTE: PROCEDURE SQL used (Total process time):
-      real time           0.01 seconds
+      real time           0.07 seconds
       cpu time            0.00 seconds
       
 
-2771   
-2772   * Edit dataset to include reference values;
-2773   data db_join;
-2774       set db_join;
-2775       * Add ref levels;
-2776       if std =99 then estimate = 98;
-2777       if model = "Model 4" and std = 99 then partial_r2_pct = partial_r2_pct;
-2778       else partial_r2_pct = .;
-2779       drop effect_name;
-2780       format partial_r2_pct 8.1;
-2781   run;
-
-NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
-NOTE: The data set WORK.DB_JOIN has 150 observations and 10 variables.
-NOTE: DATA statement used (Total process time):
-      real time           0.00 seconds
-      cpu time            0.00 seconds
-      
-
-2782   * Obtain ids and save it in a macro variable ;
-2783   proc sql;
-2784       select count(distinct(id)) as n into:n_ids
-2785       from &impdb;
-2786   quit;
-NOTE: PROCEDURE SQL used (Total process time):
-      real time           0.06 seconds
-      cpu time            0.00 seconds
-      
-
-2787   
-2788   * Print final report;
-2789   ods listing close;
-2790   ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-2791   ods rtf file = "&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
+3144   
+3145   * Print final report;
+3146   ods listing close;
+3147   ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+3148   ods rtf file="&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style=manuscrt
+3149       bodytitle;
 NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\scripts\HC338354a\HC338354a_Table2_09MAR26.rtf
-2792   %let fs = 11pt;
-2793   %let fs_body = 11pt;
-2794   %let fs_titles = 11pt;
-2795   %let lft_mgn = 0.3in;
-2796   %let rgt_mgn = 0.1in;
-2797   proc report data = db_join;
-2798       title j=center height=&fs font='times roman' bold "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 2a. Maternal preconception socio-behavioral factors and
-2798 ! child's weight-for-age z-score, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
-2799       footnote1 J=left HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle
-2799 !  Outcomes Research; PA, physical activity.";
-2800       footnote2 J=left HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted
-2800 ! by field center, years between baseline and FLOR visit.";
-2801       footnote3 J=left HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by
-2801 ! field center and years between baseline and FLOR visit.";
-2802       footnote4 J=left HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field
-2802 ! center and years between baseline and FLOR visit.";
-2803       footnote5 J=left HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
-2804       footnote6 J=LEFT HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(),
-2804 ! timeampm.))}";
-2805       columns order label model,(estimate STD PV) partial_r2_pct;
-2806       define order / order group noprint order = internal;
-2807       define label / display group ' ' style(HEADER)=[FONTSIZE = &fs JUST = left] style = [FONTSIZE=&fs width = 2.5in];
-2808       define model / across ' ' style = [FONTSIZE=&fs];
-2809       define estimate / analysis 'Beta' style=[fontsize = &fs vjust = bottom];
-2810       define std / analysis '(SE)' style=[fontsize = &fs VJUST = bottom];
-2811       define pv / analysis ' ' group
-2812                   style=[fontsize = &fs vjust=bottom just = left]
-2813                   style(header)=[cellpadding = 0in cellheight=0in cellspacing=0in];
-2814       define partial_r2_pct / mean "% variance" style=[fontsize=&fs  vjust=top just=center];
-2815       FORMAT PV PV. STD paren. ESTIMATE refnum. partial_r2_pct pct_blank. ;
-2816       COMPUTE AFTER _PAGE_ / STYLE = [JUST = LEFT font_size = &fs];
-2817           LINE "* p <=.10, ** p <=.05, *** p <=.01 ";
-2818       ENDCOMP;
-2819   RUN;
+3150   %let fs=11pt;
+3151   %let fs_body=11pt;
+3152   %let fs_titles=11pt;
+3153   %let lft_mgn=0.3in;
+3154   %let rgt_mgn=0.1in;
+3155   
+3156   proc report data=db_join;
+3157       title j=center height=&fs font='times roman' bold
+3158           "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 2a. Maternal preconception socio-behavioral factors and child's weight-for-age z-score, HCHS/SOL FLOR
+3158 ! Ancillary Study (n=%qtrim(&n_ids))";
+3159       footnote1 J=left HEIGHT=&fs_titles FONT='times roman'
+3160           "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
+3161       footnote2 J=left HEIGHT=&fs_titles FONT='times roman'
+3162           "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and FLOR
+3162 ! visit.";
+3163       footnote3 J=left HEIGHT=&fs_titles FONT='times roman'
+3164           "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR
+3164 ! visit.";
+3165       footnote4 J=left HEIGHT=&fs_titles FONT='times roman'
+3166           "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit."
+3166 ! ;
+3167       footnote5 J=left HEIGHT=&fs_titles FONT='times roman'
+3168           "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
+3169       footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
+3170           "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+3171       columns order label model,(estimate STD PV) partial_r2_pct;
+3172       define order / order group noprint order=internal;
+3173       define label / display group ' ' style(HEADER)=[FONTSIZE=&fs JUST=left]
+3174           style=[FONTSIZE=&fs width=2.5in];
+3175       define model / across ' ' style=[FONTSIZE=&fs];
+3176       define estimate / analysis 'Beta' style=[fontsize=&fs vjust=bottom];
+3177       define std / analysis '(SE)' style=[fontsize=&fs VJUST=bottom];
+3178       define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
+3179           style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
+3180       define partial_r2_pct / mean "% Variance" style=[fontsize=&fs vjust=top just=center];
+3181       compute partial_r2_pct;
+3182       if model ne 'Model 4' then call define(_col_, 'style',
+3183           'style=[visibility=hidden]');
+3184       endcomp;
+3185       FORMAT PV PV. STD paren. ESTIMATE refnum. partial_r2_pct pct_blank.;
+3186       COMPUTE AFTER _PAGE_ / STYLE=[JUST=LEFT font_size=&fs];
+3187       LINE "* p <=.10, ** p <=.05, *** p <=.01 ";
+3188       ENDCOMP;
+3189   RUN;
 
+NOTE: Variable model is uninitialized.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
 NOTE: PROCEDURE REPORT used (Total process time):
-      real time           0.14 seconds
-      cpu time            0.09 seconds
+      real time           0.12 seconds
+      cpu time            0.06 seconds
       
+NOTE: The SAS System stopped processing this step because of errors.
 NOTE: There were 150 observations read from the data set WORK.DB_JOIN.
+3190   ods rtf close;
+3191   
 
-2820   ods rtf close;
-2821   
-2822   
-2823   proc printto; run;
+
+3192   proc printto;
+3193   run;
 

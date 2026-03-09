@@ -12,7 +12,7 @@ run;
  *                                                        *
  *  PROGRAM NAME: HC338354a.sas
  *
- *  PROGRAMMER: �lvaro Quijano (AQ)
+ *  PROGRAMMER: Alvaro Quijano (AQ)
  *
  *  DESCRIPTION: Imputation model
 
@@ -27,12 +27,13 @@ run;
  *
  *  VERSION CONTROL:
  *					04nov25: cc'ed HC338354
-update job to 54a and table's title
-update input dataset
-12nov25: Update input dataset to *_12nov25
-18nov25: update row labels and footnote
-portrait orientation
-LOW is the ref value for HEI2010_C3 now
+							 update job to 54a and table's title
+							 update input dataset
+					12nov25: Update input dataset to *_12nov25
+					18nov25: update row labels and footnote
+							 portrait orientation
+							 LOW is the ref value for HEI2010_C3 now
+					09mar26: include %variance in Table
 
  * ----------------------------------------------------------
  *
@@ -63,8 +64,8 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
 
 %let pr2_class_vars=bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
-	yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10;
-%let pr2_cont_vars=age parity_v1 slpdur child_prs_bmi_a;
+	yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10 centernum;
+%let pr2_cont_vars=age parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
 
 %macro normalize_effect(var=);
 	%local _i _effect;
@@ -236,7 +237,7 @@ proc report data=db_join;
 		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
 	footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
 		"{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
-	columns order label model,(estimate STD PV partial_r2_pct);
+	columns order label model,(estimate STD PV) partial_r2_pct;
 	define order / order group noprint order=internal;
 	define label / display group ' ' style(HEADER)=[FONTSIZE=&fs JUST=left]
 		style=[FONTSIZE=&fs width=2.5in];
@@ -245,13 +246,12 @@ proc report data=db_join;
 	define std / analysis '(SE)' style=[fontsize=&fs VJUST=bottom];
 	define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
 		style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
-	define partial_r2_pct / display "Model 4 Partial R2 (%)" style=[fontsize=&fs
-		just=center];
+	define partial_r2_pct / mean "% Variance" style=[fontsize=&fs vjust=top just=center];
 	compute partial_r2_pct;
 	if model ne 'Model 4' then call define(_col_, 'style',
 		'style=[visibility=hidden]');
 	endcomp;
-	FORMAT PV PV. STD paren. ESTIMATE refnum.;
+	FORMAT PV PV. STD paren. ESTIMATE refnum. partial_r2_pct pct_blank.;
 	COMPUTE AFTER _PAGE_ / STYLE=[JUST=LEFT font_size=&fs];
 	LINE "* p <=.10, ** p <=.05, *** p <=.01 ";
 	ENDCOMP;
