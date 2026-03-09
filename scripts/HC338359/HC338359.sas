@@ -13,7 +13,7 @@ run;
  *                                                        *
  *  PROGRAM NAME: HC338359.sas
  *
- *  PROGRAMMER: A�lvaro Quijano (AQ)
+ *  PROGRAMMER: Alvaro Quijano (AQ)
  *
  *  DESCRIPTION: Logistic model with Overweight/Obese as
 the response; report OR and 95% CI
@@ -244,17 +244,20 @@ data db_wide;
 		end;
 		otherwise;
 	end;
-	* Significance (p <= .05);
+	
+
+	if last.label then output;
+	keep order label or_txt_1 ci_txt_1 or_txt_2 ci_txt_2 or_txt_3 ci_txt_3 or_txt_4 ci_txt_4;
+run;
+
+data db_wide;
+	set db_wide;
+* Significance (p <= .05);
 	sig_1 = (pv_1 in (1, 2));
 	sig_2 = (pv_2 in (1, 2));
 	sig_3 = (pv_3 in (1, 2));
 	sig_4 = (pv_4 in (1, 2));
-
-	if last.label then output;
-	keep order label or_txt_1 ci_txt_1 sig_1 or_txt_2 ci_txt_2 sig_2 or_txt_3
-		ci_txt_3 sig_3 or_txt_4 ci_txt_4 sig_4;
 run;
-
 proc sort data=db_wide;
 	by order;
 run;
@@ -314,28 +317,28 @@ proc report data=db_wide;
 	define sig_4 / noprint;
 	compute sig_1;
 	  if sig_1 = 1 then do;
-	    call define('or_txt_1', 'style', 'style={font_weight=bold}');
-	    call define('ci_txt_1', 'style', 'style={font_weight=bold}');
+	    call define('or_txt_1', 'style', 'style={fontweight=bold}');
+	    call define('ci_txt_1', 'style', 'style={fontweight=bold}');
 	  end;
 	endcomp;
 	compute sig_2;
 	  if sig_2 = 1 then do;
-	    call define('or_txt_2', 'style', 'style={font_weight=bold}');
-	    call define('ci_txt_2', 'style', 'style={font_weight=bold}');
+	    call define('or_txt_2', 'style', 'style={fontweight=bold}');
+	    call define('ci_txt_2', 'style', 'style={fontweight=bold}');
 	  end;
 	endcomp;
 
 	compute sig_3;
 	  if sig_3 = 1 then do;
-	    call define('or_txt_3', 'style', 'style={font_weight=bold}');
-	    call define('ci_txt_3', 'style', 'style={font_weight=bold}');
+	    call define('or_txt_3', 'style', 'style={fontweight=bold}');
+	    call define('ci_txt_3', 'style', 'style={fontweight=bold}');
 	  end;
 	endcomp;
 
 	compute sig_4;
 	  if sig_4 = 1 then do;
-	    call define('or_txt_4', 'style', 'style={font_weight=bold}');
-	    call define('ci_txt_4', 'style', 'style={font_weight=bold}');
+	    call define('or_txt_4', 'style', 'style={fontweight=bold}');
+	    call define('ci_txt_4', 'style', 'style={fontweight=bold}');
 	  end;
 	endcomp;
 run; 
