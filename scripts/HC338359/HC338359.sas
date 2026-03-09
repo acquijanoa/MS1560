@@ -201,15 +201,10 @@ run;
 data db_join;
 	set mianalize_1 mianalize_2 mianalize_3 mianalize_4;
 run;
-
-* Convert to wide format;
-proc sort data=db_join;
-	by order label model;
-run;
+proc sort data=db_join; by order label model; run;
 
 data db_wide;
 	length label $300 or_txt_1-or_txt_4 $40 ci_txt_1-ci_txt_4 $60 pv_1-pv_4 $20;
-
 	retain or_txt_1-or_txt_4 ci_txt_1-ci_txt_4 pv_1-pv_4;
 
 	set db_join;
@@ -244,12 +239,9 @@ data db_wide;
 		end;
 		otherwise;
 	end;
-	
-
 	if last.label then output;
-	keep order label or_txt_1 ci_txt_1 or_txt_2 ci_txt_2 or_txt_3 ci_txt_3 or_txt_4 ci_txt_4;
+	keep order label or_txt_: ci_txt_: pv_:;
 run;
-
 data db_wide;
 	set db_wide;
 * Significance (p <= .05);
@@ -258,9 +250,7 @@ data db_wide;
 	sig_3 = (pv_3 in (1, 2));
 	sig_4 = (pv_4 in (1, 2));
 run;
-proc sort data=db_wide;
-	by order;
-run;
+proc sort data=db_wide; by order; run;
 
 * Obtain ids and save it in a macro variable ;
 proc sql;
@@ -277,7 +267,6 @@ ods rtf file="&homepath\scripts\&job.\&job._Table3_&sysdate..rtf" style=manuscrt
 %let fs_titles=11pt;
 %let lft_mgn=0.3in;
 %let rgt_mgn=0.1in;
-
 proc report data=db_wide;
 	title j=center height=&fs font='times roman' bold
 		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3. Association among maternal preconception socio-behavioral factors and overweight or obesity, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
@@ -290,11 +279,10 @@ proc report data=db_wide;
 	footnote4 J=LEFT HEIGHT=&fs_titles FONT='times roman'
 		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit.";
 	footnote5 J=LEFT HEIGHT=&fs_titles FONT='times roman'
-		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child�s obesity genetic risk score.";
+		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
 	footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
 		"{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
-	columns order label
-        sig_1 ('Model 1' or_txt_1 ci_txt_1)
+	columns order label sig_1 ('Model 1' or_txt_1 ci_txt_1)
         sig_2 ('Model 2' or_txt_2 ci_txt_2)
         sig_3 ('Model 3' or_txt_3 ci_txt_3)
         sig_4 ('Model 4' or_txt_4 ci_txt_4);
@@ -311,38 +299,43 @@ proc report data=db_wide;
 	define ci_txt_3 / display "95% CI" style=[fontsize=&fs just=center];
 	define or_txt_4 / display "OR" style=[fontsize=&fs just=center];
 	define ci_txt_4 / display "95% CI" style=[fontsize=&fs just=center];
-	define sig_1 / noprint;
-	define sig_2 / noprint;
-	define sig_3 / noprint;
-	define sig_4 / noprint;
-	compute sig_1;
-	  if sig_1 = 1 then do;
-	    call define('or_txt_1', 'style', 'style={fontweight=bold}');
-	    call define('ci_txt_1', 'style', 'style={fontweight=bold}');
-	  end;
+	define sig_1 / display noprint;
+	define sig_2 / display noprint;
+	define sig_3 / display noprint;
+	define sig_4 / display noprint;
+	compute or_txt_1;
+	if sig_1 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
 	endcomp;
-	compute sig_2;
-	  if sig_2 = 1 then do;
-	    call define('or_txt_2', 'style', 'style={fontweight=bold}');
-	    call define('ci_txt_2', 'style', 'style={fontweight=bold}');
-	  end;
+	compute ci_txt_1;
+	if sig_1 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
 	endcomp;
-
-	compute sig_3;
-	  if sig_3 = 1 then do;
-	    call define('or_txt_3', 'style', 'style={fontweight=bold}');
-	    call define('ci_txt_3', 'style', 'style={fontweight=bold}');
-	  end;
+	compute or_txt_2;
+	if sig_2 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
 	endcomp;
-
-	compute sig_4;
-	  if sig_4 = 1 then do;
-	    call define('or_txt_4', 'style', 'style={fontweight=bold}');
-	    call define('ci_txt_4', 'style', 'style={fontweight=bold}');
-	  end;
+	compute ci_txt_2;
+	if sig_2 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
+	endcomp;
+	compute or_txt_3;
+	if sig_3 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
+	endcomp;
+	compute ci_txt_3;
+	if sig_3 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
+	endcomp;
+	compute or_txt_4;
+	if sig_4 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
+	endcomp;
+	compute ci_txt_4;
+	if sig_4 = 1 then
+	call define(_col_, 'style', 'style=[font_weight=bold]');
 	endcomp;
 run; 
-run;
 ods rtf close;
 
 proc printto;
