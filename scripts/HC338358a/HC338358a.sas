@@ -1,5 +1,5 @@
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
-%let job = HC338360a;
+%let job = HC338358a;
 
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
     print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
@@ -11,7 +11,7 @@ run;
  *                                                        *
  *********************************************************
  *                                                        *
- *  PROGRAM NAME: HC338360a.sas                           *
+ *  PROGRAM NAME: HC338358a.sas                           *
  *
  *  PROGRAMMER: Alvaro Quijano (AQ)                       *
  *
@@ -22,7 +22,7 @@ run;
  *
  * ---------------------------------------------------------
  *
- *  JOB NUMBER: HC338360a                                  *
+ *  JOB NUMBER: HC338358a                                  *
  *
  *  LANGUAGE: SAS 9.4                                      *
  *
