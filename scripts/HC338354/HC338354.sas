@@ -1,6 +1,6 @@
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
-proc printto log="&homepath.\code\HC338354\HC338354_&sysdate..log" 
-	print = "&homepath.\code\HC338354\HC338354_&sysdate..lst" new; 
+proc printto log="&homepath.\scripts\HC338354\HC338354_&sysdate..log" 
+	print = "&homepath.\scripts\HC338354\HC338354_&sysdate..lst" new; 
 run;
 
 /*********************************************************
@@ -70,10 +70,10 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let rg_margin = 0.7in;
 
 * Include sas scripts with formats and macros;
-%include "&homepath.\code\HC338390\HC338390.sas";
-%include "&homepath.\code\HC338391\HC3383_labels.sas";
-%include "&homepath.\code\HC338391\HC3383_process_imputed.sas";
-%include "&homepath.\code\HC338391\HC3383_partial_r2.sas";
+%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC338391\HC3383_labels.sas";
+%include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
+%include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
 
 %let pr2_class_vars = bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
 			yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10
@@ -158,19 +158,6 @@ proc genmod data = &impdb;
 	output out=_full_res resraw=e_full;
 run;
 
-/* 
-title 'Significative factors model';
-proc genmod data = &impdb;
-	by _imputation_;
-	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') 
-			yrsus_c3(ref='US_BORN') slpdur_lt8hrs(ref="<8_hours");
-	model waz = centernum yrs_btwn_v1flor bkgrd1_c7nomiss marital_status slpdur_lt8hrs yrsus_c3 parity_v1 / d=normal;
-	format centernum centernum_fmt.	bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. 
-				slpdur_lt8hrs slpdur_lt8hrs_fmt. yrsus_c3 yrsus_c3_fmt. ;
-	ods output ParameterEstimates=genmod_results_5;
-run;
-*/
-
 * Process the imputed estimates;
 %process_imputed(in_db = genmod_results_1, out_db = mianalize_1, model = 1);
 %process_imputed(in_db = genmod_results_2, out_db = mianalize_2, model = 2);
@@ -214,7 +201,7 @@ data db_join;
 	set db_join;
 	* Add ref levels;
 	if std =99 then estimate = 98;
-	if model = "Model 4" and (std = 99 or findw(upcase("&pr2_table_vars"),
+	if model = "Model 4" and (std = 99 or findw(upcase("&pr2_cont_vars"),
 		strip(effect_name), ' ')>0) then partial_r2_pct = partial_r2_pct;
 	else partial_r2_pct = .;
 	drop effect_name;
@@ -230,7 +217,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\code\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
 %let fs = 11pt;
 %let fs_body = 11pt;
 %let fs_titles = 11pt;

@@ -3324,6 +3324,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: The scale parameter was estimated by maximum likelihood.
                                                                            Model 4: Model 3 + PRS
 
+---------------------------------------------------------------------------- Imputation Number=1 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       2.16        0.5393
+                                                             YRS_BTWN_V1FLOR         1       0.81        0.3694
+                                                             AGE                     1       2.07        0.1502
+                                                             BKGRD1_C7NOMISS         6      11.73        0.0682
+                                                             N_HC                    1       0.85        0.3554
+                                                             EDUCATION_C3            2       2.67        0.2635
+                                                             PARITY_V1               1       3.36        0.0667
+                                                             EMPLOYEDYN              1       0.01        0.9236
+                                                             MARITAL_STATUS          2      11.98        0.0025
+                                                             YRSUS_C3                2       0.51        0.7757
+                                                             CURRENT_SMOKER          1       3.18        0.0745
+                                                             HEI2010_C3              2       0.05        0.9773
+                                                             ALCOHOL_USE             2       0.44        0.8015
+                                                             PAG2008YN               1       0.27        0.6007
+                                                             SLPDUR                  1       5.83        0.0158
+                                                             CESD10                  1       1.75        0.1856
+                                                             STAI10                  1       0.17        0.6799
+                                                             CHILD_PRS_BMI_A         1      16.84        <.0001
+                                                                           Model 4: Model 3 + PRS
+
 ---------------------------------------------------------------------------- Imputation Number=2 ----------------------------------------------------------------------------
 
                                                                             The GENMOD Procedure
@@ -3436,6 +3465,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
                          Scale                                         1      1.0794      0.0507      0.9845      1.1834                            
 
 NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                           Model 4: Model 3 + PRS
+
+---------------------------------------------------------------------------- Imputation Number=2 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       1.70        0.6373
+                                                             YRS_BTWN_V1FLOR         1       1.03        0.3110
+                                                             AGE                     1       1.56        0.2112
+                                                             BKGRD1_C7NOMISS         6      12.51        0.0515
+                                                             N_HC                    1       0.13        0.7138
+                                                             EDUCATION_C3            2       3.00        0.2232
+                                                             PARITY_V1               1       2.49        0.1147
+                                                             EMPLOYEDYN              1       0.14        0.7101
+                                                             MARITAL_STATUS          2      10.73        0.0047
+                                                             YRSUS_C3                2       0.40        0.8169
+                                                             CURRENT_SMOKER          1       3.62        0.0570
+                                                             HEI2010_C3              2       0.19        0.9090
+                                                             ALCOHOL_USE             2       0.17        0.9173
+                                                             PAG2008YN               1       3.79        0.0514
+                                                             SLPDUR                  1       2.57        0.1089
+                                                             CESD10                  1       0.84        0.3585
+                                                             STAI10                  1       0.04        0.8339
+                                                             CHILD_PRS_BMI_A         1      16.08        <.0001
                                                                            Model 4: Model 3 + PRS
 
 ---------------------------------------------------------------------------- Imputation Number=3 ----------------------------------------------------------------------------
@@ -3552,6 +3610,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: The scale parameter was estimated by maximum likelihood.
                                                                            Model 4: Model 3 + PRS
 
+---------------------------------------------------------------------------- Imputation Number=3 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       2.38        0.4968
+                                                             YRS_BTWN_V1FLOR         1       0.52        0.4713
+                                                             AGE                     1       2.31        0.1285
+                                                             BKGRD1_C7NOMISS         6      12.82        0.0460
+                                                             N_HC                    1       0.09        0.7610
+                                                             EDUCATION_C3            2       2.49        0.2873
+                                                             PARITY_V1               1       2.39        0.1221
+                                                             EMPLOYEDYN              1       0.09        0.7692
+                                                             MARITAL_STATUS          2      10.78        0.0046
+                                                             YRSUS_C3                2       0.54        0.7640
+                                                             CURRENT_SMOKER          1       2.64        0.1045
+                                                             HEI2010_C3              2       0.16        0.9240
+                                                             ALCOHOL_USE             2       0.96        0.6202
+                                                             PAG2008YN               1       0.44        0.5073
+                                                             SLPDUR                  1       4.90        0.0268
+                                                             CESD10                  1       3.38        0.0661
+                                                             STAI10                  1       0.14        0.7107
+                                                             CHILD_PRS_BMI_A         1      16.71        <.0001
+                                                                           Model 4: Model 3 + PRS
+
 ---------------------------------------------------------------------------- Imputation Number=4 ----------------------------------------------------------------------------
 
                                                                             The GENMOD Procedure
@@ -3664,6 +3751,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
                          Scale                                         1      1.0921      0.0513      0.9961      1.1973                            
 
 NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                           Model 4: Model 3 + PRS
+
+---------------------------------------------------------------------------- Imputation Number=4 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       2.16        0.5391
+                                                             YRS_BTWN_V1FLOR         1       0.56        0.4542
+                                                             AGE                     1       1.40        0.2363
+                                                             BKGRD1_C7NOMISS         6      14.12        0.0283
+                                                             N_HC                    1       0.10        0.7549
+                                                             EDUCATION_C3            2       2.43        0.2961
+                                                             PARITY_V1               1       3.42        0.0644
+                                                             EMPLOYEDYN              1       0.13        0.7195
+                                                             MARITAL_STATUS          2      12.55        0.0019
+                                                             YRSUS_C3                2       0.28        0.8715
+                                                             CURRENT_SMOKER          1       1.08        0.2976
+                                                             HEI2010_C3              2       0.12        0.9434
+                                                             ALCOHOL_USE             2       0.22        0.8945
+                                                             PAG2008YN               1       0.05        0.8147
+                                                             SLPDUR                  1       3.76        0.0525
+                                                             CESD10                  1       2.03        0.1543
+                                                             STAI10                  1       0.00        0.9510
+                                                             CHILD_PRS_BMI_A         1      16.04        <.0001
                                                                            Model 4: Model 3 + PRS
 
 ---------------------------------------------------------------------------- Imputation Number=5 ----------------------------------------------------------------------------
@@ -3780,6 +3896,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: The scale parameter was estimated by maximum likelihood.
                                                                            Model 4: Model 3 + PRS
 
+---------------------------------------------------------------------------- Imputation Number=5 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       1.62        0.6547
+                                                             YRS_BTWN_V1FLOR         1       0.64        0.4231
+                                                             AGE                     1       1.50        0.2203
+                                                             BKGRD1_C7NOMISS         6      12.57        0.0504
+                                                             N_HC                    1       0.48        0.4891
+                                                             EDUCATION_C3            2       2.69        0.2600
+                                                             PARITY_V1               1       2.63        0.1046
+                                                             EMPLOYEDYN              1       0.00        0.9869
+                                                             MARITAL_STATUS          2      12.24        0.0022
+                                                             YRSUS_C3                2       0.57        0.7518
+                                                             CURRENT_SMOKER          1       1.67        0.1958
+                                                             HEI2010_C3              2       0.33        0.8491
+                                                             ALCOHOL_USE             2       0.12        0.9415
+                                                             PAG2008YN               1       0.56        0.4547
+                                                             SLPDUR                  1       5.37        0.0205
+                                                             CESD10                  1       0.90        0.3425
+                                                             STAI10                  1       0.09        0.7666
+                                                             CHILD_PRS_BMI_A         1      12.89        0.0003
+                                                                           Model 4: Model 3 + PRS
+
 ---------------------------------------------------------------------------- Imputation Number=6 ----------------------------------------------------------------------------
 
                                                                             The GENMOD Procedure
@@ -3892,6 +4037,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
                          Scale                                         1      1.0818      0.0508      0.9867      1.1860                            
 
 NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                           Model 4: Model 3 + PRS
+
+---------------------------------------------------------------------------- Imputation Number=6 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       2.68        0.4440
+                                                             YRS_BTWN_V1FLOR         1       0.65        0.4219
+                                                             AGE                     1       1.14        0.2856
+                                                             BKGRD1_C7NOMISS         6      13.47        0.0362
+                                                             N_HC                    1       0.69        0.4061
+                                                             EDUCATION_C3            2       3.86        0.1454
+                                                             PARITY_V1               1       3.46        0.0628
+                                                             EMPLOYEDYN              1       0.12        0.7273
+                                                             MARITAL_STATUS          2      11.69        0.0029
+                                                             YRSUS_C3                2       0.55        0.7613
+                                                             CURRENT_SMOKER          1       3.04        0.0815
+                                                             HEI2010_C3              2       0.15        0.9268
+                                                             ALCOHOL_USE             2       0.07        0.9673
+                                                             PAG2008YN               1       0.07        0.7985
+                                                             SLPDUR                  1       1.85        0.1736
+                                                             CESD10                  1       0.87        0.3520
+                                                             STAI10                  1       0.04        0.8492
+                                                             CHILD_PRS_BMI_A         1      17.29        <.0001
                                                                            Model 4: Model 3 + PRS
 
 ---------------------------------------------------------------------------- Imputation Number=7 ----------------------------------------------------------------------------
@@ -4008,6 +4182,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: The scale parameter was estimated by maximum likelihood.
                                                                            Model 4: Model 3 + PRS
 
+---------------------------------------------------------------------------- Imputation Number=7 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       1.90        0.5932
+                                                             YRS_BTWN_V1FLOR         1       1.01        0.3139
+                                                             AGE                     1       2.53        0.1115
+                                                             BKGRD1_C7NOMISS         6      13.17        0.0404
+                                                             N_HC                    1       0.59        0.4436
+                                                             EDUCATION_C3            2       2.86        0.2391
+                                                             PARITY_V1               1       1.59        0.2075
+                                                             EMPLOYEDYN              1       0.06        0.8100
+                                                             MARITAL_STATUS          2      10.94        0.0042
+                                                             YRSUS_C3                2       0.82        0.6652
+                                                             CURRENT_SMOKER          1       3.91        0.0481
+                                                             HEI2010_C3              2       0.29        0.8635
+                                                             ALCOHOL_USE             2       0.38        0.8287
+                                                             PAG2008YN               1       0.34        0.5604
+                                                             SLPDUR                  1       3.65        0.0561
+                                                             CESD10                  1       1.63        0.2023
+                                                             STAI10                  1       0.77        0.3790
+                                                             CHILD_PRS_BMI_A         1      13.69        0.0002
+                                                                           Model 4: Model 3 + PRS
+
 ---------------------------------------------------------------------------- Imputation Number=8 ----------------------------------------------------------------------------
 
                                                                             The GENMOD Procedure
@@ -4120,6 +4323,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
                          Scale                                         1      1.0836      0.0509      0.9884      1.1880                            
 
 NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                           Model 4: Model 3 + PRS
+
+---------------------------------------------------------------------------- Imputation Number=8 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       2.00        0.5729
+                                                             YRS_BTWN_V1FLOR         1       0.75        0.3880
+                                                             AGE                     1       2.24        0.1345
+                                                             BKGRD1_C7NOMISS         6      14.55        0.0240
+                                                             N_HC                    1       0.14        0.7106
+                                                             EDUCATION_C3            2       2.23        0.3285
+                                                             PARITY_V1               1       1.78        0.1823
+                                                             EMPLOYEDYN              1       0.05        0.8222
+                                                             MARITAL_STATUS          2      10.93        0.0042
+                                                             YRSUS_C3                2       0.66        0.7183
+                                                             CURRENT_SMOKER          1       3.60        0.0579
+                                                             HEI2010_C3              2       0.07        0.9666
+                                                             ALCOHOL_USE             2       0.37        0.8307
+                                                             PAG2008YN               1       0.67        0.4124
+                                                             SLPDUR                  1       2.74        0.0979
+                                                             CESD10                  1       2.30        0.1298
+                                                             STAI10                  1       0.10        0.7551
+                                                             CHILD_PRS_BMI_A         1      14.52        0.0001
                                                                            Model 4: Model 3 + PRS
 
 ---------------------------------------------------------------------------- Imputation Number=9 ----------------------------------------------------------------------------
@@ -4236,6 +4468,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
 NOTE: The scale parameter was estimated by maximum likelihood.
                                                                            Model 4: Model 3 + PRS
 
+---------------------------------------------------------------------------- Imputation Number=9 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       1.53        0.6762
+                                                             YRS_BTWN_V1FLOR         1       0.48        0.4887
+                                                             AGE                     1       2.78        0.0952
+                                                             BKGRD1_C7NOMISS         6      12.83        0.0458
+                                                             N_HC                    1       0.21        0.6469
+                                                             EDUCATION_C3            2       2.15        0.3414
+                                                             PARITY_V1               1       1.58        0.2086
+                                                             EMPLOYEDYN              1       0.06        0.8022
+                                                             MARITAL_STATUS          2      10.00        0.0067
+                                                             YRSUS_C3                2       0.53        0.7681
+                                                             CURRENT_SMOKER          1       4.00        0.0456
+                                                             HEI2010_C3              2       0.04        0.9820
+                                                             ALCOHOL_USE             2       0.29        0.8650
+                                                             PAG2008YN               1       4.69        0.0303
+                                                             SLPDUR                  1       3.29        0.0699
+                                                             CESD10                  1       1.54        0.2146
+                                                             STAI10                  1       0.34        0.5594
+                                                             CHILD_PRS_BMI_A         1      16.63        <.0001
+                                                                           Model 4: Model 3 + PRS
+
 --------------------------------------------------------------------------- Imputation Number=10 ----------------------------------------------------------------------------
 
                                                                             The GENMOD Procedure
@@ -4348,6 +4609,35 @@ NOTE: The scale parameter was estimated by maximum likelihood.
                          Scale                                         1      1.0774      0.0506      0.9827      1.1812                            
 
 NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                           Model 4: Model 3 + PRS
+
+--------------------------------------------------------------------------- Imputation Number=10 ----------------------------------------------------------------------------
+
+                                                                            The GENMOD Procedure
+
+                                                                     LR Statistics For Type 3 Analysis
+ 
+                                                                                             Chi-
+                                                             Source                 DF     Square    Pr > ChiSq
+
+                                                             CENTERNUM               3       2.39        0.4962
+                                                             YRS_BTWN_V1FLOR         1       1.04        0.3090
+                                                             AGE                     1       2.38        0.1225
+                                                             BKGRD1_C7NOMISS         6      13.80        0.0319
+                                                             N_HC                    1       0.58        0.4453
+                                                             EDUCATION_C3            2       3.39        0.1834
+                                                             PARITY_V1               1       2.79        0.0947
+                                                             EMPLOYEDYN              1       0.06        0.8144
+                                                             MARITAL_STATUS          2       9.70        0.0078
+                                                             YRSUS_C3                2       0.22        0.8977
+                                                             CURRENT_SMOKER          1       1.15        0.2841
+                                                             HEI2010_C3              2       0.13        0.9381
+                                                             ALCOHOL_USE             2       0.19        0.9096
+                                                             PAG2008YN               1       1.72        0.1896
+                                                             SLPDUR                  1       3.07        0.0797
+                                                             CESD10                  1       3.91        0.0480
+                                                             STAI10                  1       0.28        0.5943
+                                                             CHILD_PRS_BMI_A         1      16.01        <.0001
                                                                            Model 4: Model 3 + PRS
 
 ------------------------------------------------------------------------------ EffectName=AGE -------------------------------------------------------------------------------
