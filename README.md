@@ -43,15 +43,8 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 | HC338391/HC3383_process_imputed.sas | Defines %process_imputed to pool parameter estimates across imputations via PROC MIANALYZE and attach reporting labels. |
 | HC338391/HC3383_anonymize_db.sas | Defines %ANONYMIZE_DB to map SUBJECTID to study ID using transfer/encryption files and produce de-identified datasets. |
 | HC338391/HC3383_partial_r2.sas | Defines %get_all_partial_r2 to compute variable-specific partial R2 across imputed GENMOD models using full vs reduced deviance. |
-| HC338398/HC33839801.sas | Performs QC comparison (cont #1) between project-derived datasets and Statistical Computing comparison datasets using PROC COMPARE. |
-| HC338398/HC33839802.sas | Performs QC comparison (cont #2) between project-derived datasets and updated Statistical Computing comparison datasets using PROC COMPARE. |
-| HC338398/HC33839803.sas | Performs post-feedback QC comparison for cont #2 after incorporating review updates to derived datasets. |
-| HC338398/HC33839804.sas | Runs QC reconstruction of Table 1 components (frequencies, summary stats, and p-values by FLOR status) against the all-participant analysis dataset. |
-| HC338398/HC33839805.sas | Computes supplemental frequency counts used to document flow-chart and protocol eligibility/supporting manuscript denominator checks. |
-| HC338399/HC33839901.sas | Computes HEI-2010 tertile cut points from the FLOR comparison dataset and exports the tertile summary report. |
-| HC338399/HC33839902.sas | Calculates Pearson correlation between YRS_BTWN_V1V2 and YRSV1BIRTH in the FLOR comparison dataset. |
-| HC338399/HC33839903.sas | Duplicate correlation script of HC33839902 (same PROC CORR analysis between YRS_BTWN_V1V2 and YRSV1BIRTH). |
-| HC338399/HC33839904.sas | Runs an additional pooled Model 4 GENMOD analysis for WAZ including child sex and sex-by-alcohol interaction, then pools estimates with %process_imputed. |
+| HC338398/ | Performs QC comparison between project-derived datasets and Statistical Computing datasets. |
+| HC338399/ | Miscellaneous folder |
 
 ---
 
