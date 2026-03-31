@@ -225,7 +225,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338359/HC338359.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs the Table 3 logistic modeling pipeline for the main sample and reports pooled odds ratios with 95% confidence intervals (instead of beta/SE).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled linear GENMOD models for continuous BMI-for-age percentile (BMIPCT) across imputations to generate Table 2 (Models 1\u8211-4) and attach partial R\u178 ? summaries via %get_all_partial_r2.\par}
 \cell}
 }
 \intbl\row}
@@ -236,7 +236,29 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338359a/HC338359a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs the Table 3a logistic modeling pipeline for the restricted sample and reports pooled odds ratios with 95% confidence intervals (instead of beta/SE).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs the same continuous BMIPCT linear GENMOD + partial R\u178 ? pipeline as HC338359 in the PRS-complete imputed sample to produce Table 2a.\par}
+\cell}
+}
+\intbl\row}
+{
+\trowd \trgaph120
+\cellx4320\cellx8640
+\trkeep\intbl
+{
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338360/HC338360.sas\par}
+\cell}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits fractional logit GEE models for continuous BMI-for-age percentile (BMIPCT, 0\u8211-100) across imputed datasets (dist=bin, link=logit, REPEATED SUBJECT=ID) and produces Table 2 plus Average Marginal Effects (AMEs) for Model 4 on the BMI percentile scale.\par}
+\cell}
+}
+\intbl\row}
+{
+\trowd \trgaph120
+\cellx4320\cellx8640
+\trkeep\intbl
+{
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338360a/HC338360a.sas\par}
+\cell}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs the same fractional logit GEE and AME pipeline as HC338360 on the PRS-complete imputed sample to generate Table 2a for the restricted cohort.\par}
 \cell}
 }
 \intbl\row}
@@ -407,5 +429,5 @@
 \intbl\row}
 {\pard \ql \f0 \sa180 \li0 \fi0 \par}
 {\pard \qc \f0 \sa180 \li0 \fi0 \emdash\emdash\emdash\emdash\emdash\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 {\b Generated on:} 2026-03-08 using {\f1 generate_md.R} by Alvaro Quijano-Angarita\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 {\b Generated on:} 2026-03-31 using {\f1 generate_md.R} by Alvaro Quijano-Angarita\par}
 }

@@ -33,10 +33,10 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 | HC338357/HC338357.sas | Creates the inclusion/exclusion table and supporting missingness pattern output for the analytic sample construction workflow. |
 | HC338358/HC338358.sas | Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3 (main sample). |
 | HC338358a/HC338358a.sas | Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3a (restricted sample). |
-| HC338359/HC338359.sas | Fits pooled linear GENMOD models for continuous child BMI-for-age percentile (BMIPCT) across imputations and generates Table 2 (Models 1–4) including model-specific partial R² summaries. |
-| HC338359a/HC338359a.sas | Mirrors HC338359 in the PRS-complete imputed sample, producing the restricted-sample Table 2a and corresponding partial R² summaries. |
-| HC338360/HC338360.sas | Fits fractional logit GEE models for continuous child BMI-for-age percentile (BMIPCT, 0–100) across imputations (dist=bin, link=logit, REPEATED SUBJECT=ID) to produce Table 2 and Average Marginal Effects (AMEs) for Model 4 on the BMI percentile scale. |
-| HC338360a/HC338360a.sas | Mirrors HC338360 on the PRS-complete imputed sample, fitting the same fractional logit GEE models and generating Table 2a with AMEs for Model 4 in the restricted cohort. |
+| HC338359/HC338359.sas | Fits pooled linear GENMOD models for continuous BMI-for-age percentile (BMIPCT) across imputations to generate Table 2 (Models 1–4) and attach partial R² summaries via %get_all_partial_r2. |
+| HC338359a/HC338359a.sas | Runs the same continuous BMIPCT linear GENMOD + partial R² pipeline as HC338359 in the PRS-complete imputed sample to produce Table 2a. |
+| HC338360/HC338360.sas | Fits fractional logit GEE models for continuous BMI-for-age percentile (BMIPCT, 0–100) across imputed datasets (dist=bin, link=logit, REPEATED SUBJECT=ID) and produces Table 2 plus Average Marginal Effects (AMEs) for Model 4 on the BMI percentile scale. |
+| HC338360a/HC338360a.sas | Runs the same fractional logit GEE and AME pipeline as HC338360 on the PRS-complete imputed sample to generate Table 2a for the restricted cohort. |
 | HC338390/HC338390.sas | Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts. |
 | HC338391/HC3383_labels.sas | Defines the %labels macro that standardizes variable labels, ordering, and display conventions for manuscript tables. |
 | HC338391/HC3383_mi_lasso.sas | Provides the MI-lasso macro (Chen & Wang method) for variable selection in multiply imputed long-format data. |
@@ -55,4 +55,4 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 
 ---
 
-**Generated on:** 2026-03-08 using `generate_md.R` by Alvaro Quijano-Angarita
+**Generated on:** 2026-03-31 using `generate_md.R` by Alvaro Quijano-Angarita
