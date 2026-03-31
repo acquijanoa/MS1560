@@ -1,4 +1,4 @@
-%macro get_all_partial_r2(impdata=, class_vars=, cont_vars=, outds=partial_r2_summary);
+%macro get_all_partial_r2(impdata=, class_vars=, cont_vars=, outds=partial_r2_summary, outcome=waz);
 
   /* 1. Define the variables to loop through */
   %if %superq(class_vars)= %then %let class_test = bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc 
@@ -20,7 +20,7 @@
     %if %superq(class_test) ne %then %do;
       class &class_test;
     %end;
-    model waz = &all_test / dist=normal;
+    model &outcome = &all_test / dist=normal;
     
     /* KEEP FORMATS: Vital to prevent continuous/categorical mismatches */
     format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
@@ -82,7 +82,7 @@
       %if %superq(red_class) ne %then %do;
         class &red_class;
       %end;
-      model waz = &red_model / dist=normal;
+      model &outcome = &red_model / dist=normal;
       
       /* Safely leave all formats here; SAS ignores formats for variables not in the model */
       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 

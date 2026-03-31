@@ -92,11 +92,16 @@ PROC FORMAT;
 		99 = ' '
 		. = ' '
 		OTHER = [8.2];
+	/* SE stored negative for NEGPAREN; negparen.2 default w is too narrow for
+	   values >=10 (e.g. (10.25) needs 8+ characters) */
 	VALUE PAREN (ROUND)
 		99 = ' '
 		. = ' '
-		OTHER = [negparen.2];
+		OTHER = [negparen12.2];
  	PICTURE pct_blank (round)
         . = ' '
         low-high = '009.99%'; 
+	VALUE AME_fmt
+		. = ' '
+		other = [8.2];
 RUN;

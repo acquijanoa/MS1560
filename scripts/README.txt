@@ -106,6 +106,25 @@ JOB:
 	input: hc338353a_imputed_data_ddmmyy.sas7bdat
 	output: hc338354a_Table3a_ddmmyy.rtf
 	response: BMIPCT_C2 (overweight/obese) 
+
+59: Linear GENMOD models for continuous child BMI-for-age percentile (BMIPCT) across imputations in the main analytic sample; produces Table 2 with Models 1–4 and % variance explained.
+	input: hc338353_imputed_data_ddmmyy.sas7bdat
+	output: HC338359_Table2_ddmmyy.rtf
+
+59a: Same linear GENMOD as job 59 but restricted to the PRS-complete imputed sample; produces Table 2a for the restricted cohort.
+	input: hc338353a_imputed_data_ddmmyy.sas7bdat
+	output: HC338359a_Table2_ddmmyy.rtf
+
+60: Fractional logit GEE model for continuous child BMI-for-age percentile (BMIPCT, 0–100) in the main imputed sample.
+    Models BMIPCT/100 as a binomial proportion with trials=100 using PROC GENMOD (dist=bin, link=logit) with REPEATED SUBJECT=ID (GEE, robust variance).
+    Produces Table 2 estimates (Models 1–4) and Average Marginal Effects (AMEs) for Model 4 on the expected BMI percentile scale.
+    input: hc338353_imputed_data_ddmmyy.sas7bdat
+    output: HC338360_Table2_ddmmyy.rtf (Table 2 fractional logit + AMEs)
+
+60a: Same fractional logit GEE modeling pipeline as job 60, but restricted to the PRS-complete imputed sample.
+     Uses hc338353a_imputed_data_ddmmyy.sas7bdat and generates the Table 2a counterpart (Models 1–4) and AMEs for Model 4 in the restricted cohort.
+     input: hc338353a_imputed_data_ddmmyy.sas7bdat
+     output: HC338360a_Table2_ddmmyy.rtf (Table 2a fractional logit + AMEs)
  
 	
 ### Miscellaneous ### 	

@@ -116,15 +116,27 @@ scripts:
     status: "completed"
 
   - code: HC338359/HC338359.sas
-    task: "Runs the Table 3 logistic modeling pipeline for the main sample and reports pooled odds ratios with 95% confidence intervals (instead of beta/SE)."
+    task: "Fits pooled linear GENMOD models for continuous BMI-for-age percentile (BMIPCT) across imputations to generate Table 2 (Models 1–4) and attach partial R² summaries via %get_all_partial_r2."
     software: SAS
     created: 2025-11-04
     status: "ongoing"
 
   - code: HC338359a/HC338359a.sas
-    task: "Runs the Table 3a logistic modeling pipeline for the restricted sample and reports pooled odds ratios with 95% confidence intervals (instead of beta/SE)."
+    task: "Runs the same continuous BMIPCT linear GENMOD + partial R² pipeline as HC338359 in the PRS-complete imputed sample to produce Table 2a."
     software: SAS
     created: 2025-11-04
+    status: "ongoing"
+
+  - code: HC338360/HC338360.sas
+    task: "Fits fractional logit GEE models for continuous BMI-for-age percentile (BMIPCT, 0–100) across imputed datasets (dist=bin, link=logit, REPEATED SUBJECT=ID) and produces Table 2 plus Average Marginal Effects (AMEs) for Model 4 on the BMI percentile scale."
+    software: SAS
+    created: 2026-03-31
+    status: "ongoing"
+
+  - code: HC338360a/HC338360a.sas
+    task: "Runs the same fractional logit GEE and AME pipeline as HC338360 on the PRS-complete imputed sample to generate Table 2a for the restricted cohort."
+    software: SAS
+    created: 2026-03-31
     status: "ongoing"
 
   - code: HC338390/HC338390.sas
