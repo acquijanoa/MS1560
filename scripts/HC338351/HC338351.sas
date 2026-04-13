@@ -64,7 +64,7 @@ libname confid 'J:\HCHS\SC\Confid\Sasdata\Visit2\Internal_Use';
 libname output "&homepath.\data";
 libname hc3383 "J:\HCHS\SC\Review\HC3383";
 libname floriu "J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\Internal_Use";
-
+proc contents data=floriu.FLOR_PART_DERV_IU2; run; quit;
 * include macros;
 %include "J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338391\HC3383_anonymize_db.sas";
 

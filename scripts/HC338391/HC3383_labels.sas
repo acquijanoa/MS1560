@@ -68,6 +68,7 @@
 	if variable = 'STAI10_NOANX' then do; label = "{\b Anxiety symptoms (STAI-10) \b0 \line \li250   No (<20)}"; order = 0.0331; ESTIMATE = 99; std = 99; pv = 5; end;
 	if variable = 'STAI10_ANX' then do; label = "^S={indent=2mm} Yes (>=20)"; order = 0.0332; end;
 	if variable = 'HEIGHT' then do; label = "{\b Anthropometry \b0 \line \li250   Height (cm)}"; order = 0.034; end;
+	if variable = 'HAZ' then do; label = "{\b Height-for-age z score \b0 \li250}"; order = 0.034; end;
 	if variable = 'ANTA10A' then do; label = "^S={indent=2mm} Waist circumference (cm)"; order = 0.035; end;
 	if variable = 'BMI' then do; label = "^S={indent=2mm} Body Mass Index (BMI)"; order = 0.036; end;
 

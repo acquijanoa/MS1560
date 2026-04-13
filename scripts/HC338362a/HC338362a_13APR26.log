@@ -1,0 +1,2887 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+9          
+10         /*********************************************************
+11          *                                                         *
+12          *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
+13          *                                                        *
+14          **********************************************************
+15          *                                                        *
+16          *  PROGRAM NAME: HC338362a.sas
+17          *
+18          *  PROGRAMMER: Alvaro Quijano (AQ)
+19          *
+20          *  DESCRIPTION: Same pooled GENMOD structure as HC338354a (job 54a);
+21          *               outcome WAZ; all models add child height-for-age
+22          *               z-score (HAZ) as a covariate.
+23          *
+24          * ---------------------------------------------------------
+25          *
+26          *  JOB NUMBER: HC338362a
+27          *
+28          *  PREVIOUS JOB: HC338362
+29          *
+2                                                          The SAS System                               13:13 Monday, April 13, 2026
+
+30          *  LANGUAGE: SAS 9.4
+31          *
+32          *  VERSION CONTROL:
+33          *					13apr26: Create from HC338354a (job 54a); add HAZ covariate;
+34          *							 init macros &req, &job (&req.62a), &datefile;
+35          *							 impdb uses &datefile; printto/ODS use &job.
+36          *
+37          * ----------------------------------------------------------
+38          *
+39          *  INPUT: DATA.HC338353a_imputed_data_<datefile> (see %let impdb)
+40          *
+41          *  OUTPUT:
+42          *
+43          **********************************************************/
+44         options orientation=portrait nodate formchar="|----|+|---+=|-/\<>*" nonumber
+45         	PS=59 LS=173;
+46         ods escapechar '^';
+47         
+48         * Set libraries name;
+49         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+50         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+51         
+52         * Set macro variables;
+53         %let prg=AQA;
+54         %let impdb=data.HC338353a_imputed_data_&datefile;
+55         %let lf_margin=0.7in;
+56         %let rg_margin=0.7in;
+57         
+58         * Include sas scripts with formats and macros;
+59         %include "&homepath.\scripts\HC338390\HC338390.sas";
+NOTE: Format BKGRD1_C7NOMISS_FMT has been output.
+NOTE: Format PV has been output.
+NOTE: Format CENTERNUM_FMT has been output.
+NOTE: Format LANG_PREF_FMT has been output.
+NOTE: Format MARITAL_STATUS_FMT has been output.
+NOTE: Format EDUCATION_C3_FMT has been output.
+NOTE: Format N_HC_FMT has been output.
+NOTE: Format INCOME_C2_FMT has been output.
+NOTE: Format YRSUS_C3_FMT has been output.
+NOTE: Format EMPLOYEDYN_FMT has been output.
+NOTE: Format ALCOHOL_USE_FMT has been output.
+NOTE: Format SLPDUR_LT8HRS_FMT has been output.
+NOTE: Format HEI2010_C3_FMT has been output.
+NOTE: Format CESD10_FMT has been output.
+NOTE: Format STAI10_FMT has been output.
+NOTE: Format $STAT has been output.
+NOTE: Format PV is already on the library WORK.FORMATS.
+NOTE: Format PV has been output.
+NOTE: Format YN_FMT has been output.
+NOTE: Format BMIPCT_C2_FMT has been output.
+NOTE: Format BLANKDOT has been output.
+                                                                               The SAS System
+
+NOTE: Format REFNUM has been output.
+NOTE: Format PAREN has been output.
+NOTE: Format PCT_BLANK has been output.
+NOTE: Format AME_FMT has been output.
+
+NOTE: PROCEDURE FORMAT used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+167        %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
+271        %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
+315        %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
+451        
+452        * define macro variables;
+453        %let pr2_class_vars=bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
+454        	yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10
+455        	centernum;
+456        %let pr2_cont_vars=age haz parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
+457        %let pr2_table_vars=&pr2_cont_vars centernum;
+458        
+459        %macro normalize_effect(var=);
+460        	%local _i _effect;
+461        	%let _i=1;
+462        	%do %while(%scan(&pr2_class_vars, &_i) ne );
+463        		%let _effect=%upcase(%scan(&pr2_class_vars, &_i));
+464        		if index(&var, cats("&_effect","_"))=1 then &var="&_effect";
+465        		%let _i=%eval(&_i + 1);
+466        	%end;
+467        %mend;
+468        
+469        * Fit the models using the imputed data;
+470        title 'Model 1 - Sociodemographics';
+471        
+472        proc genmod data=&impdb;
+473        	by _imputation_;
+474        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+475        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+476        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+477        		yrsus_c3(ref='US_BORN');
+478        	model waz=centernum yrs_btwn_v1flor age haz bkgrd1_c7nomiss n_hc education_c3
+479        		parity_v1 employedyn marital_status yrsus_c3 / d=normal ;
+480        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+481        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+482        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.;
+483        	ods output ParameterEstimates=genmod_results_1;
+484        run;
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 300 observations and 10 variables.
+NOTE: The PROCEDURE GENMOD printed pages 1-20.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.03 seconds
+      
+
+485        
+486        title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur) ';
+487        
+488        proc genmod data=&impdb;
+489        	by _imputation_;
+490        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+491        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+492        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+493        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+494        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW");
+495        	model waz=centernum yrs_btwn_v1flor age haz bkgrd1_c7nomiss n_hc education_c3
+496        		parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+497        		alcohol_use pag2008yn slpdur / dist=normal;
+498        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+499        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+500        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+501        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+502        		hei2010_c3 hei2010_c3_fmt.;
+503        	ods output ParameterEstimates=genmod_results_2;
+                                                                               The SAS System
+
+504        run;
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 10 variables.
+NOTE: The PROCEDURE GENMOD printed pages 21-40.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.06 seconds
+      
+
+505        
+506        title 'Model 3: Model 2 + mental health';
+507        
+508        proc genmod data=&impdb;
+509        	by _imputation_;
+510        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+511        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+512        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+                                                                               The SAS System
+
+513        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+514        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+515        		cesd10(ref="NODEPRE") stai10(ref="NOANX");
+516        	model waz=centernum yrs_btwn_v1flor age haz bkgrd1_c7nomiss n_hc education_c3
+517        		parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+518        		alcohol_use pag2008yn slpdur cesd10 stai10/ dist=normal;
+519        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+520        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+521        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+522        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+523        		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
+524        	ods output ParameterEstimates=genmod_results_3;
+525        run;
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 10 variables.
+NOTE: The PROCEDURE GENMOD printed pages 41-60.
+NOTE: PROCEDURE GENMOD used (Total process time):
+                                                                               The SAS System
+
+      real time           0.08 seconds
+      cpu time            0.06 seconds
+      
+
+526        
+527        title 'Model 4: Model 3 + PRS';
+528        
+529        proc genmod data=&impdb;
+530        	by _imputation_;
+531        	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
+532        		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+533        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+534        		yrsus_c3(ref='US_BORN') current_smoker(REF="NO")
+535        		alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+536        		cesd10(ref="NODEPRE") stai10(ref="NOANX");
+537        	model waz=centernum yrs_btwn_v1flor age haz bkgrd1_c7nomiss n_hc education_c3
+538        		parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+539        		alcohol_use pag2008yn slpdur cesd10 stai10 child_prs_bmi_a/ dist=normal
+540        		type3;
+541        	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss
+542        		bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. employedyn
+543        		employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+544        		alcohol_use alcohol_use_fmt. current_smoker yn_fmt. pag2008yn yn_fmt.
+545        		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
+546        	ods output ParameterEstimates=genmod_results_4 ModelANOVA=type3;
+547        	output out=_full_res resraw=e_full;
+548        run;
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.TYPE3 has 190 observations and 6 variables.
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 10 variables.
+NOTE: The data set WORK._FULL_RES has 2010 observations and 273 variables.
+NOTE: The PROCEDURE GENMOD printed pages 61-90.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.22 seconds
+      cpu time            0.18 seconds
+      
+
+549        
+550        * Process the imputed estimates;
+551        %process_imputed(in_db=genmod_results_1, out_db=mianalize_1, model=1);
+
+NOTE: There were 300 observations read from the data set WORK.GENMOD_RESULTS_1.
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 300 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 300 observations read from the data set WORK.GENMOD_RESULTS_1.
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 300 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.MIANALIZE_1_P has 30 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 91-120.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 30 observations read from the data set WORK.MIANALIZE_1_P.
+NOTE: The data set WORK.MIANALIZE_1 has 28 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+552        %process_imputed(in_db=genmod_results_2, out_db=mianalize_2, model=2);
+
+NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_2.
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_2.
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CURRENT_SMOKER_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.MIANALIZE_2_P has 41 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 121-161.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 41 observations read from the data set WORK.MIANALIZE_2_P.
+NOTE: The data set WORK.MIANALIZE_2 has 39 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+553        %process_imputed(in_db=genmod_results_3, out_db=mianalize_3, model=3);
+
+NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_3.
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_3.
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CESD10_NODEPRE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CURRENT_SMOKER_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=STAI10_NOANX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.MIANALIZE_3_P has 45 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 162-206.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.01 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 45 observations read from the data set WORK.MIANALIZE_3_P.
+NOTE: The data set WORK.MIANALIZE_3 has 43 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+554        %process_imputed(in_db=genmod_results_4, out_db=mianalize_4, model=4);
+
+NOTE: There were 460 observations read from the data set WORK.GENMOD_RESULTS_4.
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 460 observations read from the data set WORK.GENMOD_RESULTS_4.
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.02 seconds
+                                                                               The SAS System
+
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CESD10_NODEPRE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CURRENT_SMOKER_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=STAI10_NOANX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.MIANALIZE_4_P has 46 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 207-252.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.03 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 46 observations read from the data set WORK.MIANALIZE_4_P.
+                                                                               The SAS System
+
+NOTE: The data set WORK.MIANALIZE_4 has 44 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+555        
+556        * Merge datasets from different models;
+557        data db_join;
+558        	set mianalize_1 mianalize_2 mianalize_3 mianalize_4;
+559        run;
+
+NOTE: There were 28 observations read from the data set WORK.MIANALIZE_1.
+NOTE: There were 39 observations read from the data set WORK.MIANALIZE_2.
+NOTE: There were 43 observations read from the data set WORK.MIANALIZE_3.
+NOTE: There were 44 observations read from the data set WORK.MIANALIZE_4.
+NOTE: The data set WORK.DB_JOIN has 154 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+560        
+561        * Run the macro using your imputed dataset;
+562        %get_all_partial_r2(impdata=&impdb, class_vars=&pr2_class_vars,
+563        	cont_vars=&pr2_cont_vars, outds=partial_r2_summary, outcome=waz);
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_FULL has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_FULL.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_FULL has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Variable Dropped_Var is uninitialized.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 0 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.07 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 10 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+                                                                               The SAS System
+
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 20 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+                                                                               The SAS System
+
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 30 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 40 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+                                                                               The SAS System
+
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 50 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+                                                                               The SAS System
+
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 60 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 70 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+                                                                               The SAS System
+
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 80 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+                                                                               The SAS System
+
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 90 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 100 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+                                                                               The SAS System
+
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 110 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+                                                                               The SAS System
+
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.08 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 120 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 130 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+                                                                               The SAS System
+
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 140 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+                                                                               The SAS System
+
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 150 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 160 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.06 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+                                                                               The SAS System
+
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 170 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+                                                                               The SAS System
+
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 180 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: Algorithm converged.
+                                                                               The SAS System
+
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: Algorithm converged.
+NOTE: The scale parameter was estimated by maximum likelihood.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.FIT_RED has 90 observations and 5 variables.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.04 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.FIT_RED.
+      WHERE Criterion='Deviance';
+NOTE: The data set WORK.SSE_RED has 10 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 10 observations read from the data set WORK.SSE_FULL.
+NOTE: There were 10 observations read from the data set WORK.SSE_RED.
+NOTE: The data set WORK.CURRENT_R2 has 10 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Appending WORK.CURRENT_R2 to WORK.ALL_PARTIAL_R2.
+NOTE: There were 10 observations read from the data set WORK.CURRENT_R2.
+NOTE: 10 observations added.
+NOTE: The data set WORK.ALL_PARTIAL_R2 has 190 observations and 5 variables.
+NOTE: PROCEDURE APPEND used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 190 observations read from the data set WORK.ALL_PARTIAL_R2.
+NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 19 observations and 2 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+                                                                               The SAS System
+
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 19 observations read from the data set WORK.PARTIAL_R2_SUMMARY.
+NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 19 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+564        
+565        data partial_r2_summary;
+566        	set partial_r2_summary;
+567        	length effect_name $32;
+568        	effect_name=Dropped_Var;
+569        	partial_r2_pct=Partial_R2_Pct;
+570        	keep effect_name partial_r2_pct;
+571        run;
+
+NOTE: There were 19 observations read from the data set WORK.PARTIAL_R2_SUMMARY.
+NOTE: The data set WORK.PARTIAL_R2_SUMMARY has 19 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+572        
+573        data db_join;
+574        	set db_join;
+575        	length effect_name $32;
+576        	effect_name=upcase(variable);
+577        	%normalize_effect(var=effect_name);
+578        run;
+
+NOTE: There were 154 observations read from the data set WORK.DB_JOIN.
+NOTE: The data set WORK.DB_JOIN has 154 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+579        
+580        proc sql;
+581        	create table db_join as select a.*, b.partial_r2_pct from db_join as a left
+582        		join partial_r2_summary as b on a.effect_name=b.effect_name;
+WARNING: This CREATE TABLE statement recursively references the target table. A consequence of this is a possible data integrity problem.
+NOTE: Table WORK.DB_JOIN created, with 154 rows and 11 columns.
+
+583        quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+584        
+                                                                               The SAS System
+
+585        * Edit dataset to include reference values;
+586        data db_join;
+587        	set db_join;
+588        	* Add ref levels;
+589        	if std=99 then estimate=98;
+590        	if model="Model 4" and (std=99 or findw(upcase("&pr2_cont_vars"),
+591        		strip(effect_name), ' ')>0) then partial_r2_pct=partial_r2_pct;
+592        	else partial_r2_pct=.;
+593        	drop effect_name;
+594        	format partial_r2_pct 8.1;
+595        run;
+
+NOTE: There were 154 observations read from the data set WORK.DB_JOIN.
+NOTE: The data set WORK.DB_JOIN has 154 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+596        
+597        * Obtain ids and save it in a macro variable ;
+598        proc sql;
+599        	select count(distinct(id)) as n into:n_ids from &impdb;
+600        quit;
+NOTE: The PROCEDURE SQL printed page 253.
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+601        
+602        * Print final report;
+603        ods listing close;
+604        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+605        ods rtf file="&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style=manuscrt
+606        	bodytitle;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\scripts\HC338362a\HC338362a_Table2_13APR26.rtf
+607        %let fs=11pt;
+608        %let fs_body=11pt;
+609        %let fs_titles=11pt;
+610        %let lft_mgn=0.3in;
+611        %let rgt_mgn=0.1in;
+612        
+613        proc report data=db_join;
+614        	title j=center height=&fs font='times roman' bold
+615        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 2a. Maternal preconception socio-behavioral factors and child's weight-for-age z-score, HCHS/SOL FLOR
+615      ! Ancillary Study (n=%qtrim(&n_ids))";
+616        	footnote1 J=left HEIGHT=&fs_titles FONT='times roman'
+617        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity; HAZ,
+617      ! height-for-age z-score.";
+618        	footnote2 J=left HEIGHT=&fs_titles FONT='times roman'
+619        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and FLOR
+619      ! visit. All models adjust for child height-for-age z-score (HAZ).";
+620        	footnote3 J=left HEIGHT=&fs_titles FONT='times roman'
+621        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR visit."
+621      ! ;
+622        	footnote4 J=left HEIGHT=&fs_titles FONT='times roman'
+                                                                               The SAS System
+
+623        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit.";
+624        	footnote5 J=left HEIGHT=&fs_titles FONT='times roman'
+625        		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
+626        	footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
+627        		"{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+628        	columns order label model,(estimate STD PV) partial_r2_pct;
+629        	define order / order group noprint order=internal;
+630        	define label / display group ' ' style(HEADER)=[FONTSIZE=&fs JUST=left]
+631        		style=[FONTSIZE=&fs width=2.5in];
+632        	define model / across ' ' style=[FONTSIZE=&fs];
+633        	define estimate / analysis 'Beta' style=[fontsize=&fs vjust=bottom];
+634        	define std / analysis '(SE)' style=[fontsize=&fs VJUST=bottom];
+635        	define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
+636        		style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
+637        	define partial_r2_pct / mean "% Variance" style=[fontsize=&fs vjust=top
+638        		just=center];
+639        	compute partial_r2_pct;
+640        	if model ne 'Model 4' then call define(_col_, 'style',
+641        		'style=[visibility=hidden]');
+642        	endcomp;
+643        	FORMAT PV PV. STD paren. ESTIMATE refnum. partial_r2_pct pct_blank.;
+644        	COMPUTE AFTER _PAGE_ / STYLE=[JUST=LEFT font_size=&fs];
+645        	LINE "* p <=.10, ** p <=.05, *** p <=.01 ";
+646        	ENDCOMP;
+647        RUN;
+
+NOTE: Variable model is uninitialized.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+                                                                               The SAS System
+
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+ERROR 180-322: Statement is not valid or it is used out of proper order.
+NOTE: PROCEDURE REPORT used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.03 seconds
+      
+NOTE: The SAS System stopped processing this step because of errors.
+NOTE: There were 154 observations read from the data set WORK.DB_JOIN.
+648        ods rtf close;
+649        
+
+
+650        proc printto;
+651        run;
+

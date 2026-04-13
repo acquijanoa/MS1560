@@ -139,6 +139,30 @@ scripts:
     created: 2026-03-31
     status: "ongoing"
 
+  - code: HC338361/HC338361.sas
+    task: "Job 61: Table 2 pooled linear models for BMIZ (main imputed sample; same structure as job 54)."
+    software: SAS
+    created: 2026-04-13
+    status: "ongoing"
+
+  - code: HC338361a/HC338361a.sas
+    task: "Job 61a: Table 2a pooled linear models for BMIZ (PRS-complete imputed sample)."
+    software: SAS
+    created: 2026-04-13
+    status: "ongoing"
+
+  - code: HC338362/HC338362.sas
+    task: "Job 62: Table 2 pooled linear models for WAZ with HAZ adjustment (main imputed sample)."
+    software: SAS
+    created: 2026-04-13
+    status: "ongoing"
+
+  - code: HC338362a/HC338362a.sas
+    task: "Job 62a: Table 2a pooled linear models for WAZ with HAZ adjustment (PRS-complete sample)."
+    software: SAS
+    created: 2026-04-13
+    status: "ongoing"
+
   - code: HC338390/HC338390.sas
     task: "Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts."
     software: SAS
