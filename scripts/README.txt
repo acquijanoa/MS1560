@@ -5,6 +5,8 @@ History:
 	12nov25: job 53 and 53a, imputation model includes slpdur, hei2010 (continuous) and pag2008yn (categorical)
 	         hei2010_c3 was derived after imputation.
 		    job54 and 54a, fit the model across imputed datasets using hei2010_c3, pag2008yn and slpdur 
+	13apr26: job 61 and 61a, replicate pooled GENMOD Table 2 pipeline with response BMIZ (BMI-for-age z-score) instead of WAZ.
+	         job 62 and 62a, replicate job 54/54a with child HAZ (height-for-age z-score) added as a covariate in all models.
 
 Domains: 
 1. Maternal sociodemographic, acculturation
@@ -125,6 +127,26 @@ JOB:
      Uses hc338353a_imputed_data_ddmmyy.sas7bdat and generates the Table 2a counterpart (Models 1–4) and AMEs for Model 4 in the restricted cohort.
      input: hc338353a_imputed_data_ddmmyy.sas7bdat
      output: HC338360a_Table2_ddmmyy.rtf (Table 2a fractional logit + AMEs)
+
+61: Regression model [n=227]
+	note: Same pooled linear GENMOD structure as job 54; response is BMIZ instead of WAZ.
+	input: hc338353_imputed_data_ddmmyy.sas7bdat
+	output: HC338361_Table2_ddmmyy.rtf
+
+61a: Regression model [n=201]
+	note: Same as job 61 for the PRS-complete imputed sample (parallel to job 54a).
+	input: hc338353a_imputed_data_ddmmyy.sas7bdat
+	output: HC338361a_Table2_ddmmyy.rtf
+
+62: Regression model [n=227]
+	note: Same covariate set as job 54 with response WAZ; all models adjust for child HAZ.
+	input: hc338353_imputed_data_ddmmyy.sas7bdat
+	output: HC338362_Table2_ddmmyy.rtf
+
+62a: Regression model [n=201]
+	note: Same as job 62 for the PRS-complete imputed sample (parallel to job 54a) adjusting for hild HAZ.
+	input: hc338353a_imputed_data_ddmmyy.sas7bdat
+	output: HC338362a_Table2_ddmmyy.rtf
  
 	
 ### Miscellaneous ### 	
