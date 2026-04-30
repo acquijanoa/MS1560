@@ -1,7 +1,8 @@
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560; 
 %let job = HC338356a;
-proc printto log="&homepath.\code\&job.\&job._&sysdate..log" 
-	print = "&homepath.\code\&job.\&job._&sysdate..lst" new; 
+%let datefile = 29apr26;
+proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
+	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
 
 /**********************************************************
@@ -12,7 +13,7 @@ run;
 *                                                         *
 *  PROGRAM NAME: hc338356a.sas
 *                                       
-*  PROGRAMMER: ¡lvaro Quijano (AQ)
+*  PROGRAMMER: ùAlvaro Quijano (AQ)
 *
 *  DESCRIPTION: Mediation analysis using CAUSALMED procedure
 *				Print table 3a.
@@ -28,11 +29,14 @@ run;
 					19aug25: create the file
 					20aug25: rename output table
 							 update input dataset
+					29apr26: update imputed dataset to 29apr26 and replace
+							 current_smoker with cigarette_use.
+					29apr26: cigarette_use former/current dummies (like alcohol) created before CAUSALMED.
 * ----------------------------------------------------------
 *
-*  INPUT: &homepath.\data\hc338353_imputed_data_19aug25
+*  INPUT: &homepath.\data\hc338353_imputed_data_&datefile.
 *                                        
-*  OUTPUT: &homepath.\code\hc338356\hc338356_Table3a_&sysdate..rtf
+*  OUTPUT: &homepath.\scripts\&job.\&job._T3a_&sysdate..rtf
 *
 **********************************************************/
 options nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173; 
@@ -44,13 +48,13 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Set macro variables;
 %let prg = AQA;
-%let db_in = data.hc338353_imputed_data_20aug25;
+%let db_in = data.hc338353_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
 * Include sas scripts with formats and macros;
-%include "&homepath.\code\HC338390\HC338390.sas";
-%include "&homepath.\code\HC338391\HC3383_labels.sas";
+%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC338391\HC3383_labels.sas";
 
 * count ids;
 proc sql noprint;
@@ -67,9 +71,13 @@ quit;
 data db_in;
 	set &db_in.;
 
-	* create dummy variables;
+	* create dummy variables (alcohol: 3 levels -> former/current vs never);
 	alcohol_use_former = (alcohol_use=2);
 	alcohol_use_current = (alcohol_use=3);
+
+	* Cigarette use 3 levels (1=never ref) -- former/current dummies for covar;
+	cigarette_use_former = (cigarette_use=2);
+	cigarette_use_current = (cigarette_use=3);
 
 	* Years in the U.S.;
 	yrsus_c3_l10 = (yrsus_c3=1);
@@ -113,7 +121,7 @@ run;
 		set db_pooled;
 		keep Variable Eff Estimate LCLMean UCLMean;
 		length Eff $ 8;	
-		length variable $20;
+		length variable $32;
 		Variable = "&var.";
 
 		* Create Eff variable;
@@ -127,25 +135,28 @@ run;
 %mend run_mediation;
 
 * run the macro;
-%run_mediation(var=YRSUS_C3_L10, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_g10);
-%run_mediation(var=YRSUS_C3_G10, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10);
-%run_mediation(var=BMI, covar= anta10a height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=ANTA10A, covar= bmi height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=HEIGHT, covar= bmi anta10a agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=AGG_MENT, covar= bmi anta10a height agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=AGG_PHYS, covar= bmi anta10a height agg_ment cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=CESD10, covar= bmi anta10a height agg_ment agg_phys stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=STAI10, covar= bmi anta10a height agg_ment agg_phys cesd10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=CURRENT_SMOKER, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=HEI2010, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 current_smoker alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=ALCOHOL_USE_FORMER, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=ALCOHOL_USE_CURRENT, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=PCT_MVPA, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current slpdur yrsus_c3_l10 yrsus_c3_g10);
-%run_mediation(var=SLPDUR, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 current_smoker hei2010 alcohol_use_former alcohol_use_current pct_mvpa yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=YRSUS_C3_L10, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_g10);
+%run_mediation(var=YRSUS_C3_G10, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10);
+%run_mediation(var=BMI, covar= anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=ANTA10A, covar= bmi height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=HEIGHT, covar= bmi anta10a agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=AGG_MENT, covar= bmi anta10a height agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=AGG_PHYS, covar= bmi anta10a height agg_ment cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=CESD10, covar= bmi anta10a height agg_ment agg_phys stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=STAI10, covar= bmi anta10a height agg_ment agg_phys cesd10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=CIGARETTE_USE_FORMER, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=CIGARETTE_USE_CURRENT, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former hei2010 alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=HEI2010, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current alcohol_use_former alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=ALCOHOL_USE_FORMER, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_current pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=ALCOHOL_USE_CURRENT, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former pct_mvpa slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=PCT_MVPA, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current slpdur yrsus_c3_l10 yrsus_c3_g10);
+%run_mediation(var=SLPDUR, covar= bmi anta10a height agg_ment agg_phys cesd10 stai10 cigarette_use_former cigarette_use_current hei2010 alcohol_use_former alcohol_use_current pct_mvpa yrsus_c3_l10 yrsus_c3_g10);
 
 * Merge datasets;
 data db_join;
-	set db_YRSUS_C3_L10 db_YRSUS_C3_G10 db_BMI db_ANTA10A db_HEIGHT db_AGG_MENT db_AGG_PHYS db_CESD10 db_STAI10 db_CURRENT_SMOKER 
+	length variable $32;
+	set db_YRSUS_C3_L10 db_YRSUS_C3_G10 db_BMI db_ANTA10A db_HEIGHT db_AGG_MENT db_AGG_PHYS db_CESD10 db_STAI10
+			db_CIGARETTE_USE_FORMER db_CIGARETTE_USE_CURRENT
 			db_HEI2010 db_ALCOHOL_USE_FORMER db_ALCOHOL_USE_CURRENT db_PCT_MVPA db_SLPDUR;
 	
 	* create the column estimate (95% CI);
@@ -153,12 +164,12 @@ data db_join;
   	est_ci = compress(put(Estimate,8.2)) || " (" || compress(put(LCLMean,8.3) || ", ") || compress(put(UCLMean,8.3) || ")");
 run;
 
-* insert reference values;
+* insert reference values for %labels group headers (explicit columns: Variable char, Estimate/LCL/UCL numeric);
 proc sql;
- 	insert into db_join
-		values(.,.,.,'Direct','CURRENT_SMOKER_NO','Ref.')
-		values(.,.,.,'Direct','ALCOHOL_USE_NEVER','Ref.')
-		values(.,.,.,'Direct','YRSUS_C3_US_BORN','Ref.');
+	insert into db_join (Variable, Eff, Estimate, LCLMean, UCLMean, est_ci)
+		values ('CIGARETTE_USE_NEVER', 'Direct', ., ., ., 'Ref.')
+		values ('ALCOHOL_USE_NEVER', 'Direct', ., ., ., 'Ref.')
+		values ('YRSUS_C3_US_BORN', 'Direct', ., ., ., 'Ref.');
 quit;
 
 * Add labels into the dataset;
@@ -180,7 +191,7 @@ run;
 * Print report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath.\code\&job.\&job._T3a_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath.\scripts\&job.\&job._T3a_&sysdate..rtf" style = manuscrt bodytitle;
 %let fs = 11pt;
 %let fs_body = 11pt;
 %let fs_titles = 11pt;

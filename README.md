@@ -41,6 +41,10 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 | HC338361a/HC338361a.sas | Job 61a: Table 2a pooled linear models for BMIZ (PRS-complete imputed sample). |
 | HC338362/HC338362.sas | Job 62: Table 2 pooled linear models for WAZ with HAZ adjustment (main imputed sample). |
 | HC338362a/HC338362a.sas | Job 62a: Table 2a pooled linear models for WAZ with HAZ adjustment (PRS-complete sample). |
+| HC338363/HC338363.sas | Job 63: Table 2 pooled linear GENMOD models for birth weight-for-gestational-age z-score (birthwt_ga_z) in the main imputed sample (same structure as job 54). |
+| HC338363a/HC338363a.sas | Job 63a: Table 2a pooled linear GENMOD models for birthwt_ga_z in the PRS-complete imputed sample (parallel to job 54a). |
+| HC338364/HC338364.sas | Job 64: Table 2 pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3: normal/overweight/obese) in the main imputed sample. |
+| HC338364a/HC338364a.sas | Job 64a: Table 2a pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3) in the PRS-complete imputed sample. |
 | HC338390/HC338390.sas | Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts. |
 | HC338391/HC3383_labels.sas | Defines the %labels macro that standardizes variable labels, ordering, and display conventions for manuscript tables. |
 | HC338391/HC3383_mi_lasso.sas | Provides the MI-lasso macro (Chen & Wang method) for variable selection in multiply imputed long-format data. |
@@ -52,4 +56,4 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 
 ---
 
-**Generated on:** 2026-04-13 using `generate_md.R` by Alvaro Quijano-Angarita
+**Generated on:** 2026-04-30 using `generate_md.R` by Alvaro Quijano-Angarita

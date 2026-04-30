@@ -1,5 +1,6 @@
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
 %let job = HC338358a;
+%let datefile = 29apr26;
 
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
     print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
@@ -28,10 +29,13 @@ run;
  *
  *  VERSION CONTROL:                                       *
  *               09mar26: create file                      *
+ *               29apr26: update imputed dataset to 29apr26
+ *                        and replace current_smoker with
+ *                        cigarette_use in models 2-4.
  *
  * ----------------------------------------------------------
  *
- *  INPUT:  data.HC338353a_imputed_data_12nov25            *
+ *  INPUT:  data.HC338353a_imputed_data_&datefile.         *
  *
  *  OUTPUT: Table 3a (betas) and Table 3a OR (odds ratios) *
  *
@@ -47,7 +51,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 * Set macro variables;
 %put JOB=&job.;
 %let prg = AQA;
-%let impdb = data.HC338353a_imputed_data_12nov25;
+%let impdb = data.HC338353a_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
@@ -127,14 +131,14 @@ proc genmod data = impdb;
     by _imputation_;
     class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-          yrsus_c3(ref='US_BORN') current_smoker(ref="NO") alcohol_use(ref="NEVER")
+          yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") bmipct_c2(ref='NORMAL');
     model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-                       parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+                       parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
                        alcohol_use pag2008yn slpdur / dist = binomial;
     format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt.
            marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
     ods output ParameterEstimates = genmod_results_2;
 run;
@@ -144,15 +148,15 @@ proc genmod data = impdb;
     by _imputation_;
     class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-          yrsus_c3(ref='US_BORN') current_smoker(ref="NO") alcohol_use(ref="NEVER")
+          yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
           bmipct_c2(ref='NORMAL');
     model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-                       parity_v1 employedyn marital_status yrsus_c3 current_smoker hei2010_c3
+                       parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
                        alcohol_use pag2008yn slpdur cesd10 stai10 / dist = binomial;
     format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt.
            marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
            bmipct_c2 bmipct_c2_fmt.;
     ods output ParameterEstimates = genmod_results_3;
@@ -163,15 +167,15 @@ proc genmod data = impdb;
     by _imputation_;
     class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-          yrsus_c3(ref='US_BORN') current_smoker(ref="NO") alcohol_use(ref="NEVER")
+          yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
           bmipct_c2(ref='NORMAL');
     model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1
-                       employedyn marital_status yrsus_c3 current_smoker hei2010_c3 alcohol_use
+                       employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use
                        pag2008yn slpdur cesd10 stai10 child_prs_bmi_a / dist = binomial;
     format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt.
            marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
            bmipct_c2 bmipct_c2_fmt.;
     ods output ParameterEstimates = genmod_results_4;
@@ -258,7 +262,7 @@ ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
 ods rtf file = "&homepath\scripts\&job.\&job._Table3a_&sysdate..rtf" style = manuscrt bodytitle;
 proc report data = table3a_beta;
     title j = center height = &fs font = 'times roman' bold
-        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3a. Association among maternal preconception socio-behavioral factors and overweight or obesity, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3a. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
     footnote1 j = left height = &fs_titles font = 'times roman'
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
     footnote2 j = left height = &fs_titles font = 'times roman'
@@ -289,7 +293,7 @@ ods rtf close;
 ods rtf file = "&homepath\scripts\&job.\&job._Table3a_OR_&sysdate..rtf" style = manuscrt bodytitle;
 proc report data = table3a_or_wide;
     title j = center height = &fs font = 'times roman' bold
-        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3a OR. Association among maternal preconception socio-behavioral factors and overweight or obesity, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3a OR. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
     footnote1 j = left height = &fs_titles font = 'times roman'
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
     footnote2 j = left height = &fs_titles font = 'times roman'

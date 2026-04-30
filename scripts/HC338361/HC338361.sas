@@ -1,7 +1,7 @@
 %let req=HC3383;
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
 %let job = &req.61;
-%let datefile = 12nov25;
+%let datefile = 29apr26;
 
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
 	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
@@ -35,6 +35,8 @@ run;
 *							 response is BMIZ instead of WAZ.
 *					13apr26: Init macros &req, &job (&req.61), &datefile;
 *							 impdb uses &datefile; printto/ODS use &job.
+*					29apr26: update imputed dataset to 29apr26 and replace
+*							 current_smoker with cigarette_use (models 2-4).
 *
 * ----------------------------------------------------------
 *
@@ -52,7 +54,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Set macro variables; 
 %let prg = AQA;
-%let impdb = data.HC338353_imputed_data_&datefile;
+%let impdb = data.HC338353_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
@@ -63,7 +65,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
 
 %let pr2_class_vars = bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
-			yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10
+			yrsus_c3 cigarette_use alcohol_use pag2008yn hei2010_c3 cesd10 stai10
 			centernum;
 %let pr2_cont_vars = age parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
 %let pr2_table_vars = &pr2_cont_vars centernum;
@@ -95,13 +97,13 @@ proc genmod data = &impdb;
 	by _imputation_;
 	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED") 
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			current_smoker(REF="NO") alcohol_use(REF="NEVER") 
+			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER") 
 			pag2008yn(ref="YES") hei2010_c3(ref="LOW"); 
 	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			current_smoker hei2010_c3 alcohol_use pag2008yn slpdur / dist = normal;
+			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur / dist = normal;
 	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. 
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. current_smoker yn_fmt. 
+			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt. 
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.;
 	ods output ParameterEstimates=genmod_results_2;
 run;
@@ -111,15 +113,15 @@ proc genmod data = &impdb;
 	by _imputation_;
 	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED") 
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			current_smoker(REF="NO") alcohol_use(REF="NEVER") 
+			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER") 
 			pag2008yn(ref="YES") hei2010_c3(ref="LOW") 
 			cesd10(ref="NODEPRE") stai10(ref="NOANX"); 
 	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			current_smoker hei2010_c3 alcohol_use pag2008yn slpdur
+			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur
 			cesd10 stai10/ dist = normal;
 	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. 
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. current_smoker yn_fmt. 
+			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt. 
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. 
 			cesd10 cesd10_fmt. stai10 stai10_fmt.;
 	ods output ParameterEstimates=genmod_results_3;
@@ -130,15 +132,15 @@ proc genmod data = &impdb;
 	by _imputation_;
 	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED") 
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			current_smoker(REF="NO") alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW") 
+			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW") 
 			cesd10(ref="NODEPRE") stai10(ref="NOANX");  
 	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			current_smoker hei2010_c3 alcohol_use pag2008yn slpdur 
+			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur 
 			cesd10 stai10
 			child_prs_bmi_a/ dist = normal type3;
 	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt. 
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. current_smoker yn_fmt. 
+			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt. 
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.
 			cesd10 cesd10_fmt. stai10 stai10_fmt.;
 	ods output ParameterEstimates=genmod_results_4 ModelANOVA=type3;
@@ -229,10 +231,6 @@ proc report data = db_join;
 					style(header)=[cellpadding = 0in cellheight=0in cellspacing=0in];
 	define partial_r2_pct / mean "% Variance" style=[fontsize=&fs vjust=top
 		just=center];
-	compute partial_r2_pct;
-		if model ne 'Model 4' then call define(_col_, 'style',
-			'style=[visibility=hidden]');
-	endcomp;
 	FORMAT PV PV. STD paren. ESTIMATE refnum. partial_r2_pct pct_blank.;
 	COMPUTE AFTER _PAGE_ / STYLE = [JUST = LEFT font_size = &fs];
 		LINE "* p <=.10, ** p <=.05, *** p <=.01 ";

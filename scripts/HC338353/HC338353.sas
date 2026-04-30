@@ -1,8 +1,9 @@
+%let req=HC3383;
+%let job = &req.53;
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
-proc printto log="&homepath.\code\HC338353\HC338353_&sysdate..log" 
-	print = "&homepath.\code\HC338353\HC338353_&sysdate..lst" new; 
+proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
+	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
-
 /*********************************************************
 *                                                         *
 *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
@@ -39,6 +40,8 @@ run;
 				 Add PAG2008YN instead of PCT_MVPA
 				 categorize hei2010 and slpdur	
 
+		29apr26: add cigarette_use in the imputation model (exclude current_smoker)
+			     add bmiz in the imputation model
 * ----------------------------------------------------------
 *
 *  INPUT: 
@@ -54,15 +57,14 @@ libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Set macro variables; 
-%let job = HC338353;
 %let prg = AQA;
 %let data = data.HC338351_flor_12nov25;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
-ods listing gpath = "&homepath.\code\&job.\gplot";
+ods listing gpath = "&homepath.\scripts\&job.\gplot";
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\code\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
+ods rtf file = "&homepath\scripts\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
 
 * Transform variables to produce plots;
 data db;
@@ -96,23 +98,26 @@ title 'Variable: sleep duration';
 title 'Variable: birthwt_ga_z';
 %histogram_density(var=birthwt_ga_z);
 
+title 'Variable: bmiz';
+%histogram_density(var=bmiz);
 
 * Impute variables of interest;
 proc mi data=db out=data.&job._imputed_data_&sysdate. nimpute=10 seed=3383
-	/* Var:  1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 					*/
-	minimum= . . . . . . . 0 . . . . 0 . . . . . . . . .
-	maximum= . . . . . . . . . . . . . . . . . . . . . .;
+	/* Var:  1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1  					*/
+	minimum= . . . . . . . 0 . . . . 0 . . . . . . . . 
+	maximum= . . . . . . . . . . . . . . . . . . . . . ;
    ods exclude modelinfo fcsmodel misspattern;
-   class centernum bkgrd1_c7nomiss employedyn n_hc current_smoker /* binary variables */
-			alcohol_use yrsus_c3 education_c3 marital_status pag2008yn;
+   class centernum bkgrd1_c7nomiss employedyn n_hc /* binary variables */
+			cigarette_use alcohol_use yrsus_c3 education_c3 marital_status pag2008yn;
    fcs reg(waz cesd10 stai10 child_prs_bmi_a birthwt_ga_z hei2010 slpdur)
 	   regpmm(parity_v1);
-   fcs logistic(employedyn n_hc current_smoker pag2008yn / link=logit likelihood=augment) 
-	   logistic(alcohol_use yrsus_c3 education_c3 marital_status / likelihood=augment);	
+   fcs logistic(employedyn n_hc pag2008yn / link=logit likelihood=augment) 
+	   logistic(cigarette_use alcohol_use yrsus_c3 education_c3 marital_status / likelihood=augment);	
 	var waz centernum bkgrd1_c7nomiss yrs_btwn_v1flor age birthwt_ga_z slpdur /* 1-7 */
 		hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a /* 8-13 */
-		employedyn n_hc current_smoker /* 14-16 */
+		employedyn n_hc cigarette_use /* 14-16 */
 		alcohol_use yrsus_c3 education_c3 marital_status /* nominal/ordinal variables */
+		bmiz
 		;
 	where keep_ms1560;
 run;
@@ -136,7 +141,7 @@ run;
 * Summarize the imputated variables;
 title 'Imputed variables';
 %summary_imputation(vars=waz birthwt_ga_z slpdur hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a
-				employedyn n_hc current_smoker alcohol_use yrsus_c3 education_c3 marital_status);
+				employedyn n_hc cigarette_use alcohol_use yrsus_c3 education_c3 marital_status);
 
 * categorize hei2010 and slpdur - 12nov25;
 data data.&job._imputed_data_&sysdate.;
@@ -155,7 +160,6 @@ data data.&job._imputed_data_&sysdate.;
 	label HEI2010_C3 = '3-level Health Index Score 2010';
 
 run;
-
 
 title 'Contents in imputed dataset';
 proc contents data = data.&job._imputed_data_&sysdate.;

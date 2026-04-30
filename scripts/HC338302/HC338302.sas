@@ -1,7 +1,6 @@
 %let homepath=J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
 %LET req=HC3383;
 %LET job=&req.02;
-
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" print=
     "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
@@ -31,13 +30,18 @@ run;
   LANGUAGE:      SAS VERSION 9.4
 
   HISTORY:       HC338301 6/23/25 - uccdjp Cont #2 - 
-                    4.  Create Table 1 (Section D) using HC338301_ALL data
-                    �   The mean/% and standard deviation (SD) do not account for the HCHS/SOL study design.
-                    �   The table indicates which variables to use (in red).
-                    �   Include the categories from the data dictionary for the categorical variables.
-                    �   Use job HC3131903 as starting point but using the variables relavant to this manuscript
+                        Create Table 1 (Section D) using HC338301_ALL data
+                        The mean/% and standard deviation (SD) do not account for the HCHS/SOL study design.
+                    	The table indicates which variables to use (in red).
+                    	Include the categories from the data dictionary for the categorical variables.
+                    	Use job HC3131903 as starting point but using the variables relavant to this manuscript
+					
+				29apr26 
+						update label to 'Health Insurance' instead of 'Healthcare access'.
+						include child bmi (groups) and cigarette_use in Table 1
+						exclude current_smoker 
 
-  NOTE:          Related: HC3139 � MS1207 [FLOR grant aim #1] Uses final INV1 data and MI
+  NOTE:          Related: HC3139 - MS1207 [FLOR grant aim #1] Uses final INV1 data and MI
 -----------------------------------------------------------------
   INPUT:         HC338301_ALL data
                 
@@ -116,7 +120,7 @@ data toplines;
     output;
 
     line=7;
-    vartext='Health care access';
+    vartext='Health insurance';
     output;
 
     line=8;
@@ -157,6 +161,10 @@ data toplines;
 
     line=17;
     vartext='Sex, %';
+    output;
+
+	line=18;
+    vartext='BMI';
     output;
 run;
 
@@ -418,56 +426,63 @@ data _null_;
     if flor_dyad=9 then call symput('overall_ct',strip(put(count,8.)));
 run;
 
-%continuous(age,%bquote(Age (yrs)),age gt .z) %categorical(BKGRD1_C7NOMISS,2,&y
-    Cuban,BKGRD1_C7NOMISS gt .z,2) %categorical(BKGRD1_C7NOMISS,0,&y
-    Dominican,BKGRD1_C7NOMISS gt .z,2) %categorical(BKGRD1_C7NOMISS,3,&y
-    Mexican,BKGRD1_C7NOMISS gt .z,2) %categorical(BKGRD1_C7NOMISS,4,&y Puerto
-    Rican,BKGRD1_C7NOMISS gt .z,2) %categorical(BKGRD1_C7NOMISS,5,&y South
-    American,BKGRD1_C7NOMISS gt .z,2) %categorical(BKGRD1_C7NOMISS,1,&y Central
-    American,BKGRD1_C7NOMISS gt .z,2) %categorical(BKGRD1_C7NOMISS,6,&y
-    Mixed/Other/Missing,BKGRD1_C7NOMISS gt .z,2)
-    %continuous(PARITY_V1,Parity,PARITY_V1 gt .z )
-    %categorical(EDUCATION_C3,1,&y Less than high school,EDUCATION_C3 gt .z,1)
-    %categorical(EDUCATION_C3,2,&y High school graduate,EDUCATION_C3 gt .z,1)
-    %categorical(EDUCATION_C3,3,&y Greater than high school,EDUCATION_C3 gt
-    .z,1) %categorical(INCOME_C3,1,%str(&y < $30,000),INCOME_C3 gt .z,1)
-    %categorical(INCOME_C3,2,%str(&y ^{unicode '2265'x} $30,000),INCOME_C3 gt
-    .z,1) %categorical(INCOME_C3,3,&y Not reported,INCOME_C3 gt .z,1)
-    %categorical(MARITAL_STATUS,1,&y Single,MARITAL_STATUS gt .z,1)
-    %categorical(MARITAL_STATUS,2,&y Married or with a partner,MARITAL_STATUS gt
-    .z,1) %categorical(MARITAL_STATUS,3,&y
-    %bquote(Separated, divorced or widowed),MARITAL_STATUS gt .z,1)
-    %categorical(EMPLOYEDYN,1,&y Yes, EMPLOYEDYN gt .z, 1);
+%continuous(age,%bquote(Age (yrs)),age gt .z) 
+%categorical(BKGRD1_C7NOMISS,2,&y Cuban,BKGRD1_C7NOMISS gt .z,2) 
+%categorical(BKGRD1_C7NOMISS,0,&y Dominican,BKGRD1_C7NOMISS gt .z,2) 
+%categorical(BKGRD1_C7NOMISS,3,&y Mexican,BKGRD1_C7NOMISS gt .z,2) 
+%categorical(BKGRD1_C7NOMISS,4,&y Puerto Rican,BKGRD1_C7NOMISS gt .z,2) 
+%categorical(BKGRD1_C7NOMISS,5,&y South American,BKGRD1_C7NOMISS gt .z,2) 
+%categorical(BKGRD1_C7NOMISS,1,&y Central American,BKGRD1_C7NOMISS gt .z,2) 
+%categorical(BKGRD1_C7NOMISS,6,&y Mixed/Other/Missing,BKGRD1_C7NOMISS gt .z,2)
+%continuous(PARITY_V1,Parity,PARITY_V1 gt .z )
+%categorical(EDUCATION_C3,1,&y Less than high school,EDUCATION_C3 gt .z,1)
+%categorical(EDUCATION_C3,2,&y High school graduate,EDUCATION_C3 gt .z,1)
+%categorical(EDUCATION_C3,3,&y Greater than high school,EDUCATION_C3 gt .z,1) 
+%categorical(INCOME_C3,1,%str(&y < $30,000),INCOME_C3 gt .z,1)
+%categorical(INCOME_C3,2,%str(&y ^{unicode '2265'x} $30,000),INCOME_C3 gt .z,1) 
+%categorical(INCOME_C3,3,&y Not reported,INCOME_C3 gt .z,1)
+%categorical(MARITAL_STATUS,1,&y Single,MARITAL_STATUS gt .z,1)
+%categorical(MARITAL_STATUS,2,&y Married or with a partner,MARITAL_STATUS gt .z,1) 
+%categorical(MARITAL_STATUS,3,&y %bquote(Separated, divorced or widowed),MARITAL_STATUS gt .z,1)
+%categorical(EMPLOYEDYN,1,&y Yes, EMPLOYEDYN gt .z, 1);
 %categorical(EMPLOYEDYN,0,&y No, EMPLOYEDYN gt .z, 1);
-
 %categorical(YRSUS_C3,1,&y < 10 years,YRSUS_C3 gt .z,1)
-    %categorical(YRSUS_C3,2,%str(&y ^{unicode '2265'x} 10 years),YRSUS_C3 gt
-    .z,1) %categorical(YRSUS_C3,3,&y Born in US,YRSUS_C3 gt .z,1)
-    %continuous(POVPCT,%bquote(Housing, %),POVPCT gt .z ) %categorical(N_HC,1,&y
-    Yes,N_HC gt .z,1) %categorical(N_HC,0,&y No,N_HC gt .z,1)
-    %categorical(LANG_PREF,1,&y Spanish,LANG_PREF gt .z,1)
-    %categorical(LANG_PREF,2,&y English,LANG_PREF gt .z,1)
-    %continuous(ACCULT_MESA,MESA acculturation,ACCULT_MESA gt .z)
-    %continuous(AGG_PHYS,Physical health scale,AGG_PHYS gt .z)
-    %continuous(AGG_MENT,Mental health scale,AGG_MENT gt .z)
-    %continuous(CESD10,Depressive symptoms,CESD10 gt .z)
-    %continuous(STAI10,Anxiety,STAI10 gt .z) %continuous(BMI,BMI (kg/m2), BMI gt
-    .z) %continuous(ANTA10A, Waist Circumference (cm), ANTA10A gt .z)
-    %categorical(CURRENT_SMOKER,1,&y Yes,CURRENT_SMOKER gt .z,1)
-    %categorical(CURRENT_SMOKER,0,&y No,CURRENT_SMOKER gt .z,1)
-    %continuous(HEI2010,Healthy Eating Index, HEI2010 gt .z)
-    %continuous(PCT_MVPA,%bquote(% MVPA, min/day), PCT_MVPA gt .z)
-    %categorical(ALCOHOL_USE,1,&y Never,ALCOHOL_USE gt .z, 1)
-    %categorical(ALCOHOL_USE,2,&y Former,ALCOHOL_USE gt .z, 1)
-    %categorical(ALCOHOL_USE,3,&y Current,ALCOHOL_USE gt .z, 1)
-    %continuous(SLPDUR,Sleep duration, SLPDUR gt .z) %categorical(PAG2008YN,1,&y
-    Yes,PAG2008YN gt .z, 1) %categorical(PAG2008YN,0,&y No,PAG2008YN gt .z, 1)
-    %categorical(DEMB1,1,&y Boy, DEMB1 gt .z, 1) %categorical(DEMB1,2,&y Girl,
-    DEMB1 gt .z, 1) %continuous(WAZ,Weight-for-age z score, WAZ gt .z)
-    %continuous(BIRTHWT_GA_Z,Birth weight z score, BIRTHWT_GA_Z gt .z) run;
+%categorical(YRSUS_C3,2,%str(&y ^{unicode '2265'x} 10 years),YRSUS_C3 gt .z,1) 
+%categorical(YRSUS_C3,3,&y Born in US,YRSUS_C3 gt .z,1)
+%continuous(POVPCT,%bquote(Housing, %),POVPCT gt .z ) 
+%categorical(N_HC,1,&y Yes,N_HC gt .z,1) 
+%categorical(N_HC,0,&y No,N_HC gt .z,1)
+%categorical(LANG_PREF,1,&y Spanish,LANG_PREF gt .z,1)
+%categorical(LANG_PREF,2,&y English,LANG_PREF gt .z,1)
+%continuous(ACCULT_MESA,MESA acculturation,ACCULT_MESA gt .z)
+%continuous(AGG_PHYS,Physical health scale,AGG_PHYS gt .z)
+%continuous(AGG_MENT,Mental health scale,AGG_MENT gt .z)
+%continuous(CESD10,Depressive symptoms,CESD10 gt .z)
+%continuous(STAI10,Anxiety,STAI10 gt .z) 
+%continuous(BMI,BMI (kg/m2), BMI gt .z) 
+%continuous(ANTA10A, Waist Circumference (cm), ANTA10A gt .z)
 
-*proc print;
+%categorical(CIGARETTE_USE,1,&y Never,CIGARETTE_USE gt .z,1)
+%categorical(CIGARETTE_USE,2,&y Former,CIGARETTE_USE gt .z,1)
+%categorical(CIGARETTE_USE,3,&y Current,CIGARETTE_USE gt .z,1)
+
+%continuous(HEI2010,Healthy Eating Index, HEI2010 gt .z)
+%continuous(PCT_MVPA,%bquote(% MVPA, min/day), PCT_MVPA gt .z)
+%categorical(ALCOHOL_USE,1,&y Never,ALCOHOL_USE gt .z, 1)
+%categorical(ALCOHOL_USE,2,&y Former,ALCOHOL_USE gt .z, 1)
+%categorical(ALCOHOL_USE,3,&y Current,ALCOHOL_USE gt .z, 1)
+%continuous(SLPDUR,Sleep duration, SLPDUR gt .z)
+%categorical(PAG2008YN,1,&y Yes,PAG2008YN gt .z, 1) 
+%categorical(PAG2008YN,0,&y No,PAG2008YN gt .z, 1)
+%categorical(DEMB1,1,&y Boy, DEMB1 gt .z, 1) 
+%categorical(DEMB1,2,&y Girl, DEMB1 gt .z, 1) 
+%categorical(BMIPCT_C3,1,&y Normal, BMIPCT_C3 gt .z, 1) 
+%categorical(BMIPCT_C3,2,&y Overweight, BMIPCT_C3 gt .z, 1) 
+%categorical(BMIPCT_C3,3,&y Obese, BMIPCT_C3 gt .z, 1) 
+%continuous(WAZ,Weight-for-age z score, WAZ gt .z)
+%continuous(BIRTHWT_GA_Z,Birth weight z score, BIRTHWT_GA_Z gt .z) 
 run;
+
 
 data allrows;
     length vartext $100;
@@ -490,11 +505,13 @@ data allrows;
         ANTA10A toplines(where=(line=12)) /* Health Behaviors */
         toplines(where=(line=13)) /* Alcohol Use, % */ ALCOHOL_USE_1
         ALCOHOL_USE_2 ALCOHOL_USE_3 toplines(where=(line=14)) /* Smoking, % */
-        CURRENT_SMOKER_1 CURRENT_SMOKER_0 HEI2010 SLPDUR PCT_MVPA
+        CIGARETTE_USE_1 CIGARETTE_USE_2 CIGARETTE_USE_3 
+		HEI2010 SLPDUR PCT_MVPA
         toplines(where=(line=15)) /* Phisical activity, % */ PAG2008YN_1
         PAG2008YN_0 toplines(where=(line=16)) /* Child */
         toplines(where=(line=17)) /* Sex, % */ DEMB1_1
-        /* is child�s sex (1-boy; 2-girl). */ DEMB1_2 WAZ BIRTHWT_GA_Z ;
+        /* is child�s sex (1-boy; 2-girl). */ DEMB1_2 
+ 		toplines(where=(line=18)) BMIPCT_C3_1 BMIPCT_C3_2 BMIPCT_C3_3 WAZ BIRTHWT_GA_Z ;
 
     ods rtf file="&homepath.\scripts\&job.\&job._Table1_&sysdate..rtf" bodytitle
         style=journal;
@@ -524,7 +541,6 @@ proc report data=allrows nowd style(header)=header{background=lightgray};
         call define (_COL_,"STYLE", "STYLE=[fontweight=BOLD]");
     end;
     endcomp;
-
 run;
 title;
 ods rtf close;

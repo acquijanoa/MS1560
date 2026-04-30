@@ -1,8 +1,9 @@
+%let req=HC3383;
+%let job = &req.53a;
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
-proc printto log="&homepath.\code\HC338353a\HC338353a_&sysdate..log" 
-	print = "&homepath.\code\HC338353a\HC338353a_&sysdate..lst" new; 
+proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
+	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
-
 /*********************************************************
 *                                                         *
 *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
@@ -37,6 +38,9 @@ run;
 					12nov25: update input dataset to *_12nov25
 							 update prs_bmi_complete to prs_complete
 	
+					29apr26: add cigarette_use in the imputation model (exclude current_smoker)
+			     			 add bmiz in the imputation model
+
 * ----------------------------------------------------------
 *
 *  INPUT: 	HC338351_flor_ddmmyy 
@@ -53,15 +57,14 @@ libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Set macro variables; 
-%let job = HC338353a;
 %let prg = AQA;
 %let data = data.HC338351_flor_12nov25;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
-ods listing gpath = "&homepath.\code\&job.\gplot";
+ods listing gpath = "&homepath.\scripts\&job.\gplot";
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\code\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
+ods rtf file = "&homepath\scripts\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
 
 * Transform variables to plot;
 data db;
@@ -79,24 +82,6 @@ run;
 title 'Variable: Weight-for-age (WAZ)';
 %histogram_density(var = waz);
 
-* title 'Variable: Body Mass Index in log-scale (log_BMI)';
-* %histogram_density(var = log_bmi);
-
-* title 'Variable: Waist girth in original scale (anta10a)';
-* %histogram_density(var = anta10a);
-
-* title 'Variable: Waist girth in log scale (log_anta10a)';
-* %histogram_density(var = log_anta10a);
-
-* title 'Variable: height';
-* %histogram_density(var = height);
-	
-* title 'Variable: agg_ment';
-* %histogram_density(var = agg_ment_sq);
-
-* title 'Variable: agg_phys';
-* %histogram_density(var = agg_phys_cub);
-
 title 'Variable: hei2010';
 %histogram_density(var = hei2010);
 
@@ -109,22 +94,26 @@ title 'Variable: pct_mvpa';
 title 'Variable: child_prs_bmi_a';
 %histogram_density(var = child_prs_bmi_a);
 
+title 'Variable: bmiz';
+%histogram_density(var = bmiz);
+
 * Impute variables of interest;
 proc mi data=db out=data.&job._imputed_data_&sysdate. nimpute=10 seed=3383
-	/* Var:  1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 					*/
-	minimum= . . . . . . . 0 . . . . 0 . . . . . . . . .
-	maximum= . . . . . . . . . . . . . . . . . . . . . .;
+	/* Var:  1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1  					*/
+	minimum= . . . . . . . 0 . . . . 0 . . . . . . . . 
+	maximum= . . . . . . . . . . . . . . . . . . . . . ;
    ods exclude modelinfo fcsmodel misspattern;
-   class centernum bkgrd1_c7nomiss employedyn n_hc current_smoker /* binary variables */
-			alcohol_use yrsus_c3 education_c3 marital_status pag2008yn;
+   class centernum bkgrd1_c7nomiss employedyn n_hc /* binary variables */
+			cigarette_use alcohol_use yrsus_c3 education_c3 marital_status pag2008yn;
    fcs reg(waz cesd10 stai10 child_prs_bmi_a birthwt_ga_z hei2010 slpdur)
 	   regpmm(parity_v1);
-   fcs logistic(employedyn n_hc current_smoker pag2008yn / link=logit likelihood=augment) 
-	   logistic(alcohol_use yrsus_c3 education_c3 marital_status / likelihood=augment);	
+   fcs logistic(employedyn n_hc pag2008yn / link=logit likelihood=augment) 
+	   logistic(cigarette_use alcohol_use yrsus_c3 education_c3 marital_status / likelihood=augment);	
 	var waz centernum bkgrd1_c7nomiss yrs_btwn_v1flor age birthwt_ga_z slpdur /* 1-7 */
 		hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a /* 8-13 */
-		employedyn n_hc current_smoker /* 14-16 */
+		employedyn n_hc cigarette_use /* 14-16 */
 		alcohol_use yrsus_c3 education_c3 marital_status /* nominal/ordinal variables */
+		bmiz
 		;
 	where prs_complete;
 run;

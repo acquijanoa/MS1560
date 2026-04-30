@@ -163,6 +163,30 @@ scripts:
     created: 2026-04-13
     status: "ongoing"
 
+  - code: HC338363/HC338363.sas
+    task: "Job 63: Table 2 pooled linear GENMOD models for birth weight-for-gestational-age z-score (birthwt_ga_z) in the main imputed sample (same structure as job 54)."
+    software: SAS
+    created: 2026-04-27
+    status: "ongoing"
+
+  - code: HC338363a/HC338363a.sas
+    task: "Job 63a: Table 2a pooled linear GENMOD models for birthwt_ga_z in the PRS-complete imputed sample (parallel to job 54a)."
+    software: SAS
+    created: 2026-04-27
+    status: "ongoing"
+
+  - code: HC338364/HC338364.sas
+    task: "Job 64: Table 2 pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3: normal/overweight/obese) in the main imputed sample."
+    software: SAS
+    created: 2026-04-30
+    status: "ongoing"
+
+  - code: HC338364a/HC338364a.sas
+    task: "Job 64a: Table 2a pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3) in the PRS-complete imputed sample."
+    software: SAS
+    created: 2026-04-30
+    status: "ongoing"
+
   - code: HC338390/HC338390.sas
     task: "Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts."
     software: SAS

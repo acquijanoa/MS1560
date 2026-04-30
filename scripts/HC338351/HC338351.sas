@@ -62,9 +62,15 @@ libname invv2 "J:\HCHS\SC\Sasdata\Visit2\INV_Use\Consolidated";
 libname flor "J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\INV_Use\Datasets";
 libname confid 'J:\HCHS\SC\Confid\Sasdata\Visit2\Internal_Use';
 libname output "&homepath.\data";
-libname hc3383 "J:\HCHS\SC\Review\HC3383";
+libname hc3383 "J:\HCHS\SC\Review\HC3001-HC4000\HC3383";
 libname floriu "J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\Internal_Use";
+
 proc contents data=floriu.FLOR_PART_DERV_IU2; run; quit;
+
+proc means data = floriu.FLOR_PART_DERV_IU2 mean q1 median q3 min max ;
+	var bmiz ;
+run; quit;
+
 * include macros;
 %include "J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338391\HC3383_anonymize_db.sas";
 

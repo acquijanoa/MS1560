@@ -53,13 +53,13 @@ JOB:
 	input: hc338351_flor_ddmmyy.sas7bdat
 	output: hc338353a_imputed_data_ddmmyy.sas7bdat
 
-53b: Imputation model [n=227x10] [It's not updated on 12nov25]
+53b: Imputation model [n=227x10] [It's not updated on 12nov25] ### Archived within old_files
 	note: child anthropometry is not imputed
 		PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the imputation model
 	input: hc338351_flor_ddmmyy.sas7bdat
 	output: hc338353b_imputed_data_ddmmyy.sas7bdat 		 
 
-53c: Imputation model [n=201x10] [It's not updated on 12nov25]
+53c: Imputation model [n=201x10] [It's not updated on 12nov25] ### Archived within old_files
 	note: child anthropometry and child_prs_bmi_a are not imputed
 		PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the imputation model
 	input: hc338351_flor_ddmmyy.sas7bdat
@@ -75,12 +75,12 @@ JOB:
 	input: hc338353a_imputed_data_ddmmyy.sas7bdat
 	output: hc338354a_Table2_ddmmyy.rtf
 
-54b: Regression model [n=227] 
+54b: Regression model [n=227] ## Archived within old_files
 	note: PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the model
 	input: hc338353b_imputed_data_ddmmyy.sas7bdat
 	output: hc338354b_Table2.1_ddmmyy.rtf
 
-54c: Regression model [n=201] 
+54c: Regression model [n=201] ### Archived within old_files
 	note: PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the model
 	input: hc338353c_imputed_data_ddmmyy.sas7bdat
 	output: hc338354c_Table2.1_ddmmyy.rtf
@@ -147,6 +147,16 @@ JOB:
 	note: Same as job 62 for the PRS-complete imputed sample (parallel to job 54a) adjusting for hild HAZ.
 	input: hc338353a_imputed_data_ddmmyy.sas7bdat
 	output: HC338362a_Table2_ddmmyy.rtf
+
+63: Regression model [n=227]
+	note: Same pooled linear GENMOD structure as job 54; response is birth weight-for-gestational-age z-score (birthwt_ga_z) instead of WAZ.
+	input: hc338353_imputed_data_ddmmyy.sas7bdat
+	output: HC338363_Table2_ddmmyy.rtf
+
+63a: Regression model [n=201]
+	note: Same as job 63 for the PRS-complete imputed sample (parallel to job 54a).
+	input: hc338353a_imputed_data_ddmmyy.sas7bdat
+	output: HC338363a_Table2_ddmmyy.rtf
  
 	
 ### Miscellaneous ### 	

@@ -1,7 +1,7 @@
 %let req=HC3383;
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
 %let job = &req.60;
-%let datefile = 12nov25;
+%let datefile = 29apr26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
 	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
@@ -34,6 +34,8 @@ run;
 *							 fractional binomial probit for BMIPCT.
 *							 SCALE=DEVIANCE on MODEL (adjusted SEs).
 					         repeated id added to use robust estimator of the variance
+*					29apr26: update imputed dataset to 29apr26 and replace
+*							 current_smoker with cigarette_use (models 2-4).
 *
 * ----------------------------------------------------------
 *
@@ -81,14 +83,14 @@ proc genmod data = impwork;
 	by _imputation_;
 	class id centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			current_smoker(REF="NO") alcohol_use(REF="NEVER")
+			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER")
 			pag2008yn(ref="YES") hei2010_c3(ref="LOW");
 	model bmipct / trial_wt = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			current_smoker hei2010_c3 alcohol_use pag2008yn slpdur / dist=bin link=logit;
+			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur / dist=bin link=logit;
 	repeated subject=id / type=ind;
 	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt.
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.;
 	ods output GEEEmpPEst=genmod_results_2;
 run;
@@ -98,16 +100,16 @@ proc genmod data = impwork;
 	by _imputation_;
 	class id centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			current_smoker(REF="NO") alcohol_use(REF="NEVER")
+			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER")
 			pag2008yn(ref="YES") hei2010_c3(ref="LOW")
 			cesd10(ref="NODEPRE") stai10(ref="NOANX");
 	model bmipct / trial_wt = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			current_smoker hei2010_c3 alcohol_use pag2008yn slpdur
+			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur
 			cesd10 stai10 / dist=bin link=logit;
 	repeated subject=id / type=ind;
 	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt.
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.
 			cesd10 cesd10_fmt. stai10 stai10_fmt.;
 	ods output GEEEmpPEst=genmod_results_3;
@@ -118,16 +120,16 @@ proc genmod data = impwork;
 	by _imputation_;
 	class id centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			current_smoker(REF="NO") alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
+			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW")
 			cesd10(ref="NODEPRE") stai10(ref="NOANX");
 	model bmipct / trial_wt = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			current_smoker hei2010_c3 alcohol_use pag2008yn slpdur
+			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur
 			cesd10 stai10
 			child_prs_bmi_a / dist=bin link=logit type3;
 	repeated subject=id / type=ind;
 	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. marital_status marital_status_fmt.
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.
 			cesd10 cesd10_fmt. stai10 stai10_fmt.;
 	output out=res xbeta=lin_pred;

@@ -50,6 +50,12 @@ PROC FORMAT;
 		2 = "FORMER"
 		3 = "CURRENT"
 		;
+	value cigarette_use_fmt
+		1 = "NEVER"
+		2 = "FORMER"
+		3 = "CURRENT"
+		
+		;
 	value slpdur_lt8hrs_fmt
 		0 = ">=8_hours"
 		1 = "<8_hours"
@@ -58,6 +64,11 @@ PROC FORMAT;
 		1 = "LOW"
 		2 = "MEDIUM"
 		3 = "HIGH";
+	value bmipct_c3_fmt
+		1 = "Normal"
+		2 = "Overweight"
+		3 = "Obese"
+	;
 	value cesd10_fmt
 	   LOW-<10 = "NODEPRE"
 	   10- HIGH = "DEPRE"

@@ -79,6 +79,9 @@
 	if variable = 'CURRENT_SMOKER_NO' then do; label = "{\b Smoking status \b0 \line \li250   Not currently smoking}"; order = 0.013; pv = 5; estimate = 98; std = 99; end;
 	if variable = 'CURRENT_SMOKER_YES' then do; label = "^S={indent=2mm} Current smoker"; order = 0.014; end;
 	if variable = 'CURRENT_SMOKER' then do; label = "^S={indent=2mm} Current smoker"; order = 0.015; end;
+    if variable = 'CIGARETTE_USE_NEVER' then do; label = "{\b Smoking status \b0 \line \li250   Never}"; order = 0.013; pv = 5; estimate = 98; std = 99; end;
+	if variable = 'CIGARETTE_USE_FORMER' then do; label = "^S={indent=2mm} Former"; order = 0.014; end;
+	if variable = 'CIGARETTE_USE_CURRENT' then do; label = "^S={indent=2mm} Current"; order = 0.015; end;	
 	if variable = 'HEI2010' then do; label = "{\b Healthy Eating Index (HEI-2010) \b0}"; order = 0.016; end;
 	if variable = 'HEI2010_C3_LOW' then do; label = "{\b Healthy Eating Index (HEI-2010) \b0 \line \li250   Low (<=50.1)}"; order = 0.01601;  estimate = 98; std = 99; pv = 5;  end;
 	if variable = 'HEI2010_C3_MEDIUM' then do; label = "^S={indent=2mm} Medium (>50.1-60.5)"; order = 0.01602; end;
