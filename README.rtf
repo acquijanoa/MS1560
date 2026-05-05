@@ -27,7 +27,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338302/HC338302.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Builds Table 1 with maternal preconception and child characteristics by FLOR dyad status, including group-wise summary statistics and p-values.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 02 (adapted from SC HC338302): descriptive Table 1 with maternal preconception and child characteristics.\par}
 \cell}
 }
 \intbl\row}
@@ -38,7 +38,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338351/HC338351.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Creates the core analysis datasets (FLOR-only and all eligible births), merges PRS and PA variables, and derives inclusion flags (KEEP_MS1560, PRS_COMPLETE, SLPDUR_LT8HRS).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 51: builds FLOR-only and all-eligible analytic datasets for QC.\par}
 \cell}
 }
 \intbl\row}
@@ -49,7 +49,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338352/HC338352.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Generates missing-data pattern tables (PROC MI displaypattern) across manuscript domains for the FLOR analytic dataset.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 52: missing-data pattern tables by manuscript domains using the FLOR analytic dataset.\par}
 \cell}
 }
 \intbl\row}
@@ -60,7 +60,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338353/HC338353.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs multiple imputation (10 imputations) for the main FLOR analytic sample and derives post-imputation HEI2010_C3 and SLPDUR_LT8HRS.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 53: multiple imputation (10 imputations, n=227 main sample); child anthropometry not imputed.\par}
 \cell}
 }
 \intbl\row}
@@ -71,29 +71,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338353a/HC338353a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs multiple imputation for the PRS-complete subset (WHERE PRS_COMPLETE), with the same variable set as the main MI pipeline.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338353b/HC338353b.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs alternate multiple imputation using categorized HEI2010_C3 and SLPDUR_LT8HRS in the anthropometry-complete subset.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338353c/HC338353c.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs alternate multiple imputation (categorized HEI2010_C3/SLPDUR_LT8HRS) restricted to participants with complete PRS data.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 53a: MI for the PRS-complete subset (n=201); same covariate logic as job 53 except child anthropometry and child_prs_bmi_a are not imputed.\par}
 \cell}
 }
 \intbl\row}
@@ -104,7 +82,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338354/HC338354.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled linear GENMOD models for WAZ across imputed datasets and produces Table 2 model estimates (Models 1-4; includes additional exploratory model run).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 54: pooled linear model for child WAZ across imputations (Models 1\u8211-4); produces Table 2.1 for the main sample.\par}
 \cell}
 }
 \intbl\row}
@@ -115,84 +93,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338354a/HC338354a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled linear GENMOD models for WAZ in the PRS-complete sample and generates the Table 2 counterpart for this restricted cohort.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338354a/HC338354a_20NOV25.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Frozen November 2025 snapshot of HC338354a used to reproduce the Table 2 restricted-sample results.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338354b/HC338354b.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (main sample).\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338354c/HC338354c.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (restricted sample).\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338355/HC338355.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs pooled univariate linear models across imputed datasets and summarizes top pairwise correlations among continuous variables for exploratory screening.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338356a/HC338356a.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3a direct/indirect/total effects without child PRS in the covariate set.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338356b/HC338356b.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3b direct/indirect/total effects including child PRS in the covariate set.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338357/HC338357.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Creates the inclusion/exclusion table and supporting missingness pattern output for the analytic sample construction workflow.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 54a: same pooled linear model as job 54 for WAZ on the PRS-complete imputed sample; produces Table 2.1a.\par}
 \cell}
 }
 \intbl\row}
@@ -203,7 +104,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338358/HC338358.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3 (main sample).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 58: pooled logistic model for overweight/obese indicator BMIPCT_C2; produces Table 3.\par}
 \cell}
 }
 \intbl\row}
@@ -214,51 +115,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338358a/HC338358a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3a (restricted sample).\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338359/HC338359.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits pooled linear GENMOD models for continuous BMI-for-age percentile (BMIPCT) across imputations to generate Table 2 (Models 1\u8211-4) and attach partial R\u178 ? summaries via %get_all_partial_r2.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338359a/HC338359a.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs the same continuous BMIPCT linear GENMOD + partial R\u178 ? pipeline as HC338359 in the PRS-complete imputed sample to produce Table 2a.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338360/HC338360.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Fits fractional logit GEE models for continuous BMI-for-age percentile (BMIPCT, 0\u8211-100) across imputed datasets (dist=bin, link=logit, REPEATED SUBJECT=ID) and produces Table 2 plus Average Marginal Effects (AMEs) for Model 4 on the BMI percentile scale.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338360a/HC338360a.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Runs the same fractional logit GEE and AME pipeline as HC338360 on the PRS-complete imputed sample to generate Table 2a for the restricted cohort.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 58a: same BMIPCT_C2 logistic model as job 58 on the PRS-complete imputed sample; produces Table 3a.\par}
 \cell}
 }
 \intbl\row}
@@ -269,7 +126,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338361/HC338361.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 61: Table 2 pooled linear models for BMIZ (main imputed sample; same structure as job 54).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 61: same pooled model Table 2 structure as job 54 with response BMIZ instead of WAZ.\par}
 \cell}
 }
 \intbl\row}
@@ -280,7 +137,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338361a/HC338361a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 61a: Table 2a pooled linear models for BMIZ (PRS-complete imputed sample).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 61a: BMIZ Table 2 pipeline parallel to job 61 for the PRS-complete imputed sample.\par}
 \cell}
 }
 \intbl\row}
@@ -291,7 +148,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338362/HC338362.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 62: Table 2 pooled linear models for WAZ with HAZ adjustment (main imputed sample).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 62: pooled linear model for WAZ with child adjusted by HAZ; Table 2.2.\par}
 \cell}
 }
 \intbl\row}
@@ -302,7 +159,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338362a/HC338362a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 62a: Table 2a pooled linear models for WAZ with HAZ adjustment (PRS-complete sample).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 62a: same WAZ + HAZ adjustment as job 62 on the PRS-complete imputed sample; Table 2.2a.\par}
 \cell}
 }
 \intbl\row}
@@ -313,7 +170,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338363/HC338363.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 63: Table 2 pooled linear GENMOD models for birth weight-for-gestational-age z-score (birthwt_ga_z) in the main imputed sample (same structure as job 54).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 63: pooled linear model for birth weight-for-gestational-age z-score (birthwt_ga_z); produces Table 5.\par}
 \cell}
 }
 \intbl\row}
@@ -324,7 +181,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338363a/HC338363a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 63a: Table 2a pooled linear GENMOD models for birthwt_ga_z in the PRS-complete imputed sample (parallel to job 54a).\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 63a: birthwt_ga_z linear model pipeline; produces Table 5a.\par}
 \cell}
 }
 \intbl\row}
@@ -335,7 +192,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338364/HC338364.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 64: Table 2 pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3: normal/overweight/obese) in the main imputed sample.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 64: pooled ordinal model for child BMI category BMIPCT_C3 (normal/overweight/obese); Table 4 (main sample).\par}
 \cell}
 }
 \intbl\row}
@@ -346,7 +203,18 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338364a/HC338364a.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 64a: Table 2a pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3) in the PRS-complete imputed sample.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 64a: BMIPCT_C3 ordinal pipeline parallel to job 64 for the PRS-complete imputed sample; Table 4a.\par}
+\cell}
+}
+\intbl\row}
+{
+\trowd \trgaph120
+\cellx4320\cellx8640
+\trkeep\intbl
+{
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338357/HC338357.sas\par}
+\cell}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 57: inclusion/exclusion table for analytic sample construction.\par}
 \cell}
 }
 \intbl\row}
@@ -357,7 +225,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338390/HC338390.sas\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 90: centralized PROC FORMAT definitions for categorical displays and reporting conventions used downstream.\par}
 \cell}
 }
 \intbl\row}
@@ -366,53 +234,9 @@
 \cellx4320\cellx8640
 \trkeep\intbl
 {
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338391/HC3383_labels.sas\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338391/\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Defines the %labels macro that standardizes variable labels, ordering, and display conventions for manuscript tables.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338391/HC3383_mi_lasso.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Provides the MI-lasso macro (Chen & Wang method) for variable selection in multiply imputed long-format data.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338391/HC3383_process_imputed.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Defines %process_imputed to pool parameter estimates across imputations via PROC MIANALYZE and attach reporting labels.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338391/HC3383_anonymize_db.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Defines %ANONYMIZE_DB to map SUBJECTID to study ID using transfer/encryption files and produce de-identified datasets.\par}
-\cell}
-}
-\intbl\row}
-{
-\trowd \trgaph120
-\cellx4320\cellx8640
-\trkeep\intbl
-{
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338391/HC3383_partial_r2.sas\par}
-\cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Defines %get_all_partial_r2 to compute variable-specific partial R2 across imputed GENMOD models using full vs reduced deviance.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 91: shared SAS macros used across jobs (labels for PROC REPORT-style tables, pooling multiply imputed results, partial R\u178 ? helpers, anonymization utilities).\par}
 \cell}
 }
 \intbl\row}
@@ -423,7 +247,7 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338398/\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Performs QC comparison between project-derived datasets and Statistical Computing datasets.\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 98: analytic file QC\u8212-cross-checks and comparisons vs Statistical Computing reference datasets.\par}
 \cell}
 }
 \intbl\row}
@@ -434,11 +258,11 @@
 {
 {{\pard\intbl \ql \f0 \sa0 \li0 \fi0 HC338399/\par}
 \cell}
-{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Miscellaneous folder\par}
+{{\pard\intbl \ql \f0 \sa0 \li0 \fi0 Job 99 miscellaneous scripts.\par}
 \cell}
 }
 \intbl\row}
 {\pard \ql \f0 \sa180 \li0 \fi0 \par}
 {\pard \qc \f0 \sa180 \li0 \fi0 \emdash\emdash\emdash\emdash\emdash\par}
-{\pard \ql \f0 \sa180 \li0 \fi0 {\b Generated on:} 2026-04-30 using {\f1 generate_md.R} by Alvaro Quijano-Angarita\par}
+{\pard \ql \f0 \sa180 \li0 \fi0 {\b Generated on:} 2026-05-05 using {\f1 generate_md.R} by Alvaro Quijano-Angarita\par}
 }
