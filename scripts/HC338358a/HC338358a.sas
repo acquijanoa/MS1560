@@ -7,37 +7,39 @@ proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
 run;
 
 /*********************************************************
- *                                                        *
- *  SAS PROGRAM - QC DATASET JOB HC3383                   *
- *                                                        *
+ *                                                        
+ *  SAS PROGRAM - QC DATASET JOB HC3383                   
+ *                                                        
  *********************************************************
- *                                                        *
- *  PROGRAM NAME: HC338358a.sas                           *
+ *                                                        
+ *  PROGRAM NAME: HC338358a.sas                           
  *
- *  PROGRAMMER: Alvaro Quijano (AQ)                       *
+ *  PROGRAMMER: Alvaro Quijano (AQ)                       
  *
- *  DESCRIPTION: Logistic model with Overweight/Obese as *
- *               the response. Produces Table 3a (betas)  *
- *               and Table 3a OR (odds ratios) within     *
- *               the same workflow.                       *
+ *  DESCRIPTION: Logistic model with Overweight/Obese as 
+ *               the response. Produces Table 3a (betas)  
+ *               and Table 3a OR (odds ratios) within     
+ *               the same workflow.                       
  *
  * ---------------------------------------------------------
  *
- *  JOB NUMBER: HC338358a                                  *
+ *  JOB NUMBER: HC338358a                                 
  *
- *  LANGUAGE: SAS 9.4                                      *
+ *  LANGUAGE: SAS 9.4                                      
  *
- *  VERSION CONTROL:                                       *
- *               09mar26: create file                      *
+ *  VERSION CONTROL:                                       
+ *               09mar26: create file                      
  *               29apr26: update imputed dataset to 29apr26
  *                        and replace current_smoker with
  *                        cigarette_use in models 2-4.
+ *				 05may26: add table_num macro variable 
+						  update footnote to add the analytic file's job
  *
  * ----------------------------------------------------------
  *
- *  INPUT:  data.HC338353a_imputed_data_&datefile.         *
+ *  INPUT:  data.HC338353a_imputed_data_&datefile.         
  *
- *  OUTPUT: Table 3a (betas) and Table 3a OR (odds ratios) *
+ *  OUTPUT: Table 3a (betas) and Table 3a OR (odds ratios) 
  *
  **********************************************************/
 
@@ -54,6 +56,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let impdb = data.HC338353a_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
+%let table_num = 3a;
 
 * Include SAS scripts with formats and macros;
 %include "&homepath.\scripts\HC338390\HC338390.sas";
@@ -290,10 +293,10 @@ proc report data = table3a_beta;
 run;
 ods rtf close;
 
-ods rtf file = "&homepath\scripts\&job.\&job._Table3a_OR_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style = manuscrt bodytitle;
 proc report data = table3a_or_wide;
     title j = center height = &fs font = 'times roman' bold
-        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3a OR. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
     footnote1 j = left height = &fs_titles font = 'times roman'
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
     footnote2 j = left height = &fs_titles font = 'times roman'
@@ -305,7 +308,7 @@ proc report data = table3a_or_wide;
     footnote5 j = left height = &fs_titles font = 'times roman'
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
     footnote6 j = left height = 10pt font = 'times roman'
-        "{\line \line Job &job run by &prg using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+        "{\line \line Job &job run by &prg using FLOR analytic file (HC338353a) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
     columns order label
             sig_1 ('Model 1' or_txt_1 ci_txt_1)
             sig_2 ('Model 2' or_txt_2 ci_txt_2)

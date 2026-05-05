@@ -30,7 +30,7 @@ run;
 *  VERSION CONTROL: 
 *					30apr26: Creates the file
 *
-*
+*					05may26: renamed to T4
 * ----------------------------------------------------------
 *
 *  INPUT: HC338353_imputed_data_&datefile
@@ -50,6 +50,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let impdb = data.HC338353_imputed_data_&datefile.;
 %let lf_margin = 1.3in;
 %let rg_margin = 0.7in;
+%let table_num = 4;
 
 * Include sas scripts with formats and macros;
 %include "&homepath.\scripts\HC338390\HC338390.sas";
@@ -190,13 +191,13 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style = manuscrt bodytitle;
 %let fs = 11pt;
 %let fs_titles = 11pt;
 %let rgt_mgn = 0.1in;
 proc report data = db_join;
 	title j = center height = &fs font = 'times roman' bold
-		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Table 2. Maternal preconception socio-behavioral factors and child BMI category, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Table &table_num.. Maternal preconception socio-behavioral factors and child BMI category, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
 	footnote1 j = left height = &fs_titles font = 'times roman'
 		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Outcome modeled as ordinal (Normal < Overweight < Obese) using cumulative logit. ";
 	footnote2 j = left height = &fs_titles font = 'times roman'

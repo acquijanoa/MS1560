@@ -8,230 +8,133 @@ project:
 
 scripts:
   - code: HC338302/HC338302.sas
-    task: "Builds Table 1 with maternal preconception and child characteristics by FLOR dyad status, including group-wise summary statistics and p-values."
+    task: "Job 02 (adapted from SC HC338302): descriptive Table 1 with maternal preconception and child characteristics."
     software: SAS
     created: 2026-03-08
     status: "ongoing"
 
   - code: HC338351/HC338351.sas
-    task: "Creates the core analysis datasets (FLOR-only and all eligible births), merges PRS and PA variables, and derives inclusion flags (KEEP_MS1560, PRS_COMPLETE, SLPDUR_LT8HRS)."
+    task: "Job 51: builds FLOR-only and all-eligible analytic datasets for QC (outputs hc338351_flor_* and hc338351_all_*), merges analytic inputs/flags (e.g., KEEP_MS1560, PRS_COMPLETE)."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338352/HC338352.sas
-    task: "Generates missing-data pattern tables (PROC MI displaypattern) across manuscript domains for the FLOR analytic dataset."
+    task: "Job 52: missing-data pattern tables by manuscript domains (PROC MI displaypattern) using the FLOR analytic dataset."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338353/HC338353.sas
-    task: "Runs multiple imputation (10 imputations) for the main FLOR analytic sample and derives post-imputation HEI2010_C3 and SLPDUR_LT8HRS."
+    task: "Job 53: multiple imputation (10 imputations, n=227 main sample); child anthropometry not imputed; covariates include smoking/sleep/diet/activity as specified in README (e.g., PAG2008YN, HEI2010 variables, SLPDUR; CIGARETTE_USE and BMIZ added 29apr26)."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338353a/HC338353a.sas
-    task: "Runs multiple imputation for the PRS-complete subset (WHERE PRS_COMPLETE), with the same variable set as the main MI pipeline."
+    task: "Job 53a: MI for the PRS-complete subset (n=201); same covariate logic as job 53 except child anthropometry and child_prs_bmi_a are not imputed."
     software: SAS
     created: 2025-11-03
-    status: "completed"
-
-  - code: HC338353b/HC338353b.sas
-    task: "Runs alternate multiple imputation using categorized HEI2010_C3 and SLPDUR_LT8HRS in the anthropometry-complete subset."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338353c/HC338353c.sas
-    task: "Runs alternate multiple imputation (categorized HEI2010_C3/SLPDUR_LT8HRS) restricted to participants with complete PRS data."
-    software: SAS
-    created: 2025-11-04
     status: "completed"
 
   - code: HC338354/HC338354.sas
-    task: "Fits pooled linear GENMOD models for WAZ across imputed datasets and produces Table 2 model estimates (Models 1-4; includes additional exploratory model run)."
+    task: "Job 54: pooled linear GENMOD for child WAZ across imputations (Models 1–4); produces Table 2.1 for the main sample."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338354a/HC338354a.sas
-    task: "Fits pooled linear GENMOD models for WAZ in the PRS-complete sample and generates the Table 2 counterpart for this restricted cohort."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338354a/HC338354a_20NOV25.sas
-    task: "Frozen November 2025 snapshot of HC338354a used to reproduce the Table 2 restricted-sample results."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338354b/HC338354b.sas
-    task: "Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (main sample)."
-    software: SAS
-    created: 2025-11-04
-    status: "completed"
-
-  - code: HC338354c/HC338354c.sas
-    task: "Fits pooled linear GENMOD models for WAZ using alternate categorized behavior covariates and produces Table 2.1 (restricted sample)."
-    software: SAS
-    created: 2025-11-04
-    status: "completed"
-
-  - code: HC338355/HC338355.sas
-    task: "Runs pooled univariate linear models across imputed datasets and summarizes top pairwise correlations among continuous variables for exploratory screening."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338356a/HC338356a.sas
-    task: "Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3a direct/indirect/total effects without child PRS in the covariate set."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338356b/HC338356b.sas
-    task: "Performs mediation analysis (PROC CAUSALMED + MIANALYZE) to generate Table 3b direct/indirect/total effects including child PRS in the covariate set."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338357/HC338357.sas
-    task: "Creates the inclusion/exclusion table and supporting missingness pattern output for the analytic sample construction workflow."
+    task: "Job 54a: same pooled linear GENMOD pipeline as job 54 for WAZ on the PRS-complete imputed sample; produces Table 2.1a."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
   - code: HC338358/HC338358.sas
-    task: "Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3 (main sample)."
+    task: "Job 58: pooled logistic GENMOD for overweight/obese indicator BMIPCT_C2; produces Table 3 (main imputed sample)."
     software: SAS
     created: 2025-11-04
     status: "completed"
 
   - code: HC338358a/HC338358a.sas
-    task: "Fits pooled binomial GENMOD models for overweight/obesity outcome (BMIPCT_C2) and generates Table 3a (restricted sample)."
+    task: "Job 58a: same BMIPCT_C2 logistic pipeline as job 58 on the PRS-complete imputed sample; produces Table 3a."
     software: SAS
     created: 2025-11-04
     status: "completed"
 
-  - code: HC338359/HC338359.sas
-    task: "Fits pooled linear GENMOD models for continuous BMI-for-age percentile (BMIPCT) across imputations to generate Table 2 (Models 1–4) and attach partial R² summaries via %get_all_partial_r2."
-    software: SAS
-    created: 2025-11-04
-    status: "ongoing"
-
-  - code: HC338359a/HC338359a.sas
-    task: "Runs the same continuous BMIPCT linear GENMOD + partial R² pipeline as HC338359 in the PRS-complete imputed sample to produce Table 2a."
-    software: SAS
-    created: 2025-11-04
-    status: "ongoing"
-
-  - code: HC338360/HC338360.sas
-    task: "Fits fractional logit GEE models for continuous BMI-for-age percentile (BMIPCT, 0–100) across imputed datasets (dist=bin, link=logit, REPEATED SUBJECT=ID) and produces Table 2 plus Average Marginal Effects (AMEs) for Model 4 on the BMI percentile scale."
-    software: SAS
-    created: 2026-03-31
-    status: "ongoing"
-
-  - code: HC338360a/HC338360a.sas
-    task: "Runs the same fractional logit GEE and AME pipeline as HC338360 on the PRS-complete imputed sample to generate Table 2a for the restricted cohort."
-    software: SAS
-    created: 2026-03-31
-    status: "ongoing"
-
   - code: HC338361/HC338361.sas
-    task: "Job 61: Table 2 pooled linear models for BMIZ (main imputed sample; same structure as job 54)."
+    task: "Job 61: same pooled GENMOD Table 2 structure as job 54 with response BMIZ instead of WAZ (main imputed sample)."
     software: SAS
     created: 2026-04-13
     status: "ongoing"
 
   - code: HC338361a/HC338361a.sas
-    task: "Job 61a: Table 2a pooled linear models for BMIZ (PRS-complete imputed sample)."
+    task: "Job 61a: BMIZ Table 2 pipeline parallel to job 61 for the PRS-complete imputed sample."
     software: SAS
     created: 2026-04-13
     status: "ongoing"
 
   - code: HC338362/HC338362.sas
-    task: "Job 62: Table 2 pooled linear models for WAZ with HAZ adjustment (main imputed sample)."
+    task: "Job 62: pooled linear GENMOD for WAZ with child HAZ added as a covariate (same domain structure as job 54); Table 2a (README numbering)."
     software: SAS
     created: 2026-04-13
     status: "ongoing"
 
   - code: HC338362a/HC338362a.sas
-    task: "Job 62a: Table 2a pooled linear models for WAZ with HAZ adjustment (PRS-complete sample)."
+    task: "Job 62a: same WAZ + HAZ adjustment as job 62 on the PRS-complete imputed sample; Table 2.2a."
     software: SAS
     created: 2026-04-13
     status: "ongoing"
 
   - code: HC338363/HC338363.sas
-    task: "Job 63: Table 2 pooled linear GENMOD models for birth weight-for-gestational-age z-score (birthwt_ga_z) in the main imputed sample (same structure as job 54)."
+    task: "Job 63: pooled linear GENMOD for birth weight-for-gestational-age z-score (birthwt_ga_z), parallel covariate structure to job 54; Table 5."
     software: SAS
     created: 2026-04-27
     status: "ongoing"
 
   - code: HC338363a/HC338363a.sas
-    task: "Job 63a: Table 2a pooled linear GENMOD models for birthwt_ga_z in the PRS-complete imputed sample (parallel to job 54a)."
+    task: "Job 63a: birthwt_ga_z linear GENMOD pipeline parallel to job 54a (PRS-complete sample); Table 5."
     software: SAS
     created: 2026-04-27
     status: "ongoing"
 
   - code: HC338364/HC338364.sas
-    task: "Job 64: Table 2 pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3: normal/overweight/obese) in the main imputed sample."
+    task: "Job 64: pooled ordinal/multinomial-style GENMOD for child BMI category BMIPCT_C3 (normal/overweight/obese); Table 4 (main sample)."
     software: SAS
     created: 2026-04-30
     status: "ongoing"
 
   - code: HC338364a/HC338364a.sas
-    task: "Job 64a: Table 2a pooled ordinal cumulative logit GENMOD models for child BMI category (BMIPCT_C3) in the PRS-complete imputed sample."
+    task: "Job 64a: BMIPCT_C3 ordinal pipeline parallel to job 64 for the PRS-complete imputed sample; Table 4."
     software: SAS
     created: 2026-04-30
     status: "ongoing"
 
+  - code: HC338357/HC338357.sas
+    task: "Job 57: inclusion/exclusion table for analytic sample construction."
+    software: SAS
+    created: 2025-11-03
+    status: "completed"
+
   - code: HC338390/HC338390.sas
-    task: "Defines centralized PROC FORMAT mappings (categorical labels, p-value symbols, report formatting helpers) used by downstream scripts."
+    task: "Job 90: centralized PROC FORMAT definitions for categorical displays and reporting conventions used downstream."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
-  - code: HC338391/HC3383_labels.sas
-    task: "Defines the %labels macro that standardizes variable labels, ordering, and display conventions for manuscript tables."
+  - code: HC338391/
+    task: "Job 91: shared SAS macros used across jobs (labels for PROC REPORT-style tables, pooling multiply imputed results, partial R² helpers, anonymization utilities)."
     software: SAS
     created: 2025-11-03
     status: "completed"
-
-  - code: HC338391/HC3383_mi_lasso.sas
-    task: "Provides the MI-lasso macro (Chen & Wang method) for variable selection in multiply imputed long-format data."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338391/HC3383_process_imputed.sas
-    task: "Defines %process_imputed to pool parameter estimates across imputations via PROC MIANALYZE and attach reporting labels."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338391/HC3383_anonymize_db.sas
-    task: "Defines %ANONYMIZE_DB to map SUBJECTID to study ID using transfer/encryption files and produce de-identified datasets."
-    software: SAS
-    created: 2025-11-03
-    status: "completed"
-
-  - code: HC338391/HC3383_partial_r2.sas
-    task: "Defines %get_all_partial_r2 to compute variable-specific partial R2 across imputed GENMOD models using full vs reduced deviance."
-    software: SAS
-    created: 2026-03-08
-    status: "ongoing"
 
   - code: HC338398/
-    task: "Performs QC comparison between project-derived datasets and Statistical Computing datasets."
+    task: "Job 98: analytic file QC—cross-checks and comparisons vs Statistical Computing reference datasets (continuous QC, Table 1 QC, supplemental frequencies per README)."
     software: SAS
     created: 2025-11-03
     status: "completed"
 
-  - code: HC338399/
-    task: "Miscellaneous folder"
+  - code: HC338399/HC33839905.sas
+    task: "Job 99 misc: HEI2010 tertiles and related supplemental output."
     software: SAS
     created: 2025-11-03
     status: "completed"
-

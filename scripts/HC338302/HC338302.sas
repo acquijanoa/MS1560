@@ -1,6 +1,7 @@
 %let homepath=J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
 %LET req=HC3383;
 %LET job=&req.02;
+%let datefile= 12nov25;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" print=
     "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
@@ -9,9 +10,9 @@ run;
 
   TITLE:         MS#1560 aAssociation of preconception socio-behavioral factors and child�s weight� by Siega-Riz
 
-  DESCRIPTION:   -  Create an analytic data file for MS #1560 � �Association of preconception socio-behavioral factors 
-                   and child�s weight in the HCHS/SOL study� [Grant�s aim #2]
-                 -  The statistical analyses and tables will be done by GRA Alvaro under Daniela�s supervision.
+  DESCRIPTION:   -  Create an analytic data file for MS #1560 "Association of preconception socio-behavioral factors 
+                   and child's weight in the HCHS/SOL studies [Grant's aim #2]
+                 -  The statistical analyses and tables will be done by GRA Alvaro under Daniela's supervision.
 
   MANUSCRIPT:    HCM1560
 
@@ -36,13 +37,19 @@ run;
                     	Include the categories from the data dictionary for the categorical variables.
                     	Use job HC3131903 as starting point but using the variables relavant to this manuscript
 					
-				29apr26 
+				29apr26 (AQA)
 						update label to 'Health Insurance' instead of 'Healthcare access'.
 						include child bmi (groups) and cigarette_use in Table 1
 						exclude current_smoker 
+				
+				05may26	(AQA)
+						update input dataset to 29apr26
+						uses flag variable keep_ms1560 instead of flor_dyad
+						add complete/incomplete anthropometry to the table's header
 
   NOTE:          Related: HC3139 - MS1207 [FLOR grant aim #1] Uses final INV1 data and MI
 -----------------------------------------------------------------
+
   INPUT:         HC338301_ALL data
                 
   OUTPUT:        J:\HCHS\SC\&prog\&req\HC338301_TN1
@@ -52,8 +59,10 @@ run;
 OPTIONS ps=59 ls=max nodate nonumber MPRINT errors=50 orientation=landscape;
 %LET prog=AQA;
 
+* set footnote;
 FOOTNOTE "Job &job run by &prog on &SYSDATE at &SYSTIME";
 
+* macro variable;
 %let home=J:\HCHS\SC\&prog.\&req.;
 %put JOB=&job.;
 libname mylib "&homepath.\data";
@@ -61,11 +70,11 @@ libname flor 'J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\INV_Use\Datasets';
 
 * %let workspace = J:\HCHS\SC\&prog.\&req.;
 data all;
-    set mylib.hc338351_all_12nov25;
+    set mylib.hc338351_all_&datefile.;
 run;
 
 data child;
-    set flor.DEMB_INV2 (keep=ID DEMB1); /* DEMB1 = CHILD_SEX */
+    set flor.demb_inv2(keep=ID DEMB1); /* DEMB1 = CHILD_SEX */
 run;
 
 data repdata;
@@ -74,19 +83,10 @@ data repdata;
     if want;
 run;
 
-DATA _NULL_ ;
-    CALL SYMPUT('x',LEFT(INPUT("A0",$hex2.))) ;
+data _null_;
+    call symput('x',LEFT(INPUT("A0",$hex2.))) ;
 RUN;
 %LET y=&x&x&x;
-
-PROC FREQ data=repdata;
-    table EDUCATION_C3*FLOR_DYAD / chisq;
-    *ods output ChiSq = chisq_out (where = (Statistic="Chi-Square") rename=(prob=p));
-run;
-
-proc freq data=repdata;
-    table DEMB1*FLOR_DYAD / list missing;
-run;
 
 data toplines;
     length vartext $100;
@@ -186,7 +186,7 @@ run;
 
     * use count and pct_row measures from proc freq for calculations;
     proc freq data=derive2(where=(&denomlogic)) noprint;
-        tables flor_dyad*&var / missing outpct out=myout(keep=flor_dyad &var
+        tables keep_ms1560*&var / missing outpct out=myout(keep=keep_ms1560 &var
             count pct_row where=(&var=&varlevel));
     run;
 
@@ -201,14 +201,14 @@ run;
     /* transpose twice, note use of "suffix" to distinguish */
     proc transpose data=cp prefix=flor_dyad suffix=_n out=&var.n (drop=_name_);
         by &var;
-        id flor_dyad;
+        id keep_ms1560;
         var cp_n;
     run;
 
     proc transpose data=cp prefix=flor_dyad suffix=_p out=&var.pct
         (drop=_name_);
         by &var;
-        id flor_dyad;
+        id keep_ms1560;
         var cp_pct;
     run;
 
@@ -253,7 +253,7 @@ run;
     %end;
     %else %do;
         PROC FREQ data=repdata;
-            table &catvar*FLOR_DYAD / chisq;
+            table &catvar*keep_ms1560 / chisq;
             ods output ChiSq=chisq_out (where=(Statistic="Chi-Square")
                 rename=(prob=p));
         run;
@@ -271,6 +271,15 @@ run;
         pvalue=strip("&pcat");
         keep var pvalue;
     run;
+
+ %if %upcase(&catvar)=BMIPCT_C3 or %upcase(&catvar)=DEMB1 %then %do;
+	data chisq_&catvar;
+		set chisq_&catvar;
+		nonflor_n='';
+        nonflor_p='';
+        pvalue='**';
+	run;
+%end;
 
 %mend;
 
@@ -294,7 +303,7 @@ run;
     %model_cont(&var)
 
     proc means data=repdata (where=(&logic)) noprint;
-        class flor_dyad;
+        class keep_ms1560;
         var &var;
         output out=meansout /autoname;
     run;
@@ -302,12 +311,12 @@ run;
     data suffix;
         length statistic $20;
         set meansout;
-        if flor_dyad=0 then do;
+        if keep_ms1560=0 then do;
             if _stat_='N' then statistic='n_nonflor';
             if _stat_='STD' then statistic='std_nonflor';
             if _stat_='MEAN' then statistic='mean_nonflor';
         end;
-        if flor_dyad=1 then do;
+        if keep_ms1560=1 then do;
             if _stat_='N' then statistic='n_flor';
             if _stat_='STD' then statistic='std_flor';
             if _stat_='MEAN' then statistic='mean_flor';
@@ -319,17 +328,12 @@ run;
         keep value statistic;
     run;
 
-    proc print;
-
     proc contents;
     run;
 
     proc transpose data=suffix out=t(drop=_name_ );
         id statistic;
         var value;
-    run;
-
-    proc print;
     run;
 
     %if &var=YRS_BTWN_V1FLOR %then %do;
@@ -354,7 +358,14 @@ run;
             length nonflor_p flor_p $50;
             set t;
 
-            %if %upcase(&var)=WAZ %then %do;
+            flor_p=strip(mean_flor) || ' (' || strip(std_flor) || ')';
+            vartext="&text";
+
+            keep vartext pvalue nonflor_p flor_p n_nonflor n_flor ;
+
+            rename n_nonflor=nonflor_n n_flor=flor_n ;
+
+            %if %upcase(&var)=WAZ or %upcase(&var)=BMIPCT_C3 or %upcase(&var)=DEMB1 %then %do;
                 n_nonflor='';
                 nonflor_p='';
                 pvalue='**';
@@ -365,29 +376,21 @@ run;
                 pvalue=strip("&pcont");
             %end;
 
-            flor_p=strip(mean_flor) || ' (' || strip(std_flor) || ')';
-            vartext="&text";
-
-            keep vartext pvalue nonflor_p flor_p n_nonflor n_flor ;
-
-            rename n_nonflor=nonflor_n n_flor=flor_n ;
         run;
 
     %end;
 
 %mend;
 
+
 %macro model_cont(contvar);
     %global pcont;
 
     PROC GLM data=repdata;
-        class FLOR_DYAD;
-        model &contvar=FLOR_DYAD;
+        class keep_ms1560;
+        model &contvar=keep_ms1560;
         ods output ModelANOVA=anovaout(where=(HypothesisType=1) ) ;
     quit;
-
-    proc print;
-    run;
 
     proc sql;
         select strip(put(probf,pvalue6.3)) into :pcont trimmed from anovaout;
@@ -402,28 +405,26 @@ run;
 data derive2;
     set repdata;
     output;
-    flor_dyad=9;
+    keep_ms1560=9;
     output;
 run;
 
 proc freq;
-    table flor_dyad;
+    table keep_ms1560;
 run;
 
 * for header N's;
 proc freq data=derive2;
-    tables flor_dyad/out=flor_dyad_counts(keep=flor_dyad count);
+    tables keep_ms1560/out=keep_ms1560_counts(keep=keep_ms1560 count);
 
-proc print data=flor_dyad_counts;
-run;
 /*proc contents data=derive2; run;*/
 
-* store flor_dyad counts for use later in header;
+* store keep_ms1560 counts for use later in header;
 data _null_;
-    set flor_dyad_counts;
-    if flor_dyad=0 then call symput('nonflor_ct',strip(put(count,8.)));
-    if flor_dyad=1 then call symput('flor_ct',strip(put(count,8.)));
-    if flor_dyad=9 then call symput('overall_ct',strip(put(count,8.)));
+    set keep_ms1560_counts;
+    if keep_ms1560=0 then call symput('nonflor_ct',strip(put(count,8.)));
+    if keep_ms1560=1 then call symput('flor_ct',strip(put(count,8.)));
+    if keep_ms1560=9 then call symput('overall_ct',strip(put(count,8.)));
 run;
 
 %continuous(age,%bquote(Age (yrs)),age gt .z) 
@@ -483,6 +484,12 @@ run;
 %continuous(BIRTHWT_GA_Z,Birth weight z score, BIRTHWT_GA_Z gt .z) 
 run;
 
+* Reset values;
+data demb1_2; 
+	set demb1_2;
+	nonflor_n = '';
+	nonflor_p = '';
+run;
 
 data allrows;
     length vartext $100;
@@ -523,8 +530,8 @@ data allrows;
     ods listing close;
 
 proc report data=allrows nowd style(header)=header{background=lightgray};
-    columns vartext ("FLOR dyads ^n (N=&flor_ct)" flor_n flor_p)
-        ("Non-FLOR dyads ^n (N=&nonflor_ct)" nonflor_n nonflor_p) pvalue;
+    columns vartext ("FLOR dyads ^n and complete ^n anthropometry ^n (N=&flor_ct)" flor_n flor_p)
+        ("Non-FLOR dyads ^n or incomplete ^n anthropometry ^n (N=&nonflor_ct)" nonflor_n nonflor_p) pvalue;
     define vartext / display 'Maternal Preconception' left
         style(column)=[cellwidth=3in];
     define flor_n / display 'N' center style(column)=[cellwidth=.4 in];

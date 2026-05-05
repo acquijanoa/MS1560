@@ -36,6 +36,7 @@ run;
  *							 impdb uses &datefile; printto/ODS use &job.
  *					29apr26: update imputed dataset to 29apr26 and replace
  *							 current_smoker with cigarette_use (models 2-4).
+*					05may26: table_num macro variable added
  *
  * ----------------------------------------------------------
  *
@@ -57,6 +58,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let impdb=data.HC338353a_imputed_data_&datefile.;
 %let lf_margin=0.7in;
 %let rg_margin=0.7in;
+%let table_num=2a;
 
 * Include sas scripts with formats and macros;
 %include "&homepath.\scripts\HC338390\HC338390.sas";
@@ -217,7 +219,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file="&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style=manuscrt
+ods rtf file="&homepath\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style=manuscrt
 	bodytitle;
 %let fs=11pt;
 %let fs_body=11pt;
@@ -227,7 +229,7 @@ ods rtf file="&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style=manuscrt
 
 proc report data=db_join;
 	title j=center height=&fs font='times roman' bold
-		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 2a. Maternal preconception socio-behavioral factors and child's BMI-for-age z-score, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Maternal preconception socio-behavioral factors and child's BMI-for-age z-score, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
 	footnote1 J=left HEIGHT=&fs_titles FONT='times roman'
 		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
 	footnote2 J=left HEIGHT=&fs_titles FONT='times roman'
@@ -239,7 +241,7 @@ proc report data=db_join;
 	footnote5 J=left HEIGHT=&fs_titles FONT='times roman'
 		"^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
 	footnote6 J=LEFT HEIGHT=10pt FONT='times roman'
-		"{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+		"{\line \line Job &job run by &prg using FLOR analytic file (HC338353a) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
 	columns order label model,(estimate STD PV) partial_r2_pct;
 	define order / order group noprint order=internal;
 	define label / display group ' ' style(HEADER)=[FONTSIZE=&fs JUST=left]

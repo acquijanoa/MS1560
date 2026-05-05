@@ -1,0 +1,2316 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.03 seconds
+      
+
+8          
+9          /*********************************************************
+10          *
+11          *  SAS PROGRAM - QC DATASET JOB HC3383
+12          *
+13          *********************************************************
+14          *
+15          *  PROGRAM NAME: HC338358a.sas
+16          *
+17          *  PROGRAMMER: Alvaro Quijano (AQ)
+18          *
+19          *  DESCRIPTION: Logistic model with Overweight/Obese as
+20          *               the response. Produces Table 3a (betas)
+21          *               and Table 3a OR (odds ratios) within
+22          *               the same workflow.
+23          *
+24          * ---------------------------------------------------------
+25          *
+26          *  JOB NUMBER: HC338358a
+27          *
+28          *  LANGUAGE: SAS 9.4
+29          *
+2                                                          The SAS System                                 15:09 Tuesday, May 5, 2026
+
+30          *  VERSION CONTROL:
+31          *               09mar26: create file
+32          *               29apr26: update imputed dataset to 29apr26
+33          *                        and replace current_smoker with
+34          *                        cigarette_use in models 2-4.
+35          *				 05may26: add table_num macro variable
+36         						  update footnote to add the analytic file's job
+37          *
+38          * ----------------------------------------------------------
+39          *
+40          *  INPUT:  data.HC338353a_imputed_data_&datefile.
+41          *
+42          *  OUTPUT: Table 3a (betas) and Table 3a OR (odds ratios)
+43          *
+44          **********************************************************/
+45         
+46         options orientation = portrait nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+47         ods escapechar '^';
+48         
+49         * Set libraries name;
+50         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\data
+51         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+52         
+53         * Set macro variables;
+54         %put JOB=&job.;
+JOB=HC338358a
+55         %let prg = AQA;
+56         %let impdb = data.HC338353a_imputed_data_&datefile.;
+57         %let lf_margin = 0.7in;
+58         %let rg_margin = 0.7in;
+59         %let table_num = 3a;
+60         
+61         * Include SAS scripts with formats and macros;
+62         %include "&homepath.\scripts\HC338390\HC338390.sas";
+NOTE: Format BKGRD1_C7NOMISS_FMT has been output.
+NOTE: Format PV has been output.
+NOTE: Format CENTERNUM_FMT has been output.
+NOTE: Format LANG_PREF_FMT has been output.
+NOTE: Format MARITAL_STATUS_FMT has been output.
+NOTE: Format EDUCATION_C3_FMT has been output.
+NOTE: Format N_HC_FMT has been output.
+NOTE: Format INCOME_C2_FMT has been output.
+NOTE: Format YRSUS_C3_FMT has been output.
+NOTE: Format EMPLOYEDYN_FMT has been output.
+NOTE: Format ALCOHOL_USE_FMT has been output.
+NOTE: Format CIGARETTE_USE_FMT has been output.
+NOTE: Format SLPDUR_LT8HRS_FMT has been output.
+NOTE: Format HEI2010_C3_FMT has been output.
+NOTE: Format BMIPCT_C3_FMT has been output.
+NOTE: Format CESD10_FMT has been output.
+NOTE: Format STAI10_FMT has been output.
+                                                                               The SAS System
+
+NOTE: Format $STAT has been output.
+NOTE: Format PV is already on the library WORK.FORMATS.
+NOTE: Format PV has been output.
+NOTE: Format YN_FMT has been output.
+NOTE: Format BMIPCT_C2_FMT has been output.
+NOTE: Format BLANKDOT has been output.
+NOTE: Format REFNUM has been output.
+NOTE: Format PAREN has been output.
+NOTE: Format PCT_BLANK has been output.
+NOTE: Format AME_FMT has been output.
+
+NOTE: PROCEDURE FORMAT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+181        %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
+288        %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
+332        
+333        * Macro to process imputed odds ratios;
+334        %macro process_imputed_or(in_db=, out_db=, model=);
+335            data &in_db.;
+336                set &in_db.;
+337                length EffectName $50;
+338                if missing(Level1) then EffectName = Parameter;
+339                else EffectName = catx('_', Parameter, Level1);
+340            run;
+341        
+342            proc sort data = &in_db.;
+343                by EffectName;
+344            run;
+345        
+346            ods output ParameterEstimates = &out_db._p;
+347            proc mianalyze data = &in_db.;
+348                by EffectName;
+349                modeleffects Estimate;
+350                stderr StdErr;
+351            run;
+352            ods output close;
+353        
+354            data &out_db.(keep = order model label or_txt ci_txt pv);
+355                length model $10 or_txt $20 ci_txt $30;
+356                set &out_db._p(rename = (EffectName = variable));
+357                model = &model.;
+358        
+359                %labels;
+360                if variable not in ('Scale','Intercept');
+361        
+362                if std = 99 then do;
+363                    or_txt = 'Ref.';
+364                    ci_txt = ' ';
+365                end;
+366                else do;
+367                    or_txt = strip(put(exp(estimate), 8.2));
+368                    ci_txt = cats('(', strip(put(exp(LCLMean), 8.2)), ', ',
+369                                   strip(put(exp(UCLMean), 8.2)), ')');
+370                end;
+                                                                               The SAS System
+
+371            run;
+372        %mend process_imputed_or;
+373        
+374        * Prepare outcome variable in temporary dataset;
+375        data impdb;
+376            set &impdb.;
+377        
+378            if BMIPCT_C3 in (2,3) then BMIPCT_C2 = 1;
+379            else if BMIPCT_C3 = 1 then BMIPCT_C2 = 0;
+380            else BMIPCT_C2 = .;
+381            label BMIPCT_C2 = 'Respondent is Overweight or Obese';
+382        run;
+
+NOTE: There were 2010 observations read from the data set DATA.HC338353A_IMPUTED_DATA_29APR26.
+NOTE: The data set WORK.IMPDB has 2010 observations and 273 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+383        
+384        * Fit the models using the imputed data;
+385        title 'Model 1 - Sociodemographics';
+386        proc genmod data = impdb;
+387            by _imputation_;
+388            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+389                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+390                  yrsus_c3(ref='US_BORN') bmipct_c2(ref='NORMAL');
+391            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+392                               parity_v1 employedyn marital_status yrsus_c3 / dist = binomial;
+393            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt.
+394                   marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+395                   education_c3 education_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
+396            ods output ParameterEstimates = genmod_results_1;
+397        run;
+
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+                                                                               The SAS System
+
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 10 variables.
+NOTE: The PROCEDURE GENMOD printed pages 1-20.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.04 seconds
+      
+
+398        
+                                                                               The SAS System
+
+399        title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur)';
+400        proc genmod data = impdb;
+401            by _imputation_;
+402            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+403                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+404                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+405                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") bmipct_c2(ref='NORMAL');
+406            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+407                               parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
+408                               alcohol_use pag2008yn slpdur / dist = binomial;
+409            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt.
+410                   marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+411                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+412                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
+413            ods output ParameterEstimates = genmod_results_2;
+414        run;
+
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 10 variables.
+NOTE: The PROCEDURE GENMOD printed pages 21-50.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.09 seconds
+      
+
+415        
+416        title 'Model 3: Model 2 + mental health';
+417        proc genmod data = impdb;
+418            by _imputation_;
+419            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+420                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+421                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+422                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
+423                  bmipct_c2(ref='NORMAL');
+424            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+425                               parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
+426                               alcohol_use pag2008yn slpdur cesd10 stai10 / dist = binomial;
+427            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt.
+428                   marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+429                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+430                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
+431                   bmipct_c2 bmipct_c2_fmt.;
+432            ods output ParameterEstimates = genmod_results_3;
+433        run;
+
+                                                                               The SAS System
+
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+                                                                               The SAS System
+
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 10 variables.
+NOTE: The PROCEDURE GENMOD printed pages 51-80.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.11 seconds
+      cpu time            0.12 seconds
+      
+
+434        
+435        title 'Model 4: Model 3 + PRS';
+436        proc genmod data = impdb;
+437            by _imputation_;
+438            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+439                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+440                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+441                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
+442                  bmipct_c2(ref='NORMAL');
+443            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1
+444                               employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use
+445                               pag2008yn slpdur cesd10 stai10 child_prs_bmi_a / dist = binomial;
+446            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt.
+447                   marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+448                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+449                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
+450                   bmipct_c2 bmipct_c2_fmt.;
+451            ods output ParameterEstimates = genmod_results_4;
+452        run;
+
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+                                                                               The SAS System
+
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify 
+      the DESCENDING option in the PROC statement.
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
+NOTE: Algorithm converged.
+NOTE: The scale parameter was held fixed.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 10 variables.
+NOTE: The PROCEDURE GENMOD printed pages 81-110.
+NOTE: PROCEDURE GENMOD used (Total process time):
+      real time           0.07 seconds
+                                                                               The SAS System
+
+      cpu time            0.04 seconds
+      
+
+453        
+454        * Process the imputed estimates for betas and odds ratios;
+455        %macro summarize_models;
+456            %do m = 1 %to 4;
+457                %process_imputed(in_db = genmod_results_&m., out_db = beta_results_&m., model = &m.);
+458                %process_imputed_or(in_db = genmod_results_&m., out_db = or_results_&m., model = &m.);
+459            %end;
+460        %mend summarize_models;
+461        %summarize_models;
+
+NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.BETA_RESULTS_1_P has 29 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 111-139.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 29 observations read from the data set WORK.BETA_RESULTS_1_P.
+NOTE: The data set WORK.BETA_RESULTS_1 has 27 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 290 observations read from the data set WORK.GENMOD_RESULTS_1.
+NOTE: The data set WORK.GENMOD_RESULTS_1 has 290 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.OR_RESULTS_1_P has 29 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 140-168.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.03 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      461:2   
+NOTE: There were 29 observations read from the data set WORK.OR_RESULTS_1_P.
+NOTE: The data set WORK.OR_RESULTS_1 has 27 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_2.
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_2.
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+                                                                               The SAS System
+
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CIGARETTE_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.BETA_RESULTS_2_P has 41 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 169-209.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.01 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 41 observations read from the data set WORK.BETA_RESULTS_2_P.
+NOTE: The data set WORK.BETA_RESULTS_2 has 39 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_2.
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+                                                                               The SAS System
+
+      
+
+
+NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_2.
+NOTE: The data set WORK.GENMOD_RESULTS_2 has 410 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      EffectName=CIGARETTE_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.OR_RESULTS_2_P has 41 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 210-250.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      461:2   
+NOTE: There were 41 observations read from the data set WORK.OR_RESULTS_2_P.
+NOTE: The data set WORK.OR_RESULTS_2 has 39 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+                                                                               The SAS System
+
+
+
+NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_3.
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_3.
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CESD10_NODEPRE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CIGARETTE_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=STAI10_NOANX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.BETA_RESULTS_3_P has 45 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 251-295.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.01 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 45 observations read from the data set WORK.BETA_RESULTS_3_P.
+NOTE: The data set WORK.BETA_RESULTS_3 has 43 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_3.
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 450 observations read from the data set WORK.GENMOD_RESULTS_3.
+NOTE: The data set WORK.GENMOD_RESULTS_3 has 450 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CESD10_NODEPRE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CIGARETTE_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=STAI10_NOANX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.OR_RESULTS_3_P has 45 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 296-340.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      461:2   
+NOTE: There were 45 observations read from the data set WORK.OR_RESULTS_3_P.
+                                                                               The SAS System
+
+NOTE: The data set WORK.OR_RESULTS_3 has 43 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 460 observations read from the data set WORK.GENMOD_RESULTS_4.
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 460 observations read from the data set WORK.GENMOD_RESULTS_4.
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+                                                                               The SAS System
+
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CESD10_NODEPRE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CIGARETTE_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=STAI10_NOANX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.BETA_RESULTS_4_P has 46 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 341-386.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.09 seconds
+      cpu time            0.04 seconds
+      
+
+WARNING: Length of character variable model has already been set. 
+         Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
+
+NOTE: There were 46 observations read from the data set WORK.BETA_RESULTS_4_P.
+NOTE: The data set WORK.BETA_RESULTS_4 has 44 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 460 observations read from the data set WORK.GENMOD_RESULTS_4.
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+
+NOTE: There were 460 observations read from the data set WORK.GENMOD_RESULTS_4.
+NOTE: The data set WORK.GENMOD_RESULTS_4 has 460 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=ALCOHOL_USE_NEVER
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=BKGRD1_C7NOMISS_MEXICAN
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CENTERNUM_BRONX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CESD10_NODEPRE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=CIGARETTE_USE_NEVER
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EDUCATION_C3_N_HIGHSCHOOL_GED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=EMPLOYEDYN_NOT_EMPLOYED
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=HEI2010_C3_LOW
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=MARITAL_STATUS_SINGLE
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+                                                                               The SAS System
+
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=N_HC_NO
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=PAG2008YN_YES
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=STAI10_NOANX
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=Scale
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
+NOTE: The above message was for the following BY group:
+      EffectName=YRSUS_C3_US_BORN
+NOTE: The data set WORK.OR_RESULTS_4_P has 46 observations and 13 variables.
+NOTE: The PROCEDURE MIANALYZE printed pages 387-432.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+      
+                                                                               The SAS System
+
+
+
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      461:2   
+NOTE: There were 46 observations read from the data set WORK.OR_RESULTS_4_P.
+NOTE: The data set WORK.OR_RESULTS_4 has 44 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+462        
+463        data table3a_beta;
+464            set beta_results_1 beta_results_2 beta_results_3 beta_results_4;
+465        run;
+
+NOTE: There were 27 observations read from the data set WORK.BETA_RESULTS_1.
+NOTE: There were 39 observations read from the data set WORK.BETA_RESULTS_2.
+NOTE: There were 43 observations read from the data set WORK.BETA_RESULTS_3.
+NOTE: There were 44 observations read from the data set WORK.BETA_RESULTS_4.
+NOTE: The data set WORK.TABLE3A_BETA has 153 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+466        
+467        data table3a_beta;
+468            set table3a_beta;
+469            if std = 99 then estimate = 98;
+470        run;
+
+NOTE: There were 153 observations read from the data set WORK.TABLE3A_BETA.
+NOTE: The data set WORK.TABLE3A_BETA has 153 observations and 9 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+471        
+472        data table3a_or_long;
+473            set or_results_1 or_results_2 or_results_3 or_results_4;
+474        run;
+
+NOTE: There were 27 observations read from the data set WORK.OR_RESULTS_1.
+NOTE: There were 39 observations read from the data set WORK.OR_RESULTS_2.
+NOTE: There were 43 observations read from the data set WORK.OR_RESULTS_3.
+NOTE: There were 44 observations read from the data set WORK.OR_RESULTS_4.
+NOTE: The data set WORK.TABLE3A_OR_LONG has 153 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+475        
+476        proc sort data = table3a_or_long;
+477            by order label model;
+                                                                               The SAS System
+
+478        run;
+
+NOTE: There were 153 observations read from the data set WORK.TABLE3A_OR_LONG.
+NOTE: The data set WORK.TABLE3A_OR_LONG has 153 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+479        
+480        data table3a_or_wide;
+481            length label $300 or_txt_1-or_txt_4 $40 ci_txt_1-ci_txt_4 $60 pv_1-pv_4 $20;
+482            retain or_txt_1-or_txt_4 ci_txt_1-ci_txt_4 pv_1-pv_4;
+483        
+484            set table3a_or_long;
+485            by order label;
+486        
+487            if first.label then do;
+488                call missing(of or_txt_1-or_txt_4);
+489                call missing(of ci_txt_1-ci_txt_4);
+490                call missing(of pv_1-pv_4);
+491            end;
+492        
+493            select (model);
+494                when (1) do; or_txt_1 = or_txt; ci_txt_1 = ci_txt; pv_1 = pv; end;
+495                when (2) do; or_txt_2 = or_txt; ci_txt_2 = ci_txt; pv_2 = pv; end;
+496                when (3) do; or_txt_3 = or_txt; ci_txt_3 = ci_txt; pv_3 = pv; end;
+497                when (4) do; or_txt_4 = or_txt; ci_txt_4 = ci_txt; pv_4 = pv; end;
+498                otherwise;
+499            end;
+500        
+501            if last.label then output;
+502            keep order label or_txt_: ci_txt_: pv_:;
+503        run;
+
+NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
+      494:15   495:15   496:15   497:15   
+NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
+      494:67   495:67   496:67   497:67   
+NOTE: There were 153 observations read from the data set WORK.TABLE3A_OR_LONG.
+NOTE: The data set WORK.TABLE3A_OR_WIDE has 44 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+504        
+505        data table3a_or_wide;
+506            set table3a_or_wide;
+507            sig_1 = (pv_1 in (1,2));
+508            sig_2 = (pv_2 in (1,2));
+509            sig_3 = (pv_3 in (1,2));
+510            sig_4 = (pv_4 in (1,2));
+511        run;
+
+NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
+      507:14   508:14   509:14   510:14   
+                                                                               The SAS System
+
+NOTE: There were 44 observations read from the data set WORK.TABLE3A_OR_WIDE.
+NOTE: The data set WORK.TABLE3A_OR_WIDE has 44 observations and 18 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+512        
+513        proc sort data = table3a_or_wide;
+514            by order;
+515        run;
+
+NOTE: There were 44 observations read from the data set WORK.TABLE3A_OR_WIDE.
+NOTE: The data set WORK.TABLE3A_OR_WIDE has 44 observations and 18 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+516        
+517        * Obtain ids and save it in a macro variable;
+518        proc sql noprint;
+519            select count(distinct(id)) into :n_ids trimmed from &impdb.;
+520        quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+521        
+522        * Print final reports;
+523        ods listing close;
+524        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+525        
+526        %let fs = 11pt;
+527        %let fs_body = 11pt;
+528        %let fs_titles = 11pt;
+529        %let lft_mgn = 0.3in;
+530        %let rgt_mgn = 0.1in;
+531        
+532        ods rtf file = "&homepath\scripts\&job.\&job._Table3a_&sysdate..rtf" style = manuscrt bodytitle;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\scripts\HC338358a\HC338358a_Table3a_05MAY26.rtf
+533        proc report data = table3a_beta;
+534            title j = center height = &fs font = 'times roman' bold
+535                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3a. Association among maternal preconception socio-behavioral factors and child's overweight or obese
+535      ! status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+536            footnote1 j = left height = &fs_titles font = 'times roman'
+537                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
+538            footnote2 j = left height = &fs_titles font = 'times roman'
+539                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and
+539      ! FLOR visit.";
+540            footnote3 j = left height = &fs_titles font = 'times roman'
+541                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR
+541      ! visit.";
+542            footnote4 j = left height = &fs_titles font = 'times roman'
+543                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR
+543      ! visit.";
+                                                                               The SAS System
+
+544            footnote5 j = left height = &fs_titles font = 'times roman'
+545                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
+546            footnote6 j = left height = 10pt font = 'times roman'
+547                "{\line \line Job &job run by &prg using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+548            columns order label model,(estimate std pv);
+549            define order / order group noprint order = internal;
+550            define label / display group ' ' style(header)=[fontsize=&fs just=left] style=[fontsize=&fs width=2.5in];
+551            define model / across ' ' style = [fontsize=&fs];
+552            define estimate / analysis 'Beta' style=[fontsize=&fs vjust=bottom];
+553            define std / analysis '(SE)' style=[fontsize=&fs vjust=bottom];
+554            define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
+555                                           style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
+556            format pv pv. std paren. estimate refnum.;
+557            compute after _page_ / style = [just=left font_size=&fs];
+558                line "* p <= .10, ** p <= .05, *** p <= .01";
+559            endcomp;
+560        run;
+
+NOTE: PROCEDURE REPORT used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.04 seconds
+      
+NOTE: There were 153 observations read from the data set WORK.TABLE3A_BETA.
+
+561        ods rtf close;
+562        
+563        ods rtf file = "&homepath\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style = manuscrt bodytitle;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\scripts\HC338358a\HC338358a_Table3a_05MAY26.rtf
+564        proc report data = table3a_or_wide;
+565            title j = center height = &fs font = 'times roman' bold
+566                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Association among maternal preconception socio-behavioral factors and child's overweight
+566      ! or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+567            footnote1 j = left height = &fs_titles font = 'times roman'
+568                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
+569            footnote2 j = left height = &fs_titles font = 'times roman'
+570                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and
+570      ! FLOR visit.";
+571            footnote3 j = left height = &fs_titles font = 'times roman'
+572                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR
+572      ! visit.";
+573            footnote4 j = left height = &fs_titles font = 'times roman'
+574                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR
+574      ! visit.";
+575            footnote5 j = left height = &fs_titles font = 'times roman'
+576                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
+577            footnote6 j = left height = 10pt font = 'times roman'
+578                "{\line \line Job &job run by &prg using FLOR analytic file (HC338353a) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+579            columns order label
+580                    sig_1 ('Model 1' or_txt_1 ci_txt_1)
+581                    sig_2 ('Model 2' or_txt_2 ci_txt_2)
+582                    sig_3 ('Model 3' or_txt_3 ci_txt_3)
+583                    sig_4 ('Model 4' or_txt_4 ci_txt_4);
+584            define order / order = internal noprint;
+585            define label / display "Predictor" style(header)=[fontsize=&fs just=left] style=[fontsize=&fs width=2.5in];
+586            define or_txt_1 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+587            define ci_txt_1 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+588            define or_txt_2 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+                                                                               The SAS System
+
+589            define ci_txt_2 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+590            define or_txt_3 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+591            define ci_txt_3 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+592            define or_txt_4 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+593            define ci_txt_4 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+594            define sig_1 / display noprint;
+595            define sig_2 / display noprint;
+596            define sig_3 / display noprint;
+597            define sig_4 / display noprint;
+598            compute or_txt_1;
+599                if sig_1 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+600            endcomp;
+601            compute ci_txt_1;
+602                if sig_1 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+603            endcomp;
+604            compute or_txt_2;
+605                if sig_2 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+606            endcomp;
+607            compute ci_txt_2;
+608                if sig_2 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+609            endcomp;
+610            compute or_txt_3;
+611                if sig_3 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+612            endcomp;
+613            compute ci_txt_3;
+614                if sig_3 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+615            endcomp;
+616            compute or_txt_4;
+617                if sig_4 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+618            endcomp;
+619            compute ci_txt_4;
+620                if sig_4 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+621            endcomp;
+622        run;
+
+NOTE: PROCEDURE REPORT used (Total process time):
+      real time           0.05 seconds
+      cpu time            0.03 seconds
+      
+NOTE: There were 44 observations read from the data set WORK.TABLE3A_OR_WIDE.
+
+623        ods rtf close;
+624        
+625        proc printto; run;
+
