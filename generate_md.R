@@ -6,7 +6,6 @@
 library(yaml)
 library(glue)
 library(dplyr)
-library(pandoc)
 
 # ---- Read YAML ----
 yaml_file <- "project.yaml"
