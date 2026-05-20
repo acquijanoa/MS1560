@@ -1,11 +1,10 @@
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+%let req = HC3383;
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = HC338358a;
-%let datefile = 29apr26;
-
+%let datefile = 20may26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
     print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
-
 /*********************************************************
  *                                                        
  *  SAS PROGRAM - QC DATASET JOB HC3383                   
@@ -34,6 +33,8 @@ run;
  *                        cigarette_use in models 2-4.
  *				 05may26: add table_num macro variable 
 						  update footnote to add the analytic file's job
+ *		  		 20may26: change input dataset to *_20may26;
+						  correct script so it finally shows both bts and OR tables
  *
  * ----------------------------------------------------------
  *
@@ -43,14 +44,14 @@ run;
  *
  **********************************************************/
 
-options orientation = portrait nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+options orientation=portrait nodate nonumber nocenter formchar="|----|+|---+=|-/\<>*" ps=59 ls=174 varinitchk=error mprint validvarname=upcase;
 ods escapechar '^';
 
 * Set libraries name;
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
-* Set macro variables;
+* Define macro variables;
 %put JOB=&job.;
 %let prg = AQA;
 %let impdb = data.HC338353a_imputed_data_&datefile.;
@@ -262,7 +263,7 @@ ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
 %let lft_mgn = 0.3in;
 %let rgt_mgn = 0.1in;
 
-ods rtf file = "&homepath\scripts\&job.\&job._Table3a_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._bts_&sysdate..rtf" style = manuscrt bodytitle;
 proc report data = table3a_beta;
     title j = center height = &fs font = 'times roman' bold
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3a. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
@@ -293,7 +294,7 @@ proc report data = table3a_beta;
 run;
 ods rtf close;
 
-ods rtf file = "&homepath\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._or_&sysdate..rtf" style = manuscrt bodytitle;
 proc report data = table3a_or_wide;
     title j = center height = &fs font = 'times roman' bold
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";

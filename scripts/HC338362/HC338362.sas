@@ -1,7 +1,7 @@
 %let req=HC3383;
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = &req.62;
-%let datefile = 29apr26;
+%let datefile = 20may26;
 
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
 	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
@@ -36,6 +36,7 @@ run;
 *							 impdb uses &datefile; printto/ODS use &job.
 *					29apr26: update imputed dataset to 29apr26 and replace
 *							 current_smoker with cigarette_use (models 2-4).
+*					20may26: update input dataset to *_20may26
 *
 * ----------------------------------------------------------
 *
@@ -44,14 +45,15 @@ run;
 *  OUTPUT: 
 *
 **********************************************************/
-options orientation = portrait nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173; 
+options orientation=portrait nodate nonumber nocenter formchar="|----|+|---+=|-/\<>*" 
+			ps=59 ls=174 varinitchk=error mprint validvarname=upcase; 
 ods escapechar '^';
 
 * Set libraries name; 
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
-* Set macro variables; 
+* Define macro variables; 
 %let prg = AQA;
 %let impdb = data.HC338353_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
@@ -205,7 +207,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath.\scripts\&job.\&job._Table2_&sysdate..rtf" style = manuscrt bodytitle;
 %let fs = 11pt;
 %let fs_body = 11pt;
 %let fs_titles = 11pt;

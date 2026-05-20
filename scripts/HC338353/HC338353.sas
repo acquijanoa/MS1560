@@ -1,29 +1,36 @@
 %let req=HC3383;
 %let job = &req.53;
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
+%let datefile = 20may26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
 	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
 /*********************************************************
 *                                                         *
-*  SAS PROGRAM - QC DATASET JOB HC3383 					         *
-*                                                        *
+*  SAS PROGRAM - MI JOB HC3383                            *
+*                                                         *
 **********************************************************
-*                                                        *
+*                                                         *
 *  PROGRAM NAME: HC338353.sas
 *                                       
-*  PROGRAMMER: Álvaro Quijano (AQ)
+*  PROGRAMMER: Alvaro Quijano (AQA)
 *
-*  DESCRIPTION: Imputation model
-				
+*  TITLE:        Multiple imputation (main analytic sample)
+*
+*  DESCRIPTION:  PROC MI (10 imputations) for FLOR MS1560 cohort
+*                (keep_ms1560); post-process HEI2010_C3 and SLPDUR_LT8HRS.
+*
+*  MANUSCRIPT:   MS1560
 *
 * ---------------------------------------------------------
 *
 *  JOB NUMBER: HC338353 
 *
-*  PREVIOUS JOB: 
+*  PREVIOUS JOB: HC338351
 *
 *  LANGUAGE: SAS 9.4
+*
+*  DATE:         28apr25
 *
 *  VERSION CONTROL: 
 		28apr25: Creates the file
@@ -39,39 +46,47 @@ run;
 		12nov25: Update it to impute HEI2010 and SLPDUR as continuous
 				 Add PAG2008YN instead of PCT_MVPA
 				 categorize hei2010 and slpdur	
-
 		29apr26: add cigarette_use in the imputation model (exclude current_smoker)
 			     add bmiz in the imputation model
+		20may26: update input dataset to *_20may26
+		           
 * ----------------------------------------------------------
 *
-*  INPUT: 
+*  INPUT:  HC338351_flor_&datefile..sas7bdat
 *                                        
-*  OUTPUT: 
+*  OUTPUT: HC338353_imputed_data_&datefile..sas7bdat
+*          HC338353_mi_&sysdate..rtf
 *
 **********************************************************/
-options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173; 
-ods escapechar '^';
+options orientation=landscape ps=59 ls=173 nodate nonumber nocenter
+        formchar="|----|+|---+=|-/\<>*" mprint varinitchk=error
+        validvarname=upcase;
+ods escapechar='^';
 
 * Set libraries; 
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
-* Set macro variables; 
+* Define macro variables; 
 %let prg = AQA;
-%let data = data.HC338351_flor_12nov25;
+%let data = data.HC338351_flor_&datefile.;
+%let impds = &job._imputed_data_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
+* Set footnote; 
+footnote "&sysdate -- &job (&prg)";
+
 ods listing gpath = "&homepath.\scripts\&job.\gplot";
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\scripts\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
+ods listing close;
+ods rtf file = "&homepath.\scripts\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
 
 * Transform variables to produce plots;
 data db;
 	set &data;
 run;
 
-* Boxcox transformation ;
 * Plot the continuous variables;
 %macro histogram_density(var=);
 	proc sgplot data = db;
@@ -86,8 +101,10 @@ title 'Variable: Weight-for-age (WAZ)';
 title 'Variable: hei2010';
 %histogram_density(var = hei2010);
 
-title 'Variable: pct_mvpa';
-%histogram_density(var = pct_mvpa);
+title 'Variable: pag2008yn';
+proc sgplot data=db;
+	vbar pag2008yn;
+run;
 
 title 'Variable: child_prs_bmi_a';
 %histogram_density(var = child_prs_bmi_a);
@@ -102,21 +119,20 @@ title 'Variable: bmiz';
 %histogram_density(var=bmiz);
 
 * Impute variables of interest;
-proc mi data=db out=data.&job._imputed_data_&sysdate. nimpute=10 seed=3383
-	/* Var:  1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1  					*/
+proc mi data=db out=data.&impds. nimpute=10 seed=3383
 	minimum= . . . . . . . 0 . . . . 0 . . . . . . . . 
 	maximum= . . . . . . . . . . . . . . . . . . . . . ;
    ods exclude modelinfo fcsmodel misspattern;
-   class centernum bkgrd1_c7nomiss employedyn n_hc /* binary variables */
+   class centernum bkgrd1_c7nomiss employedyn n_hc
 			cigarette_use alcohol_use yrsus_c3 education_c3 marital_status pag2008yn;
    fcs reg(waz cesd10 stai10 child_prs_bmi_a birthwt_ga_z hei2010 slpdur)
 	   regpmm(parity_v1);
    fcs logistic(employedyn n_hc pag2008yn / link=logit likelihood=augment) 
 	   logistic(cigarette_use alcohol_use yrsus_c3 education_c3 marital_status / likelihood=augment);	
-	var waz centernum bkgrd1_c7nomiss yrs_btwn_v1flor age birthwt_ga_z slpdur /* 1-7 */
-		hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a /* 8-13 */
-		employedyn n_hc cigarette_use /* 14-16 */
-		alcohol_use yrsus_c3 education_c3 marital_status /* nominal/ordinal variables */
+	var waz centernum bkgrd1_c7nomiss yrs_btwn_v1flor age birthwt_ga_z slpdur
+		hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a
+		employedyn n_hc cigarette_use
+		alcohol_use yrsus_c3 education_c3 marital_status
 		bmiz
 		;
 	where keep_ms1560;
@@ -124,7 +140,7 @@ run;
 
 * Macro to summarize imputed dataset;
 %macro summary_imputation(vars=);
-	proc means data = data.&job._imputed_data_&sysdate. nmiss;
+	proc means data = data.&impds. nmiss;
 		by _imputation_;
 		var &vars.;
 		output out = a;
@@ -143,29 +159,27 @@ title 'Imputed variables';
 %summary_imputation(vars=waz birthwt_ga_z slpdur hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a
 				employedyn n_hc cigarette_use alcohol_use yrsus_c3 education_c3 marital_status);
 
-* categorize hei2010 and slpdur - 12nov25;
-data data.&job._imputed_data_&sysdate.;
-	set data.&job._imputed_data_&sysdate.;
+* categorize hei2010 and slpdur;
+data data.&impds.;
+	set data.&impds.;
 
-	* SLPDUR_L8HRS;
 	if missing(SLPDUR) then SLPDUR_LT8HRS = .;
 	else if SLPDUR < 8 then SLPDUR_LT8HRS = 1;
 	else SLPDUR_LT8HRS = 0;
 	label SLPDUR_LT8HRS = 'Sleep duration (<8 hours)';
 
-	* HEI2010_C3;
 	if HEI2010 <= 50.1 then HEI2010_C3 = 1;
 	else if HEI2010 > 50.1 and HEI2010 <= 62.5 then HEI2010_C3 = 2;
 	else if HEI2010 > 62.5 then HEI2010_C3 = 3;
 	label HEI2010_C3 = '3-level Health Index Score 2010';
-
 run;
 
 title 'Contents in imputed dataset';
-proc contents data = data.&job._imputed_data_&sysdate.;
+proc contents data = data.&impds.;
 ods noproctitle;
 run;
 
 ods rtf close;
+ods listing;
 
 proc printto; run;

@@ -4,14 +4,15 @@ project:
   programmer: "Alvaro Quijano-Angarita"
   created: 2025-04-23
   description: "This project contains SAS code and outputs for Manuscript 1560, focused on maternal preconception socio-behavioral factors and child weight outcomes in the HCHS/SOL FLOR study."
-  status: "ongoing"
+  status: "completed"
+  completion_date: 2026-05-20
 
 scripts:
   - code: HC338302/HC338302.sas
     task: "Job 02 (adapted from SC HC338302): descriptive Table 1 with maternal preconception and child characteristics."
     software: SAS
     created: 2026-03-08
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338351/HC338351.sas
     task: "Job 51: builds FLOR-only and all-eligible analytic datasets for QC."
@@ -26,7 +27,7 @@ scripts:
     status: "completed"
 
   - code: HC338353/HC338353.sas
-    task: "Job 53: multiple imputation (10 imputations, n=227 main sample); child anthropometry not imputed."
+    task: "Job 53: multiple imputation (10 imputations, n=227 main sample); output HC338353_imputed_data_<datefile>; waz/bmiz in MI model; raw anthropometry not imputed."
     software: SAS
     created: 2025-11-03
     status: "completed"
@@ -65,49 +66,49 @@ scripts:
     task: "Job 61: same pooled model Table 2 structure as job 54 with response BMIZ instead of WAZ."
     software: SAS
     created: 2026-04-13
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338361a/HC338361a.sas
     task: "Job 61a: BMIZ Table 2 pipeline parallel to job 61 for the PRS-complete imputed sample."
     software: SAS
     created: 2026-04-13
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338362/HC338362.sas
     task: "Job 62: pooled linear model for WAZ with child adjusted by HAZ; Table 2.2."
     software: SAS
     created: 2026-04-13
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338362a/HC338362a.sas
     task: "Job 62a: same WAZ + HAZ adjustment as job 62 on the PRS-complete imputed sample; Table 2.2a."
     software: SAS
     created: 2026-04-13
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338363/HC338363.sas
     task: "Job 63: pooled linear model for birth weight-for-gestational-age z-score (birthwt_ga_z); produces Table 5."
     software: SAS
     created: 2026-04-27
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338363a/HC338363a.sas
     task: "Job 63a: birthwt_ga_z linear model pipeline; produces Table 5a."
     software: SAS
     created: 2026-04-27
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338364/HC338364.sas
     task: "Job 64: pooled ordinal model for child BMI category BMIPCT_C3 (normal/overweight/obese); Table 4 (main sample)."
     software: SAS
     created: 2026-04-30
-    status: "ongoing"
+    status: "completed"
 
-  - code: HC338364a/HC338364a.sas
-    task: "Job 64a: BMIPCT_C3 ordinal pipeline parallel to job 64 for the PRS-complete imputed sample; Table 4a."
+  - code: HC338364a/HC338365.sas
+    task: "Job 65: BMIPCT_C3 ordinal OR table (proportional odds; Model 4 covariates)."
     software: SAS
     created: 2026-04-30
-    status: "ongoing"
+    status: "completed"
 
   - code: HC338357/HC338357.sas
     task: "Job 57: inclusion/exclusion table for analytic sample construction."

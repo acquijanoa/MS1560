@@ -1,11 +1,11 @@
 ******************************************************************
   REQUEST:       HC3383
 
-  TITLE:         MS #1560 “Association of preconception socio-behavioral factors and child’s weight” by Siega-Riz
+  TITLE:         MS #1560 ï¿½Association of preconception socio-behavioral factors and childï¿½s weightï¿½ by Siega-Riz
 
-  DESCRIPTION:   -  Create an analytic data file for MS #1560 – “Association of preconception socio-behavioral factors 
-                   and child’s weight in the HCHS/SOL study” [Grant’s aim #2]
-                 -  The statistical analyses and tables will be done by GRA Alvaro under Daniela’s supervision.
+  DESCRIPTION:   -  Create an analytic data file for MS #1560 ï¿½ ï¿½Association of preconception socio-behavioral factors 
+                   and childï¿½s weight in the HCHS/SOL studyï¿½ [Grantï¿½s aim #2]
+                 -  The statistical analyses and tables will be done by GRA Alvaro under Danielaï¿½s supervision.
 
   MANUSCRIPT:    HCM1560
 
@@ -35,7 +35,7 @@
 					3.   Bring variables PAG2008YN and PAG2008YN_BOUT from PA_DERV_INV4
 					4.   Update &prog
 
-  NOTE:          Related: HC3139 – MS1207 [FLOR grant aim #1] Uses final INV1 data and MI
+  NOTE:          Related: HC3139 ï¿½ MS1207 [FLOR grant aim #1] Uses final INV1 data and MI
 -----------------------------------------------------------------
   INPUT:         J:\HCHS\SC\Sasdata\INV_Use\Consolidated\PART_DERV_INV4
                                                          LABA_INV4
@@ -82,7 +82,7 @@ libname encrp "J:\HCHS\SC\SASDATA\Encrypted_IDs";
 libname transid 'J:\HCHS\SC\SASDATA\Transfer_IDS';
 
 
-%let home = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\SC\Continuation #3;
+%let home = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\SC\Continuation #3;
 libname mylib "&home.";
 
 

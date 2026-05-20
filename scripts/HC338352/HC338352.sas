@@ -1,6 +1,6 @@
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
-proc printto log="&homepath.\code\HC338352\HC338352_&sysdate..log" 
-	print = "&homepath.\code\HC338352\HC338352_&sysdate..lst" new; 
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
+proc printto log="&homepath.\scripts\HC338352\HC338352_&sysdate..log" 
+	print = "&homepath.\scripts\HC338352\HC338352_&sysdate..lst" new; 
 run;
 
 /*********************************************************
@@ -11,7 +11,7 @@ run;
 *                                                        *
 *  PROGRAM NAME: HC338352.sas
 *                                       
-*  PROGRAMMER: Álvaro Quijano (AQ)
+*  PROGRAMMER: Alvaro Quijano (AQ)
 *
 *  DESCRIPTION: Imputation model
 				
@@ -41,6 +41,7 @@ run;
 							 response is set back to WAZ
 							 update hei2010 to hei2010_c3
 					12nov25: update input dataset to *_12nov25
+					20may26: update input dataset to *_20may26
 				
 * ----------------------------------------------------------
 *
@@ -60,12 +61,13 @@ libname hc3383 'J:\HCHS\SC\Review\HC3383';
 * Set macro variables; 
 %let job = HC338352;
 %let prg = AQA;
-%let data = data.hc338351_flor_12nov25;
+%let datefile = 20may26;
+%let data = data.hc338351_flor_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\code\&job.\&job._misspattern_&sysdate..rtf" bodytitle style=manuscrt;
+ods rtf file = "&homepath\scripts\&job.\&job._misspattern_&sysdate..rtf" bodytitle style=manuscrt;
 ods noproctitle;
 * Maternal socio-demographic and acu;
  title1 J=center height=12pt bold font='TIMES ROMAN' "MS#1560 SOL/FLOR preconceptional factors and child weight" ;

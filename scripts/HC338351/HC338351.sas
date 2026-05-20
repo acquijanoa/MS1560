@@ -1,6 +1,6 @@
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
-proc printto log="&homepath.\code\HC338351\HC338351_&sysdate..log" 
-	print = "&homepath.\code\HC338351\HC338351_&sysdate..lst" new; 
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
+proc printto log="&homepath.\scripts\HC338351\HC338351_&sysdate..log" 
+	print = "&homepath.\scripts\HC338351\HC338351_&sysdate..lst" new; 
 run;
 
 /*********************************************************
@@ -11,7 +11,7 @@ run;
 *                                                        *
 *  PROGRAM NAME: HC338351.sas
 *                                       
-*  PROGRAMMER: Álvaro Quijano (AQ)
+*  PROGRAMMER: ï¿½lvaro Quijano (AQ)
 *
 *  DESCRIPTION: 
 				
@@ -72,7 +72,7 @@ proc means data = floriu.FLOR_PART_DERV_IU2 mean q1 median q3 min max ;
 run; quit;
 
 * include macros;
-%include "J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\code\HC338391\HC3383_anonymize_db.sas";
+%include "&homepath.\scripts\HC338391\HC3383_anonymize_db.sas";
 
 * Set macro variables; 
 %let pw = los_shch;
@@ -125,14 +125,14 @@ proc sort data = &output_dataset; by id; run;
 proc sort data = &output_dataset2; by id; run;
 
 * print the contents; 
-ods rtf file = "&homepath.\code\&job\contents_flor_&sysdate..rtf";
+ods rtf file = "&homepath.\scripts\&job\contents_flor_&sysdate..rtf";
 	proc contents data = &output_dataset; 
 		ods noproctitle;
 	run;
 ods rtf close;
 
 * print the contents; 
-ods rtf file = "&homepath.\code\&job\contents_all_&sysdate..rtf";
+ods rtf file = "&homepath.\scripts\&job\contents_all_&sysdate..rtf";
 	proc contents data = &output_dataset2; 
 		ods noproctitle;
 	run;

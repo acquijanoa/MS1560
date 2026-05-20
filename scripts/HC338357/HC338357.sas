@@ -1,52 +1,67 @@
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560; 
+%let req = HC3383;
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = HC338357;
-proc printto log="&homepath.\code\&job.\&job._&sysdate..log" 
-	print = "&homepath.\code\&job.\&job._&sysdate..lst" new; 
+%let datefile = 20may26;
+proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
+	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
 
-/**********************************************************
+/*********************************************************
 *                                                         *
-*  				SAS PROGRAM								  *
+*  SAS PROGRAM - JOB HC338357                             *
 *                                                         *
-***********************************************************
+**********************************************************
 *                                                         *
-*  Program name: HC338357.sas
-*                                       
-*  Programmer: Álvaro Quijano (AQ)
+*  PROGRAM NAME: HC338357.sas
 *
-*  Description: 
+*  PROGRAMMER:  Alvaro Quijano (AQA)
+*
+*  TITLE:        Inclusion/exclusion flow for analytic sample
+*
+*  DESCRIPTION:  Sequential inclusion/exclusion counts for FLOR
+*                MS1560 analytic sample construction; missing-data
+*                pattern for covariates on PRS-complete anthro subset.
+*
+*  MANUSCRIPT:   MS1560
 *
 * ---------------------------------------------------------
 *
-*  Job Number: hc338357
+*  JOB NUMBER:   HC338357
 *
-*  LANGUAGE: SAS 9.4
+*  PREVIOUS JOB:  HC338351
 *
-*  VERSION CONTROL: 
-*					03nov25: create the file
-							 exclude bmi, anta10a and height
-					04nov25: update input dataset
-							 drop agg_ment, agg_phys, povpct
-								income_c2	
-							 use yrs_btwn_v1flor instead of yrsv1flor
+*  LANGUAGE:     SAS 9.4
+*
+*  DATE:          03nov25
+*
+*  VERSION CONTROL:
+*       03nov25: Create the file
+*                Exclude bmi, anta10a and height from covariate list
+*       04nov25: Update input dataset
+*                Drop agg_ment, agg_phys, povpct, income_c2
+*                Use yrs_btwn_v1flor instead of yrsv1birth
+*       20may26: Update input dataset to *_20may26
 *
 * ----------------------------------------------------------
 *
-*  INPUT: &homepath.\data\hc338351_flor_19aug25
-*                                        
-*  OUTPUT: &homepath.\code\hc338357\hc338357_Inclusion/exclusion_&sysdate..rtf
+*  INPUT:  HC338351_flor_&datefile..sas7bdat
+*
+*  OUTPUT: &job._Inclusion_&sysdate..rtf
 *
 **********************************************************/
-options nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173 orientation=landscape; 
+options nodate formchar="|----|+|---+=|-/\<>*" nonumber ps=59 ls=173 orientation=landscape;
 ods escapechar '^';
 
-* Set libraries name; 
+* Set libraries;
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
-* Set macro variables;
+* Define macro variables;
 %let prg = AQA;
-%let db_in = data.hc338351_flor_04nov25;
+%let db_in = data.hc338351_flor_&datefile.;
+
+* Set footnote;
+footnote "&sysdate -- &job (&prg)";
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 
@@ -126,7 +141,7 @@ run;
 * Write RTF file;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath.\code\&job.\&job._Inclusion_&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath.\scripts\&job.\&job._Inclusion_&sysdate..rtf" style = manuscrt bodytitle;
 footnote j=center HEIGHT=10pt FONT='times roman' "covariates: yrs_btwn_v1flor, slpdur, hei2010, cesd10, stai10, parity_v1, pct_mvpa, employedyn, n_hc, current_smoker, alcohol_use, yrsus_c3, education_c3 and marital_status";
 footnote2 j=left HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR data on %sysfunc(today(), date9.) at %sysfunc(time(), timeampm.) }";
 * Print RTF report;

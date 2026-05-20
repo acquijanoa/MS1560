@@ -1,0 +1,159 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+5          
+6          /*********************************************************
+7          *                                                         *
+8          *  SAS PROGRAM - QC DATASET JOB HC3383 					         *
+9          *                                                        *
+10         **********************************************************
+11         *                                                        *
+12         *  PROGRAM NAME: HC338352.sas
+13         *
+14         *  PROGRAMMER: Alvaro Quijano (AQ)
+15         *
+16         *  DESCRIPTION: Imputation model
+17         				
+18         *
+19         * ---------------------------------------------------------
+20         *
+21         *  JOB NUMBER: HC338352
+22         *
+23         *  PREVIOUS JOB:
+24         *
+25         *  LANGUAGE: SAS 9.4
+26         *
+27         *  VERSION CONTROL:
+28         					22apr25: (HC338351) Creates the file
+29         					23apr25: update input dataset to 0423
+2                                                          The SAS System                              09:09 Wednesday, May 20, 2026
+
+30         					12may25: updated to use the SC dataset from HC3383
+31         					13may25: income_c2 included in the 1st output table
+32         					23jun25: update input dataset (*_23jun25)
+33         								include slpdur variable in missing pattern table
+34         					19aug25: update input dataset to *_19aug25
+35         					02sep25: update response to be birthwt_ga_z and not WAZ
+36         					04nov25: update input dataset to *_04nov25
+37         							 add slpdur_lt8hrs and pag2008yn to table
+38         							 drop slpdur and pct_mvpar from table
+39         							 drop anthropometrics (bmi, anta10a and height) from analysis
+40         							 drop income_c2, povpct, agg_ment and agg_phys from table
+41         							 response is set back to WAZ
+42         							 update hei2010 to hei2010_c3
+43         					12nov25: update input dataset to *_12nov25
+44         					20may26: update input dataset to *_20may26
+45         				
+46         * ----------------------------------------------------------
+47         *
+48         *  INPUT: hc338351_flor_ddmmyy
+49         *
+50         *  OUTPUT: &job._missing_pattern_&sysdate..rtf file
+51         *
+52         **********************************************************/
+53         options orientation = landscape nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173;
+54         ods escapechar '^';
+55         
+56         * Set libraries name;
+57         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\data
+58         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+59         libname hc3383 'J:\HCHS\SC\Review\HC3383';
+NOTE: Library HC3383 does not exist.
+60         
+61         * Set macro variables;
+62         %let job = HC338352;
+63         %let prg = AQA;
+64         %let datefile = 20may26;
+65         %let data = data.hc338351_flor_&datefile.;
+66         %let lf_margin = 0.7in;
+67         %let rg_margin = 0.7in;
+68         
+69         ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+70         ods rtf file = "&homepath\scripts\&job.\&job._misspattern_&sysdate..rtf" bodytitle style=manuscrt;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\scripts\HC338352\HC338352_misspattern_20MAY26.rtf
+71         ods noproctitle;
+72         * Maternal socio-demographic and acu;
+73          title1 J=center height=12pt bold font='TIMES ROMAN' "MS#1560 SOL/FLOR preconceptional factors and child weight" ;
+74                  title3 J=center height=11pt bold font='TIMES ROMAN' 'Confidential/Not for distribution';
+75                  title5 J=center height=12pt bold font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} Table 0.  Missing patterns of sociodemographic and
+75       !  acculturation factors and child weight among Hispanic/Latina mother-child dyads in the HCHS/SOL Study";
+76                  footnote1 J=left height=10pt font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} Variables BKGRD1_C7, AGE and LANG_PREF are not
+76       ! included since have no missing data";
+                                                                               The SAS System
+
+77         		 footnote2 J=left height=10pt font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} Abbrev: weight-for-age z-score (WAZ), health coverage
+77       ! (N_HC), years in the US (YRSUS).";
+78         		 footnote3 J=center height=10pt font='TIMES ROMAN' "&sysdate, &systime -- &job (&prg) using V1 and FLOR inv_use data";
+79         	
+79       !  proc mi data = &data nimpute = 0 displaypattern=nomeans;
+80         		ods noproctitle;
+81         		ods select MissPattern;
+82         		var waz parity_v1 marital_status employedyn education_c3 yrsus_c3 n_hc;
+83         	run;
+
+NOTE: PROCEDURE MI used (Total process time):
+      real time           0.13 seconds
+      cpu time            0.01 seconds
+      
+NOTE: The PROCEDURE MI printed page 1.
+
+84         
+85         * Physical and mental health, anthropometry;
+86          title1 J=center height=12pt bold font='TIMES ROMAN' "MS#1560 SOL/FLOR preconceptional factors and child weight" ;
+87                  title3 J=center height=11pt bold font='TIMES ROMAN' 'Confidential/Not for distribution';
+88                  title5 J=center height=12pt bold font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} Table 0.  Missing patterns of anthropometry and
+88       ! physical and mental health factors and child weight among Hispanic/Latina mother-child dyads in the HCHS/SOL Study";
+89                  footnote1 J=left height=10pt font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} The variable STAI10 was not updated for participants
+89       ! born after Visit 2, since it was not measured at that visit.";
+90         		 footnote2 J=left height=10pt font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} Abbrev: weight-for-age z-score (WAZ), 10-items state-trait
+90       ! anxiety inventory (STAI10), Center for Epidemiologic Studies Depression Scale (CESD-10)";
+91         		 footnote3 J=center height=10pt font='TIMES ROMAN' "&sysdate, &systime -- &job (&prg) using V1 and FLOR inv_use data";
+92         	
+92       !  proc mi data = &data nimpute = 0 displaypattern=nomeans;
+93         		ods noproctitle;
+94         		ods select MissPattern;
+95         		var waz cesd10 stai10;
+96         	run;
+
+NOTE: PROCEDURE MI used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.01 seconds
+      
+NOTE: The PROCEDURE MI printed page 2.
+
+97         
+98         * Maternal Health behaviors;
+99          title1 J=center height=12pt bold font='TIMES ROMAN' "MS#1560 SOL/FLOR preconceptional factors and child weight" ;
+100                 title3 J=center height=11pt bold font='TIMES ROMAN' 'Confidential/Not for distribution';
+101                 title5 J=center height=12pt bold font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} Table 0.  Missing patterns of maternal health
+101      ! behaviors factors and child weight among Hispanic/Latina mother-child dyads in the HCHS/SOL Study";
+102                 footnote1 J=left height=10pt font='TIMES ROMAN' "^S={leftmargin=&lf_margin rightmargin=&rg_margin} Abbrev: weight-for-age z-score (WAZ), health eating
+102      ! index 2010 (HEI2010), sleep duration (SLPDUR) and Physical actitivity meets 2008 guidelines (PAG2008).";
+103        		 footnote2 J=center height=10pt font='TIMES ROMAN' "&sysdate, &systime -- &job (&prg) using V1 and FLOR inv_use data";
+104        	
+104      !  proc mi data = &data nimpute = 0 displaypattern=nomeans;
+105        		ods noproctitle;
+106        		ods select MissPattern;
+107        		var waz current_smoker hei2010_c3 alcohol_use pag2008yn slpdur_lt8hrs;
+108        	run;
+
+NOTE: PROCEDURE MI used (Total process time):
+                                                                               The SAS System
+
+      real time           0.08 seconds
+      cpu time            0.01 seconds
+      
+NOTE: The PROCEDURE MI printed page 3.
+
+109        
+110        ods rtf close;
+111        proc printto; run;
+

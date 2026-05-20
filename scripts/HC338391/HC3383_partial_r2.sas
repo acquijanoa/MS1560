@@ -2,7 +2,7 @@
 
   /* 1. Define the variables to loop through */
   %if %superq(class_vars)= %then %let class_test = bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc 
-                    yrsus_c3 current_smoker alcohol_use pag2008yn hei2010_c3 cesd10 stai10 centernum;
+                    yrsus_c3 cigarette_use alcohol_use pag2008yn hei2010_c3 cesd10 stai10 centernum;
   %else %let class_test = &class_vars;
 
   %if %superq(cont_vars)= %then %let cont_test  = age parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
@@ -25,7 +25,7 @@
     /* KEEP FORMATS: Vital to prevent continuous/categorical mismatches */
     format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
            marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
   run;
   
@@ -39,6 +39,7 @@
   /* 3. Create an empty master dataset with ALL variables defined */
   data all_partial_r2;
     length Dropped_Var $32;
+    Dropped_Var = '';
     _imputation_ = .;
     SSE_F = .;
     SSE_R = .;
@@ -87,7 +88,7 @@
       /* Safely leave all formats here; SAS ignores formats for variables not in the model */
       format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
             marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
-            education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. current_smoker yn_fmt.
+            education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
             pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
     run;
     

@@ -1,14 +1,13 @@
-%let homepath=J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+%let homepath=J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %LET req=HC3383;
 %LET job=&req.02;
-%let datefile= 12nov25;
-proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" print=
-    "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
+%let datefile= 20may26;
+proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" print= "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
 ******************************************************************
   REQUEST:       HC3383
 
-  TITLE:         MS#1560 aAssociation of preconception socio-behavioral factors and child�s weight� by Siega-Riz
+  TITLE:         MS#1560 Association of preconception socio-behavioral factors and child's weight by Siega-Riz
 
   DESCRIPTION:   -  Create an analytic data file for MS #1560 "Association of preconception socio-behavioral factors 
                    and child's weight in the HCHS/SOL studies [Grant's aim #2]
@@ -37,13 +36,13 @@ run;
                     	Include the categories from the data dictionary for the categorical variables.
                     	Use job HC3131903 as starting point but using the variables relavant to this manuscript
 					
-				29apr26 (AQA)
+				20may26 (AQA)
 						update label to 'Health Insurance' instead of 'Healthcare access'.
 						include child bmi (groups) and cigarette_use in Table 1
 						exclude current_smoker 
 				
 				05may26	(AQA)
-						update input dataset to 29apr26
+						update input dataset to 20may26
 						uses flag variable keep_ms1560 instead of flor_dyad
 						add complete/incomplete anthropometry to the table's header
 
@@ -434,7 +433,7 @@ run;
 %categorical(BKGRD1_C7NOMISS,4,&y Puerto Rican,BKGRD1_C7NOMISS gt .z,2) 
 %categorical(BKGRD1_C7NOMISS,5,&y South American,BKGRD1_C7NOMISS gt .z,2) 
 %categorical(BKGRD1_C7NOMISS,1,&y Central American,BKGRD1_C7NOMISS gt .z,2) 
-%categorical(BKGRD1_C7NOMISS,6,&y Mixed/Other/Missing,BKGRD1_C7NOMISS gt .z,2)
+%categorical(BKGRD1_C7NOMISS,6,&y Other heritage,BKGRD1_C7NOMISS gt .z,2)
 %continuous(PARITY_V1,Parity,PARITY_V1 gt .z )
 %categorical(EDUCATION_C3,1,&y Less than high school,EDUCATION_C3 gt .z,1)
 %categorical(EDUCATION_C3,2,&y High school graduate,EDUCATION_C3 gt .z,1)

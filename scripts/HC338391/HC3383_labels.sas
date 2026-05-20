@@ -49,6 +49,7 @@
     if variable = 'LANG_PREF_SPANISH' then do; label = "^S={indent=2mm} Spanish"; order = 7.1; end;
 	if variable = 'MARITAL_STATUS_SINGLE' then do; label = "{\b Marital status \b0 \line \li250   Single}"; order = 8; ESTIMATE = 99; std = 99; pv = 5; end;
 	if variable = 'MARITAL_STATUS_COHABITING' then do; label = "^S={indent=2mm} Married or Living w/ partner"; order = 8.1; end;
+	if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do; label = "^S={indent=2mm} Cohabiting, separated, other"; order = 8.1; end;
 	if variable = 'MARITAL_STATUS_SEPARATED' then do; label = "^S={indent=2mm} Separated, divorced or widow(er)"; order = 8.2; end;
 	if variable = 'PARITY_V1' then do; label = "{\b Parity \b0 \li250}"; order = 9; end;
 	if variable = 'POVPCT' then do; label = "{\b Household income as % of poverty \b0 \li250}"; order = 10; end;

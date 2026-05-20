@@ -1,7 +1,7 @@
 %let req=HC3383;
-%let homepath=J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+%let homepath=J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job=&req.54a;
-%let datefile=29apr26;
+%let datefile = 20may26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
 	print="&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
@@ -16,7 +16,7 @@ run;
  *
  *  PROGRAMMER: Alvaro Quijano (AQ)
  *
- *  DESCRIPTION: Imputation model
+ *  DESCRIPTION: Pooled linear model for child WAZ (Table 2.1a); Models 1-4
 
  *
  * ---------------------------------------------------------
@@ -36,25 +36,28 @@ run;
 								portrait orientation
 							 LOW is the ref value for HEI2010_C3 now
 					09mar26: include %variance in Table
+
 					29apr26: update input daefile to 29apr26 (updated imputation model)
+
 					05may26: renamed to T2.1a (include macro variable table_num)
+
+					20may26: input dataset was updated to *.20may26
 
  * ----------------------------------------------------------
  *
 *  INPUT: HC338353a_imputed_data_&datefile;
  *
- *  OUTPUT:
+ *  OUTPUT: &job._Table&table_num._&sysdate..rtf
  *
  **********************************************************/
-options orientation=portrait nodate formchar="|----|+|---+=|-/\<>*" nonumber
-	PS=59 LS=173;
+options orientation=portrait nodate nonumber nocenter formchar="|----|+|---+=|-/\<>*" ps=59 ls=174 varinitchk=error mprint validvarname=upcase;
 ods escapechar '^';
 
 * Set libraries name;
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
-* Set macro variables;
+* Define macro variables;
 %let prg=AQA;
 %let impdb=data.HC338353a_imputed_data_&datefile.;
 %let lf_margin=0.7in;
@@ -67,7 +70,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
 %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
 
-* define macro variables;
+* Define macro variables;
 %let pr2_class_vars=bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
 	yrsus_c3 cigarette_use alcohol_use pag2008yn hei2010_c3 cesd10 stai10
 	centernum;
@@ -220,7 +223,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file="&homepath\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style=manuscrt
+ods rtf file="&homepath.\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style=manuscrt
 	bodytitle;
 %let fs=11pt;
 %let fs_body=11pt;

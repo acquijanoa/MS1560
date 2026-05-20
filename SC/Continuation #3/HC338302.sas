@@ -52,11 +52,11 @@ options ps=59 ls=max nodate nonumber mprint errors=50;
 footnote2 "Job &job run by &prog on &SYSDATE at &SYSTIME";
 ods escapechar '^';
 
-%let home = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\SC\Continuation #3; * updated ;
+%let home = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\SC\Continuation #3; * updated ;
 libname mylib "&home.";
 libname flor 'J:\HCHS\SC\Sasdata\Ancillary\SOL FLOR\INV_Use\Datasets';
 
-%let workspace =J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560\SC\Continuation #3; * updated ;
+%let workspace =J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\SC\Continuation #3; * updated ;
 
 data all;
     set mylib.HC338301_ALL;

@@ -1,7 +1,7 @@
 %let req=HC3383;
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = &req.54;
-%let datefile = 29apr26;
+%let datefile = 20may26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
 	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
@@ -15,7 +15,7 @@ run;
 *                                       
 *  PROGRAMMER: Alvaro Quijano (AQ)
 *
-*  DESCRIPTION: Imputation model
+*  DESCRIPTION: Pooled linear model for child WAZ (Table 2.1); Models 1-4
 				
 *
 * ---------------------------------------------------------
@@ -54,21 +54,23 @@ run;
 
 					05may26: renamed to T2.1 (include macro variable table_num)				
 
+					20may26: update input dataset to *_20may26 (HC338353 imputed)
+
 * ----------------------------------------------------------
 *
-*  INPUT: HC338353_imputed_data_&datefile
+*  INPUT: HC338353_imputed_data_&datefile..sas7bdat
 *                                        
-*  OUTPUT: 
+*  OUTPUT: &job._Table&table_num._&sysdate..rtf
 *
 **********************************************************/
-options orientation = portrait nodate formchar = "|----|+|---+=|-/\<>*" nonumber PS=59 LS=173; 
+options orientation=portrait nodate nonumber nocenter formchar="|----|+|---+=|-/\<>*" ps=59 ls=174 varinitchk=error mprint validvarname=upcase; 
 ods escapechar '^';
 
 * Set libraries name; 
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
-* Set macro variables;
+* Define macro variables;
 %let prg = AQA;
 %let impdb = data.HC338353_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
@@ -223,7 +225,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file = "&homepath\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style = manuscrt bodytitle;
+ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style = manuscrt bodytitle;
 %let fs = 11pt;
 %let fs_body = 11pt;
 %let fs_titles = 11pt;

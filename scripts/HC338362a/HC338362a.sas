@@ -1,7 +1,7 @@
 %let req=HC3383;
-%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\FLOR\MS1560;
+%let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = &req.62a;
-%let datefile = 29apr26;
+%let datefile = 20may26;
 
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" print=
 	"&homepath.\scripts\&job.\&job._&sysdate..lst" new;
@@ -35,6 +35,7 @@ run;
  *							 impdb uses &datefile; printto/ODS use &job.
  *					29apr26: update imputed dataset to 29apr26 and replace
  *							 current_smoker with cigarette_use (models 2-4).
+ *					20may26: update input dataset to *_20may26
  *
  * ----------------------------------------------------------
  *
@@ -43,15 +44,14 @@ run;
  *  OUTPUT:
  *
  **********************************************************/
-options orientation=portrait nodate formchar="|----|+|---+=|-/\<>*" nonumber
-	PS=59 LS=173;
+options orientation=portrait nodate nonumber nocenter formchar="|----|+|---+=|-/\<>*" ps=59 ls=174 varinitchk=error mprint validvarname=upcase;
 ods escapechar '^';
 
 * Set libraries name;
 libname data "&homepath.\data";
 libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
-* Set macro variables;
+* Define macro variables;
 %let prg=AQA;
 %let impdb=data.HC338353a_imputed_data_&datefile.;
 %let lf_margin=0.7in;
@@ -63,7 +63,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
 %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
 
-* define macro variables;
+* Define macro variables;
 %let pr2_class_vars=bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
 	yrsus_c3 cigarette_use alcohol_use pag2008yn hei2010_c3 cesd10 stai10
 	centernum;
@@ -216,7 +216,7 @@ quit;
 * Print final report;
 ods listing close;
 ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-ods rtf file="&homepath\scripts\&job.\&job._Table2_&sysdate..rtf" style=manuscrt
+ods rtf file="&homepath.\scripts\&job.\&job._Table2_&sysdate..rtf" style=manuscrt
 	bodytitle;
 %let fs=11pt;
 %let fs_body=11pt;

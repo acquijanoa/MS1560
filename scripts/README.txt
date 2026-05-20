@@ -135,9 +135,22 @@ JOB:
 	input: hc338353a_imputed_data_ddmmyy.sas7bdat
 	output: HC338363a_Table2_ddmmyy.rtf
 	response: birthwt_ga_z
-	Table: 4
+	Table: 4a
 	
+65:  Ordinal Regression model [n=227]
+	note: Same model as job 54
+	input: hc338353_imputed_data_ddmmyy.sas7bdat
+	output: HC338363_Table2_ddmmyy.rtf
+	response: birthwt_ga_z
+	Table: 4.1
 
+65a: Ordinal Regression model [n=201]
+	note: Same model as job 54a
+	input: hc338353a_imputed_data_ddmmyy.sas7bdat
+	output: HC338363a_Table2_ddmmyy.rtf
+	response: birthwt_ga_z
+	Table: 4.1a
+	
 ### Miscellaneous ### 	
 
 02: Descriptive Table 1 (taken and adapted from SC - HC338302)
