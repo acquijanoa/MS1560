@@ -1,6 +1,5 @@
 /data
 *.sas7bdat
-/docs
 **/old_files/
 /gplot
 **/gplot/
