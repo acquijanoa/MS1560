@@ -36,6 +36,9 @@
 	if variable = 'BKGRD1_C7NOMISS_C_AMERICAN' THEN DO; LABEL = "^S={indent=2mm} Central American"; ORDER = 2.4; END;
 	if variable = 'BKGRD1_C7NOMISS_SOUTH' THEN DO; LABEL = "^S={indent=2mm} South American"; ORDER = 2.5; END;
 	if variable = 'BKGRD1_C7NOMISS_BK_OTHER' THEN DO; LABEL = "^S={indent=2mm} Other heritage"; ORDER = 2.6; END;
+	if variable = 'BKGRD1_C3NOMISS_MEXICAN' THEN DO; LABEL = "{\b Hispanic/Latino Background \b0 \line \li250   Mexican}"; ORDER = 2; ESTIMATE = 99; STD = 99; pv = 5; END;
+	if variable = 'BKGRD1_C3NOMISS_CARIBBEAN' THEN DO; LABEL = "^S={indent=2mm} Caribbean"; ORDER = 2.1; END; 
+	if variable = 'BKGRD1_C3NOMISS_SC_OTHER' THEN DO; LABEL = "^S={indent=2mm} Central and South America/Other"; ORDER = 2.2; END;
 	if variable = "N_HC_NO" THEN DO; LABEL = "{\b Health Insurance \line \b0 \li250   No}"; ORDER=3; ESTIMATE = 99; STD=99; pv = 5; END;
 	if variable = "N_HC_YES" THEN DO; LABEL = "^S={indent=2mm} Yes"; ORDER=3.1; END; 
 	if variable = 'EDUCATION_C3_N_HIGHSCHOOL_GED' then do; label = "{\b Education \b0 \line \li250   Less than high school}"; order = 4; ESTIMATE = 99; STD = 99; pv = 5; end;
@@ -88,7 +91,7 @@
 	if variable = 'HEI2010_C3_MEDIUM' then do; label = "^S={indent=2mm} Medium (>50.1-60.5)"; order = 0.01602; end;
 	if variable = 'HEI2010_C3_HIGH' then do; label = "^S={indent=2mm} High (>60.5)"; order = 0.01603; end;
 	if variable = 'PCT_MVPA' then do; label = "{\b % Time in MVPA \b0}"; order = 0.017; end;
-	if variable = 'SLPDUR' then do; label = "{\b Sleeping duration (hrs/day) \b0}"; order = 0.018; end;
+	if variable = 'SLPDUR' then do; label = "{\b Sleeping duration (>8 hrs/day) \b0}"; order = 0.018; end;
 	if variable = "PAG2008YN_YES" then do; label = "{\b Meets 2008 PA guidelines \b0 \line \li250   Yes}"; order = 0.019; ESTIMATE = 99; std = 99; pv = 5; end;
 	if variable = "PAG2008YN_NO" then do; label = "^S={indent=2mm} No"; order = 0.020; end;
 	if variable = 'SLPDUR_LT8HRS_<8_hours' then do; label =  "{\b Sleep duration \b0 \line \li250   Less than 8 hours}"; order = 0.021; ESTIMATE = 99; std = 99; pv = 5; end;

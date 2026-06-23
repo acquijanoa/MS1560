@@ -8,6 +8,10 @@ PROC FORMAT;
 	    4 = "P_RICAN"
 	    5 = "SOUTH"
 		6 = "BK_OTHER";
+	VALUE BKGRD1_C3NOMISS_FMT
+		1 = "MEXICAN"
+		2 = "CARIBBEAN"
+	    3 = "SC_OTHER";
 	VALUE PV
 		1 = '***'
 		2 = '**'
