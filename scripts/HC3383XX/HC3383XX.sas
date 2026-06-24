@@ -18,7 +18,7 @@
 *
 *  HISTORY:      03nov25: Initial centralized format definitions.
 *                24jun26: Rename from HC338390 to HC3383XX.
-*                update marital_status level 3 to collapsed category
+*                Collapse marital status to 2 categories (single/separated/other vs cohabiting).
 *
 *-----------------------------------------------------------------
 *  INPUT:        None 
@@ -65,9 +65,9 @@ PROC FORMAT;
 		2 = "COHABITING"
 		3 = "SEPARATED";
 	VALUE MARITAL_STATUS_C2_FMT
-		1 = "SINGLE"
-		2 = "COHABITING/SEPARATED"
-		3 = "COHABITING/SEPARATED";
+		1 = "SINGLE_OTHER"
+		2 = "COHABITING"
+		3 = "SINGLE_OTHER";
 	VALUE EDUCATION_C3_FMT
 		1 = "N_HIGHSCHOOL_GED"
 		2 = "AT_MOST_HIGHSCHOOL_GED"

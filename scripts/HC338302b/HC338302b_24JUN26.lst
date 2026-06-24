@@ -76,8 +76,8 @@
                                                                                           Data Set Name        WORK.SUFFIX                   Observations          6 
                                                                                           Member Type          DATA                          Variables             2 
                                                                                           Engine               V9                            Indexes               0 
-                                                                                          Created              06/24/2026 12:39:54           Observation Length    28
-                                                                                          Last Modified        06/24/2026 12:39:54           Deleted Observations  0 
+                                                                                          Created              06/24/2026 14:13:41           Observation Length    28
+                                                                                          Last Modified        06/24/2026 14:13:41           Deleted Observations  0 
                                                                                           Protection                                         Compressed            NO
                                                                                           Data Set Type                                      Sorted                NO
                                                                                           Label                                                                      
@@ -87,19 +87,19 @@
 
                                                                                                                Engine/Host Dependent Information
 
-                                                                  Data Set Page Size          65536                                                                                          
-                                                                  Number of Data Set Pages    1                                                                                              
-                                                                  First Data Page             1                                                                                              
-                                                                  Max Obs per Page            2329                                                                                           
-                                                                  Obs in First Data Page      6                                                                                              
-                                                                  Number of Data Set Repairs  0                                                                                              
-                                                                  ExtendObsCounter            YES                                                                                            
-                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD6368_GENERALUSE-03_\suffix.sas7bdat
-                                                                  Release Created             9.0401M8                                                                                       
-                                                                  Host Created                W32_WIN+PRO                                                                                    
-                                                                  Owner Name                  CSCC\acquijanoa                                                                                
-                                                                  File Size                   128KB                                                                                          
-                                                                  File Size (bytes)           131072                                                                                         
+                                                                  Data Set Page Size          65536                                                                                           
+                                                                  Number of Data Set Pages    1                                                                                               
+                                                                  First Data Page             1                                                                                               
+                                                                  Max Obs per Page            2329                                                                                            
+                                                                  Obs in First Data Page      6                                                                                               
+                                                                  Number of Data Set Repairs  0                                                                                               
+                                                                  ExtendObsCounter            YES                                                                                             
+                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD13992_GENERALUSE-02_\suffix.sas7bdat
+                                                                  Release Created             9.0401M8                                                                                        
+                                                                  Host Created                W32_WIN+PRO                                                                                     
+                                                                  Owner Name                  CSCC\acquijanoa                                                                                 
+                                                                  File Size                   128KB                                                                                           
+                                                                  File Size (bytes)           131072                                                                                          
 
 
                                                                                                           Alphabetic List of Variables and Attributes
@@ -312,8 +312,8 @@
                                                                                           Data Set Name        WORK.SUFFIX                   Observations          6 
                                                                                           Member Type          DATA                          Variables             2 
                                                                                           Engine               V9                            Indexes               0 
-                                                                                          Created              06/24/2026 12:39:55           Observation Length    28
-                                                                                          Last Modified        06/24/2026 12:39:55           Deleted Observations  0 
+                                                                                          Created              06/24/2026 14:13:42           Observation Length    28
+                                                                                          Last Modified        06/24/2026 14:13:42           Deleted Observations  0 
                                                                                           Protection                                         Compressed            NO
                                                                                           Data Set Type                                      Sorted                NO
                                                                                           Label                                                                      
@@ -323,19 +323,19 @@
 
                                                                                                                Engine/Host Dependent Information
 
-                                                                  Data Set Page Size          65536                                                                                          
-                                                                  Number of Data Set Pages    1                                                                                              
-                                                                  First Data Page             1                                                                                              
-                                                                  Max Obs per Page            2329                                                                                           
-                                                                  Obs in First Data Page      6                                                                                              
-                                                                  Number of Data Set Repairs  0                                                                                              
-                                                                  ExtendObsCounter            YES                                                                                            
-                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD6368_GENERALUSE-03_\suffix.sas7bdat
-                                                                  Release Created             9.0401M8                                                                                       
-                                                                  Host Created                W32_WIN+PRO                                                                                    
-                                                                  Owner Name                  CSCC\acquijanoa                                                                                
-                                                                  File Size                   128KB                                                                                          
-                                                                  File Size (bytes)           131072                                                                                         
+                                                                  Data Set Page Size          65536                                                                                           
+                                                                  Number of Data Set Pages    1                                                                                               
+                                                                  First Data Page             1                                                                                               
+                                                                  Max Obs per Page            2329                                                                                            
+                                                                  Obs in First Data Page      6                                                                                               
+                                                                  Number of Data Set Repairs  0                                                                                               
+                                                                  ExtendObsCounter            YES                                                                                             
+                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD13992_GENERALUSE-02_\suffix.sas7bdat
+                                                                  Release Created             9.0401M8                                                                                        
+                                                                  Host Created                W32_WIN+PRO                                                                                     
+                                                                  Owner Name                  CSCC\acquijanoa                                                                                 
+                                                                  File Size                   128KB                                                                                           
+                                                                  File Size (bytes)           131072                                                                                          
 
 
                                                                                                           Alphabetic List of Variables and Attributes
@@ -517,15 +517,15 @@
                                                                                                               Row Pct  ‚
                                                                                                               Col Pct  ‚       0‚       1‚  Total
                                                                                                               ƒƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆ
-                                                                                                                     1 ‚    152 ‚     95 ‚    247
-                                                                                                                       ‚  27.69 ‚  17.30 ‚  44.99
-                                                                                                                       ‚  61.54 ‚  38.46 ‚
-                                                                                                                       ‚  47.06 ‚  42.04 ‚
+                                                                                                                     1 ‚    153 ‚    119 ‚    272
+                                                                                                                       ‚  27.87 ‚  21.68 ‚  49.54
+                                                                                                                       ‚  56.25 ‚  43.75 ‚
+                                                                                                                       ‚  47.37 ‚  52.65 ‚
                                                                                                               ƒƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆ
-                                                                                                                     2 ‚    171 ‚    131 ‚    302
-                                                                                                                       ‚  31.15 ‚  23.86 ‚  55.01
-                                                                                                                       ‚  56.62 ‚  43.38 ‚
-                                                                                                                       ‚  52.94 ‚  57.96 ‚
+                                                                                                                     2 ‚    170 ‚    107 ‚    277
+                                                                                                                       ‚  30.97 ‚  19.49 ‚  50.46
+                                                                                                                       ‚  61.37 ‚  38.63 ‚
+                                                                                                                       ‚  52.63 ‚  47.35 ‚
                                                                                                               ƒƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆ
                                                                                                               Total         323      226      549
                                                                                                                           58.83    41.17   100.00
@@ -537,23 +537,23 @@
 
                                                                                                      Statistic                     DF       Value      Prob
                                                                                                      ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
-                                                                                                     Chi-Square                     1      1.3557    0.2443
-                                                                                                     Likelihood Ratio Chi-Square    1      1.3580    0.2439
-                                                                                                     Continuity Adj. Chi-Square     1      1.1604    0.2814
-                                                                                                     Mantel-Haenszel Chi-Square     1      1.3533    0.2447
-                                                                                                     Phi Coefficient                       0.0497          
-                                                                                                     Contingency Coefficient               0.0496          
-                                                                                                     Cramer's V                            0.0497          
+                                                                                                     Chi-Square                     1      1.4865    0.2228
+                                                                                                     Likelihood Ratio Chi-Square    1      1.4871    0.2227
+                                                                                                     Continuity Adj. Chi-Square     1      1.2825    0.2574
+                                                                                                     Mantel-Haenszel Chi-Square     1      1.4838    0.2232
+                                                                                                     Phi Coefficient                      -0.0520          
+                                                                                                     Contingency Coefficient               0.0520          
+                                                                                                     Cramer's V                           -0.0520          
 
 
                                                                                                                       Fisher's Exact Test
                                                                                                                ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
-                                                                                                               Cell (1,1) Frequency (F)       152
-                                                                                                               Left-sided Pr <= F          0.8947
-                                                                                                               Right-sided Pr >= F         0.1407
+                                                                                                               Cell (1,1) Frequency (F)       153
+                                                                                                               Left-sided Pr <= F          0.1287
+                                                                                                               Right-sided Pr >= F         0.9042
                                                                                                                                                  
-                                                                                                               Table Probability (P)       0.0354
-                                                                                                               Two-sided Pr <= P           0.2579
+                                                                                                               Table Probability (P)       0.0329
+                                                                                                               Two-sided Pr <= P           0.2262
 
                                                                                                                        Sample Size = 549
                                                                                                                      Frequency Missing = 1
@@ -561,7 +561,7 @@
 
                                                                                                                              
                                                                                                                              ƒƒƒƒƒƒ
-                                                                                                                             0.244 
+                                                                                                                             0.223 
                                                                                                                          The SAS System
 
                                                                                                                        The FREQ Procedure
@@ -576,15 +576,15 @@
                                                                                                               Row Pct  ‚
                                                                                                               Col Pct  ‚       0‚       1‚  Total
                                                                                                               ƒƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆ
-                                                                                                                     1 ‚    152 ‚     95 ‚    247
-                                                                                                                       ‚  27.69 ‚  17.30 ‚  44.99
-                                                                                                                       ‚  61.54 ‚  38.46 ‚
-                                                                                                                       ‚  47.06 ‚  42.04 ‚
+                                                                                                                     1 ‚    153 ‚    119 ‚    272
+                                                                                                                       ‚  27.87 ‚  21.68 ‚  49.54
+                                                                                                                       ‚  56.25 ‚  43.75 ‚
+                                                                                                                       ‚  47.37 ‚  52.65 ‚
                                                                                                               ƒƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆ
-                                                                                                                     2 ‚    171 ‚    131 ‚    302
-                                                                                                                       ‚  31.15 ‚  23.86 ‚  55.01
-                                                                                                                       ‚  56.62 ‚  43.38 ‚
-                                                                                                                       ‚  52.94 ‚  57.96 ‚
+                                                                                                                     2 ‚    170 ‚    107 ‚    277
+                                                                                                                       ‚  30.97 ‚  19.49 ‚  50.46
+                                                                                                                       ‚  61.37 ‚  38.63 ‚
+                                                                                                                       ‚  52.63 ‚  47.35 ‚
                                                                                                               ƒƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆƒƒƒƒƒƒƒƒˆ
                                                                                                               Total         323      226      549
                                                                                                                           58.83    41.17   100.00
@@ -596,23 +596,23 @@
 
                                                                                                      Statistic                     DF       Value      Prob
                                                                                                      ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
-                                                                                                     Chi-Square                     1      1.3557    0.2443
-                                                                                                     Likelihood Ratio Chi-Square    1      1.3580    0.2439
-                                                                                                     Continuity Adj. Chi-Square     1      1.1604    0.2814
-                                                                                                     Mantel-Haenszel Chi-Square     1      1.3533    0.2447
-                                                                                                     Phi Coefficient                       0.0497          
-                                                                                                     Contingency Coefficient               0.0496          
-                                                                                                     Cramer's V                            0.0497          
+                                                                                                     Chi-Square                     1      1.4865    0.2228
+                                                                                                     Likelihood Ratio Chi-Square    1      1.4871    0.2227
+                                                                                                     Continuity Adj. Chi-Square     1      1.2825    0.2574
+                                                                                                     Mantel-Haenszel Chi-Square     1      1.4838    0.2232
+                                                                                                     Phi Coefficient                      -0.0520          
+                                                                                                     Contingency Coefficient               0.0520          
+                                                                                                     Cramer's V                           -0.0520          
 
 
                                                                                                                       Fisher's Exact Test
                                                                                                                ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ
-                                                                                                               Cell (1,1) Frequency (F)       152
-                                                                                                               Left-sided Pr <= F          0.8947
-                                                                                                               Right-sided Pr >= F         0.1407
+                                                                                                               Cell (1,1) Frequency (F)       153
+                                                                                                               Left-sided Pr <= F          0.1287
+                                                                                                               Right-sided Pr >= F         0.9042
                                                                                                                                                  
-                                                                                                               Table Probability (P)       0.0354
-                                                                                                               Two-sided Pr <= P           0.2579
+                                                                                                               Table Probability (P)       0.0329
+                                                                                                               Two-sided Pr <= P           0.2262
 
                                                                                                                        Sample Size = 549
                                                                                                                      Frequency Missing = 1
@@ -620,7 +620,7 @@
 
                                                                                                                              
                                                                                                                              ƒƒƒƒƒƒ
-                                                                                                                             0.244 
+                                                                                                                             0.223 
                                                                                                                          The SAS System
 
                                                                                                                        The FREQ Procedure
@@ -1070,8 +1070,8 @@
                                                                                           Data Set Name        WORK.SUFFIX                   Observations          6 
                                                                                           Member Type          DATA                          Variables             2 
                                                                                           Engine               V9                            Indexes               0 
-                                                                                          Created              06/24/2026 12:39:58           Observation Length    28
-                                                                                          Last Modified        06/24/2026 12:39:58           Deleted Observations  0 
+                                                                                          Created              06/24/2026 14:13:43           Observation Length    28
+                                                                                          Last Modified        06/24/2026 14:13:43           Deleted Observations  0 
                                                                                           Protection                                         Compressed            NO
                                                                                           Data Set Type                                      Sorted                NO
                                                                                           Label                                                                      
@@ -1081,19 +1081,19 @@
 
                                                                                                                Engine/Host Dependent Information
 
-                                                                  Data Set Page Size          65536                                                                                          
-                                                                  Number of Data Set Pages    1                                                                                              
-                                                                  First Data Page             1                                                                                              
-                                                                  Max Obs per Page            2329                                                                                           
-                                                                  Obs in First Data Page      6                                                                                              
-                                                                  Number of Data Set Repairs  0                                                                                              
-                                                                  ExtendObsCounter            YES                                                                                            
-                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD6368_GENERALUSE-03_\suffix.sas7bdat
-                                                                  Release Created             9.0401M8                                                                                       
-                                                                  Host Created                W32_WIN+PRO                                                                                    
-                                                                  Owner Name                  CSCC\acquijanoa                                                                                
-                                                                  File Size                   128KB                                                                                          
-                                                                  File Size (bytes)           131072                                                                                         
+                                                                  Data Set Page Size          65536                                                                                           
+                                                                  Number of Data Set Pages    1                                                                                               
+                                                                  First Data Page             1                                                                                               
+                                                                  Max Obs per Page            2329                                                                                            
+                                                                  Obs in First Data Page      6                                                                                               
+                                                                  Number of Data Set Repairs  0                                                                                               
+                                                                  ExtendObsCounter            YES                                                                                             
+                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD13992_GENERALUSE-02_\suffix.sas7bdat
+                                                                  Release Created             9.0401M8                                                                                        
+                                                                  Host Created                W32_WIN+PRO                                                                                     
+                                                                  Owner Name                  CSCC\acquijanoa                                                                                 
+                                                                  File Size                   128KB                                                                                           
+                                                                  File Size (bytes)           131072                                                                                          
 
 
                                                                                                           Alphabetic List of Variables and Attributes
@@ -1156,8 +1156,8 @@
                                                                                           Data Set Name        WORK.SUFFIX                   Observations          6 
                                                                                           Member Type          DATA                          Variables             2 
                                                                                           Engine               V9                            Indexes               0 
-                                                                                          Created              06/24/2026 12:39:58           Observation Length    28
-                                                                                          Last Modified        06/24/2026 12:39:58           Deleted Observations  0 
+                                                                                          Created              06/24/2026 14:13:43           Observation Length    28
+                                                                                          Last Modified        06/24/2026 14:13:43           Deleted Observations  0 
                                                                                           Protection                                         Compressed            NO
                                                                                           Data Set Type                                      Sorted                NO
                                                                                           Label                                                                      
@@ -1167,19 +1167,19 @@
 
                                                                                                                Engine/Host Dependent Information
 
-                                                                  Data Set Page Size          65536                                                                                          
-                                                                  Number of Data Set Pages    1                                                                                              
-                                                                  First Data Page             1                                                                                              
-                                                                  Max Obs per Page            2329                                                                                           
-                                                                  Obs in First Data Page      6                                                                                              
-                                                                  Number of Data Set Repairs  0                                                                                              
-                                                                  ExtendObsCounter            YES                                                                                            
-                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD6368_GENERALUSE-03_\suffix.sas7bdat
-                                                                  Release Created             9.0401M8                                                                                       
-                                                                  Host Created                W32_WIN+PRO                                                                                    
-                                                                  Owner Name                  CSCC\acquijanoa                                                                                
-                                                                  File Size                   128KB                                                                                          
-                                                                  File Size (bytes)           131072                                                                                         
+                                                                  Data Set Page Size          65536                                                                                           
+                                                                  Number of Data Set Pages    1                                                                                               
+                                                                  First Data Page             1                                                                                               
+                                                                  Max Obs per Page            2329                                                                                            
+                                                                  Obs in First Data Page      6                                                                                               
+                                                                  Number of Data Set Repairs  0                                                                                               
+                                                                  ExtendObsCounter            YES                                                                                             
+                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD13992_GENERALUSE-02_\suffix.sas7bdat
+                                                                  Release Created             9.0401M8                                                                                        
+                                                                  Host Created                W32_WIN+PRO                                                                                     
+                                                                  Owner Name                  CSCC\acquijanoa                                                                                 
+                                                                  File Size                   128KB                                                                                           
+                                                                  File Size (bytes)           131072                                                                                          
 
 
                                                                                                           Alphabetic List of Variables and Attributes
@@ -1719,8 +1719,8 @@
                                                                                           Data Set Name        WORK.SUFFIX                   Observations          6 
                                                                                           Member Type          DATA                          Variables             2 
                                                                                           Engine               V9                            Indexes               0 
-                                                                                          Created              06/24/2026 12:40:00           Observation Length    28
-                                                                                          Last Modified        06/24/2026 12:40:00           Deleted Observations  0 
+                                                                                          Created              06/24/2026 14:13:45           Observation Length    28
+                                                                                          Last Modified        06/24/2026 14:13:45           Deleted Observations  0 
                                                                                           Protection                                         Compressed            NO
                                                                                           Data Set Type                                      Sorted                NO
                                                                                           Label                                                                      
@@ -1730,19 +1730,19 @@
 
                                                                                                                Engine/Host Dependent Information
 
-                                                                  Data Set Page Size          65536                                                                                          
-                                                                  Number of Data Set Pages    1                                                                                              
-                                                                  First Data Page             1                                                                                              
-                                                                  Max Obs per Page            2329                                                                                           
-                                                                  Obs in First Data Page      6                                                                                              
-                                                                  Number of Data Set Repairs  0                                                                                              
-                                                                  ExtendObsCounter            YES                                                                                            
-                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD6368_GENERALUSE-03_\suffix.sas7bdat
-                                                                  Release Created             9.0401M8                                                                                       
-                                                                  Host Created                W32_WIN+PRO                                                                                    
-                                                                  Owner Name                  CSCC\acquijanoa                                                                                
-                                                                  File Size                   128KB                                                                                          
-                                                                  File Size (bytes)           131072                                                                                         
+                                                                  Data Set Page Size          65536                                                                                           
+                                                                  Number of Data Set Pages    1                                                                                               
+                                                                  First Data Page             1                                                                                               
+                                                                  Max Obs per Page            2329                                                                                            
+                                                                  Obs in First Data Page      6                                                                                               
+                                                                  Number of Data Set Repairs  0                                                                                               
+                                                                  ExtendObsCounter            YES                                                                                             
+                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD13992_GENERALUSE-02_\suffix.sas7bdat
+                                                                  Release Created             9.0401M8                                                                                        
+                                                                  Host Created                W32_WIN+PRO                                                                                     
+                                                                  Owner Name                  CSCC\acquijanoa                                                                                 
+                                                                  File Size                   128KB                                                                                           
+                                                                  File Size (bytes)           131072                                                                                          
 
 
                                                                                                           Alphabetic List of Variables and Attributes
@@ -2049,8 +2049,8 @@
                                                                                           Data Set Name        WORK.SUFFIX                   Observations          6 
                                                                                           Member Type          DATA                          Variables             2 
                                                                                           Engine               V9                            Indexes               0 
-                                                                                          Created              06/24/2026 12:40:01           Observation Length    28
-                                                                                          Last Modified        06/24/2026 12:40:01           Deleted Observations  0 
+                                                                                          Created              06/24/2026 14:13:45           Observation Length    28
+                                                                                          Last Modified        06/24/2026 14:13:45           Deleted Observations  0 
                                                                                           Protection                                         Compressed            NO
                                                                                           Data Set Type                                      Sorted                NO
                                                                                           Label                                                                      
@@ -2060,19 +2060,19 @@
 
                                                                                                                Engine/Host Dependent Information
 
-                                                                  Data Set Page Size          65536                                                                                          
-                                                                  Number of Data Set Pages    1                                                                                              
-                                                                  First Data Page             1                                                                                              
-                                                                  Max Obs per Page            2329                                                                                           
-                                                                  Obs in First Data Page      6                                                                                              
-                                                                  Number of Data Set Repairs  0                                                                                              
-                                                                  ExtendObsCounter            YES                                                                                            
-                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD6368_GENERALUSE-03_\suffix.sas7bdat
-                                                                  Release Created             9.0401M8                                                                                       
-                                                                  Host Created                W32_WIN+PRO                                                                                    
-                                                                  Owner Name                  CSCC\acquijanoa                                                                                
-                                                                  File Size                   128KB                                                                                          
-                                                                  File Size (bytes)           131072                                                                                         
+                                                                  Data Set Page Size          65536                                                                                           
+                                                                  Number of Data Set Pages    1                                                                                               
+                                                                  First Data Page             1                                                                                               
+                                                                  Max Obs per Page            2329                                                                                            
+                                                                  Obs in First Data Page      6                                                                                               
+                                                                  Number of Data Set Repairs  0                                                                                               
+                                                                  ExtendObsCounter            YES                                                                                             
+                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD13992_GENERALUSE-02_\suffix.sas7bdat
+                                                                  Release Created             9.0401M8                                                                                        
+                                                                  Host Created                W32_WIN+PRO                                                                                     
+                                                                  Owner Name                  CSCC\acquijanoa                                                                                 
+                                                                  File Size                   128KB                                                                                           
+                                                                  File Size (bytes)           131072                                                                                          
 
 
                                                                                                           Alphabetic List of Variables and Attributes
@@ -2276,8 +2276,8 @@
                                                                                           Data Set Name        WORK.SUFFIX                   Observations          3 
                                                                                           Member Type          DATA                          Variables             2 
                                                                                           Engine               V9                            Indexes               0 
-                                                                                          Created              06/24/2026 12:40:02           Observation Length    28
-                                                                                          Last Modified        06/24/2026 12:40:02           Deleted Observations  0 
+                                                                                          Created              06/24/2026 14:13:46           Observation Length    28
+                                                                                          Last Modified        06/24/2026 14:13:46           Deleted Observations  0 
                                                                                           Protection                                         Compressed            NO
                                                                                           Data Set Type                                      Sorted                NO
                                                                                           Label                                                                      
@@ -2287,19 +2287,19 @@
 
                                                                                                                Engine/Host Dependent Information
 
-                                                                  Data Set Page Size          65536                                                                                          
-                                                                  Number of Data Set Pages    1                                                                                              
-                                                                  First Data Page             1                                                                                              
-                                                                  Max Obs per Page            2329                                                                                           
-                                                                  Obs in First Data Page      3                                                                                              
-                                                                  Number of Data Set Repairs  0                                                                                              
-                                                                  ExtendObsCounter            YES                                                                                            
-                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD6368_GENERALUSE-03_\suffix.sas7bdat
-                                                                  Release Created             9.0401M8                                                                                       
-                                                                  Host Created                W32_WIN+PRO                                                                                    
-                                                                  Owner Name                  CSCC\acquijanoa                                                                                
-                                                                  File Size                   128KB                                                                                          
-                                                                  File Size (bytes)           131072                                                                                         
+                                                                  Data Set Page Size          65536                                                                                           
+                                                                  Number of Data Set Pages    1                                                                                               
+                                                                  First Data Page             1                                                                                               
+                                                                  Max Obs per Page            2329                                                                                            
+                                                                  Obs in First Data Page      3                                                                                               
+                                                                  Number of Data Set Repairs  0                                                                                               
+                                                                  ExtendObsCounter            YES                                                                                             
+                                                                  Filename                    C:\Users\ACQUIJ~1\AppData\Local\Temp\SAS Temporary Files\_TD13992_GENERALUSE-02_\suffix.sas7bdat
+                                                                  Release Created             9.0401M8                                                                                        
+                                                                  Host Created                W32_WIN+PRO                                                                                     
+                                                                  Owner Name                  CSCC\acquijanoa                                                                                 
+                                                                  File Size                   128KB                                                                                           
+                                                                  File Size (bytes)           131072                                                                                          
 
 
                                                                                                           Alphabetic List of Variables and Attributes

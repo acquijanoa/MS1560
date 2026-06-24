@@ -43,6 +43,7 @@ run;
  *               24jun26: Copy from HC338358; collapse background
  *                        (bkgrd1_c3nomiss_fmt) and marital status
  *                        (marital_status_c2_fmt).
+ *                        Correct marital collapse -- single/separated/other vs cohabiting.
  *                        update Table 3 title -- overweight or obese status or not
 
  * ----------------------------------------------------------
@@ -128,7 +129,7 @@ run;
 title 'Model 1 - Sociodemographics';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
           yrsus_c3(ref='US_BORN') bmipct_c2(ref='NORMAL');
     model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
@@ -142,7 +143,7 @@ run;
 title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur)';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
           yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") bmipct_c2(ref='NORMAL');
@@ -159,7 +160,7 @@ run;
 title 'Model 3: Model 2 + mental health';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
           yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
@@ -178,7 +179,7 @@ run;
 title 'Model 4: Model 3 + PRS';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
+    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
           yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")

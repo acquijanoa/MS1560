@@ -36,6 +36,9 @@ run;
 *                (link=glogit; BMIPCT_C3 reference Normal).
 *                Revise table footnotes to MS1560 abbreviation, model, and footer standards.
 *       24jun26: Revise table footnotes (aligned with HC338364b).
+*                Align OR variance with HC338364b -- multivariate MI pooling (COVB)
+*                and Rubin-pooled SE for Obese vs Overweight contrast.
+*                Marital status reference = Single (aligned with main tables).
 *
 *  INPUT: HC338353_imputed_data_&datefile.
 *
@@ -85,6 +88,15 @@ proc logistic data = logistic_input plots=none;
 	ods output ParameterEstimates = estimate_raw CovB = covb_raw;
 run;
 
+data estimate_order;
+	set estimate_raw;
+	retain RowInImp last_imp;
+	if _n_ = 1 | _Imputation_ ne last_imp then RowInImp = 0;
+	RowInImp + 1;
+	last_imp = _Imputation_;
+	drop last_imp;
+run;
+
 proc sort data = estimate_raw out = est_keys nodupkey;
 	where DF >= 1 & ^missing(Estimate) & StdErr > 0
 		& upcase(Variable) not in ('INTERCEPT');
@@ -94,10 +106,22 @@ run;
 data parm_key;
 	length parm $8 EffectKey $132 LabelBase $132;
 	set est_keys;
-	parm = cats('P', put(_n_, z5.));
+	ParmNum = _n_;
+	parm = cats('PARM', ParmNum);
 	EffectKey = cats(Variable, ClassVal0, '_', Response);
 	LabelBase = catx('_', Variable, ClassVal0);
-	keep parm EffectKey LabelBase Variable ClassVal0 Response;
+	keep parm ParmNum EffectKey LabelBase Variable ClassVal0 Response;
+run;
+
+proc sort data = estimate_order;
+	by Variable ClassVal0 Response;
+run;
+
+data estimate_covmap;
+	merge estimate_order(in = a) parm_key(in = b);
+	by Variable ClassVal0 Response;
+	if a & b;
+	keep _Imputation_ RowInImp parm EffectKey LabelBase Response;
 run;
 
 proc sort data = estimate_raw;
@@ -128,6 +152,27 @@ proc sort data = estimate nodupkey;
 	by _Imputation_ Variable;
 run;
 
+data estimate_covmap2;
+	set estimate_covmap(rename = (parm = Variable));
+run;
+
+proc sort data = estimate_covmap2;
+	by _Imputation_ Variable;
+run;
+
+data estimate_cov;
+	length base $132 lr $80;
+	merge estimate(in = a) estimate_covmap2(keep = _Imputation_ Variable RowInImp);
+	by _Imputation_ Variable;
+	if a;
+	base = LabelBase;
+	lr = lowcase(strip(RespLab));
+	if (lr in ('2', 'overweight') | lr =: 'overweight' | index(lr, 'overweight') > 0)
+		& ^(lr in ('3', 'obese') | lr =: 'obese') then RespType = 2;
+	else if lr in ('3', 'obese') | lr =: 'obese' then RespType = 3;
+	else delete;
+	keep _Imputation_ Variable base RespType Estimate RowInImp;
+run;
 
 proc sort data = estimate(keep = Variable EffectKey LabelBase RespLab) out = parm_xwalk nodupkey;
 	by Variable EffectKey LabelBase RespLab;
@@ -139,20 +184,98 @@ data parm_xwalk;
 run;
 
 proc sql noprint;
-	select distinct Variable into :model_var separated by ' '
-	from estimate;
+	select parm into :model_var separated by ' '
+	from parm_key
+	order by ParmNum;
 quit;
 
-* Combine MI estimates (COVB captured from PROC LOGISTIC, pooled estimates remain univariate);
+* Refactor COVB to the same parameter names used by PROC MIANALYZE;
+proc contents data = covb_raw out = covb_cols(keep = name type varnum) noprint;
+run;
+
+proc sort data = covb_cols;
+	by varnum;
+run;
+
+data covb_cols;
+	set covb_cols;
+	where type = 1 & upcase(name) ne '_IMPUTATION_';
+	RowInImp + 1;
+	OldName = nliteral(name);
+	keep RowInImp OldName;
+run;
+
+proc sort data = covb_cols;
+	by RowInImp;
+run;
+
+proc sort data = estimate_covmap2(keep = RowInImp Variable) out = covb_effects nodupkey;
+	by RowInImp Variable;
+run;
+
+proc sort data = covb_effects nodupkey;
+	by RowInImp;
+run;
+
+data covb_colmap;
+	merge covb_cols(in = a) covb_effects(in = b);
+	by RowInImp;
+	if a & b;
+	RenamePair = catx('=', OldName, Variable);
+run;
+
+proc sql noprint;
+	select RenamePair into :covb_rename separated by ' '
+	from covb_colmap;
+quit;
+
+data covb_rows;
+	set estimate_covmap2(rename = (Variable = Effect));
+	keep _Imputation_ RowInImp Effect;
+run;
+
+proc sort data = covb_rows;
+	by _Imputation_ RowInImp;
+run;
+
+data covb_mi_pre;
+	set covb_raw;
+	retain RowInImp last_imp;
+	if _n_ = 1 | _Imputation_ ne last_imp then RowInImp = 0;
+	RowInImp + 1;
+	last_imp = _Imputation_;
+	drop last_imp;
+	rename &covb_rename.;
+run;
+
+proc sort data = covb_mi_pre;
+	by _Imputation_ RowInImp;
+run;
+
+data covb_mi;
+	length Effect $32;
+	merge covb_mi_pre(in = a) covb_rows(in = b);
+	by _Imputation_ RowInImp;
+	if a & b;
+	keep _Imputation_ Effect &model_var.;
+run;
+
+proc sort data = covb_mi;
+	by _Imputation_ Effect;
+run;
+
+* Combine MI estimates using the refactored covariance matrix;
 ods listing close;
 ods select none;
-proc mianalyze parms = estimate;
+proc mianalyze parms = estimate(rename = (Variable = Effect)) covb = covb_mi;
 	modeleffects &model_var.;
 	ods output ParameterEstimates = betas_mi;
 run;
 ods select all;
 
 * Recover EffectKey / LabelBase from pooled Parm (betas_mi keeps Estimate StdErr Probt from MIANALYZE only);
+proc sort data = betas_mi; by Parm; run;
+proc sort data = parm_xwalk; by Variable; run;
 data betas_mx;
 	length Variable $ 32 base $ 132;
 	merge betas_mi(in = a rename = (Parm = Variable))
@@ -183,6 +306,63 @@ data betas_mi3;
 	keep base Estimate3 StdErr3 Probt3 EffectKey RespLab;
 run;
 
+* Rubin total covariance for the Obese vs Overweight contrast, using PROC LOGISTIC COVB directly;
+proc iml;
+	use covb_raw;
+	read all var {_Imputation_} into ImpCov;
+	read all var _NUM_ into CAll[colname = CovNames];
+	close covb_raw;
+	keepCols = loc(upcase(CovNames) ^= '_IMPUTATION_');
+	CAll = CAll[, keepCols];
+
+	use estimate_cov;
+	read all var {_Imputation_ RowInImp RespType Estimate} into E;
+	read all var {base} into Base;
+	close estimate_cov;
+
+	UBase = unique(Base);
+	OutBase = t(UBase);
+	StdErr32 = j(nrow(OutBase), 1, .);
+
+	do b = 1 to nrow(OutBase);
+		idxBase = loc(Base = OutBase[b]);
+		if ncol(idxBase) = 0 then continue;
+		ImpBase = unique(E[idxBase, 1]);
+		QDiff = j(ncol(ImpBase), 1, .);
+		WDiff = j(ncol(ImpBase), 1, .);
+		nUse = 0;
+
+		do j = 1 to ncol(ImpBase);
+			imp = ImpBase[j];
+			idxOW = loc(Base = OutBase[b] & E[, 1] = imp & E[, 3] = 2);
+			idxOB = loc(Base = OutBase[b] & E[, 1] = imp & E[, 3] = 3);
+			idxCov = loc(ImpCov = imp);
+			if ncol(idxOW) = 1 & ncol(idxOB) = 1 & ncol(idxCov) > 0 then do;
+				rowOW = E[idxOW, 2];
+				rowOB = E[idxOB, 2];
+				nUse = nUse + 1;
+				QDiff[nUse] = E[idxOB, 4] - E[idxOW, 4];
+				WDiff[nUse] = CAll[idxCov[rowOB], rowOB] + CAll[idxCov[rowOW], rowOW]
+					- 2 * CAll[idxCov[rowOB], rowOW];
+			end;
+		end;
+
+		if nUse > 0 then do;
+			QDiff = QDiff[1:nUse];
+			WDiff = WDiff[1:nUse];
+			Between = 0;
+			if nUse > 1 then Between = var(QDiff);
+			TotalVar = mean(WDiff) + (1 + 1 / nUse) * Between;
+			if TotalVar >= 0 then StdErr32[b] = sqrt(TotalVar);
+		end;
+	end;
+
+	base = OutBase;
+	create contrast_cov var {'base' 'StdErr32'};
+	append;
+	close contrast_cov;
+quit;
+
 proc sort data = betas_mi2;
 	by base;
 run;
@@ -191,16 +371,20 @@ proc sort data = betas_mi3;
 	by base;
 run;
 
+proc sort data = contrast_cov;
+	by base;
+run;
+
 data merged_core;
-	merge betas_mi2 betas_mi3;
+	merge betas_mi2 betas_mi3 contrast_cov;
 	by base;
 run;
 
 * Reference CLASS levels have no rows in ParameterEstimates insert stubs so %labels can emit section headers + ref titles;
 data ref_pad;
 	length base $132 EffectKey $132 RespLab $20;
-	length Estimate2 StdErr2 Probt2 Estimate3 StdErr3 Probt3 8;
-	call missing(Estimate2, StdErr2, Probt2, Estimate3, StdErr3, Probt3);
+	length Estimate2 StdErr2 Probt2 Estimate3 StdErr3 Probt3 StdErr32 8;
+	call missing(Estimate2, StdErr2, Probt2, Estimate3, StdErr3, Probt3, StdErr32);
 	EffectKey = '';
 	RespLab = '';
 	base = 'CENTERNUM_BRONX';
@@ -268,80 +452,62 @@ data labeled;
 		end;
 	end;
 	drop v;
-	keep base order label Estimate2 StdErr2 Probt2 Estimate3 StdErr3 Probt3 variable;
+	keep base order label Estimate2 StdErr2 Probt2 Estimate3 StdErr3 Probt3 StdErr32 variable;
 run;
 
 proc sort data = labeled;
 	by order label base;
 run;
 
-* HC313953 PROC IML;
-* Contrast SE = sqrt(Var_OW+Var_OB) unless pooled 2x2 Cov from MIANALYZE TCOV is merged (HC313953 READ VAR {ROWVAR_2 ROWVAR_3} INTO COV);
-proc iml;
-	use labeled;
-	read all var {Estimate2 StdErr2 Estimate3 StdErr3} into X;
-	close labeled;
-	* Second READ ALL needs a fresh USE — pointer was past EOF after first read;
-	use labeled;
-	read all var {base} into BK;
-	close labeled;
+* Format odds ratios and 95% CIs;
+data ORchars;
+	length base $132 statsOW statsOB statsOBvsOW $168;
+	set labeled(keep = base Estimate2 StdErr2 Estimate3 StdErr3 StdErr32);
 
-	n = nrow(X);
-	* j(n,1,' ') yields character length 1 — long OR strings need wider rows (ROWCATC builds length-120 cells);
-	statsOW = rowcatc(j(n, 168, ' '));
-	statsOB = rowcatc(j(n, 168, ' '));
-	statsOBvsOW = rowcatc(j(n, 168, ' '));
-	D = {1 0, 0 1, -1 1};
+	statsOW = ' ';
+	statsOB = ' ';
+	statsOBvsOW = ' ';
 
-	* Guard EXP: IML asterisk comments end at first semicolon inside START/FINISH;
-	start ExpOR(z);
-		if missing(z) then return (.);
-		if z > 709 then return (.);
-		if z < -745 then return (0);
-		return (exp(z));
-	finish;
-
-	do i = 1 to n;
-		bow = X[i, 1];
-		sow = X[i, 2];
-		bob = X[i, 3];
-		sob = X[i, 4];
-
-		if missing(bow) & missing(bob) then do;
-			statsOW[i] = ' ';
-			statsOB[i] = ' ';
-			statsOBvsOW[i] = ' ';
-		end;
-		else if missing(bow) | missing(bob) then do;
-			statsOW[i] = '---';
-			statsOB[i] = '---';
-			statsOBvsOW[i] = '---';
-		end;
-		else do;
-			or2 = ExpOR(bow); lc2 = ExpOR(bow - 1.96 * sow); uc2 = ExpOR(bow + 1.96 * sow);
-			or3 = ExpOR(bob); lc3 = ExpOR(bob - 1.96 * sob); uc3 = ExpOR(bob + 1.96 * sob);
-			if missing(or2) | missing(lc2) | missing(uc2) then statsOW[i] = '---';
-			else do;
-				statsOW[i] = rowcatc(strip(putn(or2, "8.2")) || ' (' || strip(putn(lc2, "8.2")) || ', ' || strip(putn(uc2, "8.2")) || ')');
-			end;
-			if missing(or3) | missing(lc3) | missing(uc3) then statsOB[i] = '---';
-			else statsOB[i] = rowcatc(strip(putn(or3, "8.2")) || ' (' || strip(putn(lc3, "8.2")) || ', ' || strip(putn(uc3, "8.2")) || ')');
-
-			Bvec = bow // bob;
-			bcontr = D * Bvec;
-			diff32 = bcontr[3];
-			se32 = sqrt(sow ** 2 + sob ** 2);
-			or32 = ExpOR(diff32); lc32 = ExpOR(diff32 - 1.96 * se32); uc32 = ExpOR(diff32 + 1.96 * se32);
-			if missing(or32) | missing(lc32) | missing(uc32) then statsOBvsOW[i] = '---';
-			else statsOBvsOW[i] = rowcatc(strip(putn(or32, "8.2")) || ' (' || strip(putn(lc32, "8.2")) || ', ' || strip(putn(uc32, "8.2")) || ')');
-		end;
+	if missing(Estimate2) & missing(Estimate3) then return;
+	else if missing(Estimate2) | missing(Estimate3) then do;
+		statsOW = '---';
+		statsOB = '---';
+		statsOBvsOW = '---';
+		return;
 	end;
 
-	Z = BK || statsOW || statsOB || statsOBvsOW;
-	create ORchars from Z[colname = {'base' 'statsOW' 'statsOB' 'statsOBvsOW'}];
-	append from Z;
-	close ORchars;
-quit;
+	if nmiss(Estimate2, StdErr2) = 0 then do;
+		or2 = exp(Estimate2);
+		lc2 = exp(Estimate2 - 1.96 * StdErr2);
+		uc2 = exp(Estimate2 + 1.96 * StdErr2);
+		statsOW = cats(put(or2, 8.2), ' (', put(lc2, 8.2), ', ', put(uc2, 8.2), ')');
+	end;
+	else statsOW = '---';
+
+	if nmiss(Estimate3, StdErr3) = 0 then do;
+		or3 = exp(Estimate3);
+		lc3 = exp(Estimate3 - 1.96 * StdErr3);
+		uc3 = exp(Estimate3 + 1.96 * StdErr3);
+		statsOB = cats(put(or3, 8.2), ' (', put(lc3, 8.2), ', ', put(uc3, 8.2), ')');
+	end;
+	else statsOB = '---';
+
+	if nmiss(Estimate2, Estimate3) = 0 then do;
+		diff32 = Estimate3 - Estimate2;
+		if missing(StdErr32) then se32 = sqrt(StdErr2 ** 2 + StdErr3 ** 2);
+		else se32 = StdErr32;
+		if nmiss(diff32, se32) = 0 then do;
+			or32 = exp(diff32);
+			lc32 = exp(diff32 - 1.96 * se32);
+			uc32 = exp(diff32 + 1.96 * se32);
+			statsOBvsOW = cats(put(or32, 8.2), ' (', put(lc32, 8.2), ', ', put(uc32, 8.2), ')');
+		end;
+		else statsOBvsOW = '---';
+	end;
+	else statsOBvsOW = '---';
+
+	keep base statsOW statsOB statsOBvsOW;
+run;
 
 data ORchars;
 	length base $132;
@@ -359,7 +525,7 @@ proc sort data = ORchars;
 run;
 
 data db_join;
-	merge labeled(keep = order label base Estimate2 StdErr2 Estimate3 StdErr3)
+	merge labeled(keep = order label base Estimate2 StdErr2 Estimate3 StdErr3 StdErr32)
 		ORchars;
 	by base;
 run;
@@ -395,7 +561,8 @@ data db_join;
 	end;
 	if nmiss(Estimate2, StdErr2, Estimate3, StdErr3) = 0 then do;
 		diff32 = Estimate3 - Estimate2;
-		se32 = sqrt(StdErr2 ** 2 + StdErr3 ** 2);
+		if missing(StdErr32) then se32 = sqrt(StdErr2 ** 2 + StdErr3 ** 2);
+		else se32 = StdErr32;
 		z = diff32 - 1.96 * se32;
 		if z > 709 then lc32 = .;
 		else if z < -745 then lc32 = 0;

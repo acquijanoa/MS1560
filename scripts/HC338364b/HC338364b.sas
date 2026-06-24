@@ -38,6 +38,8 @@ run;
 *                Revise table footnotes to MS1560 abbreviation, model, and footer standards.
 *
 *		24jun26: updates formats for backgroud and marital status.
+*		Correct marital collapse -- single/separated/other vs cohabiting.
+*		Marital status reference = Single/separated/other (collapsed tables).
 *                Revise table footnotes.
 *
 *  INPUT: HC338353_imputed_data_&datefile.
@@ -75,7 +77,7 @@ title 'Model 4 (complete): Multinomial logistic (generalized logit)';
 proc logistic data = logistic_input plots=none;
 	by _imputation_;
 	class bmipct_c3(ref='Normal') centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
-		marital_status(ref='SINGLE') employedyn(ref="NOT_EMPLOYED")
+		marital_status(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED")
 		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
 		cigarette_use(ref="NEVER") alcohol_use(ref="NEVER") pag2008yn(ref="YES")
 		hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX") / param = ref;
@@ -399,7 +401,7 @@ data ref_pad;
 	output;
 	base = 'EMPLOYEDYN_NOT_EMPLOYED';
 	output;
-	base = 'MARITAL_STATUS_SINGLE';
+	base = 'MARITAL_STATUS_SINGLE_OTHER';
 	output;
 	base = 'YRSUS_C3_US_BORN';
 	output;

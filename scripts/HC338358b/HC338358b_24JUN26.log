@@ -1,6 +1,6 @@
 NOTE: PROCEDURE PRINTTO used (Total process time):
       real time           0.02 seconds
-      cpu time            0.03 seconds
+      cpu time            0.01 seconds
       
 
 8          
@@ -25,7 +25,7 @@ NOTE: PROCEDURE PRINTTO used (Total process time):
 27          *
 28          *  JOB NUMBER: HC338358b
 29          *
-2                                                          The SAS System                             12:40 Wednesday, June 24, 2026
+2                                                          The SAS System                             14:15 Wednesday, June 24, 2026
 
 30          *  LANGUAGE: SAS 9.4
 31          *
@@ -43,49 +43,50 @@ NOTE: PROCEDURE PRINTTO used (Total process time):
 43          *               24jun26: Copy from HC338358; collapse background
 44          *                        (bkgrd1_c3nomiss_fmt) and marital status
 45          *                        (marital_status_c2_fmt).
-46          *                        update Table 3 title -- overweight or obese status or not
-47         
-48          * ----------------------------------------------------------
-49          *
-50          *  INPUT:  data.HC338353_imputed_data_&datefile.
-51          *
-52          *  OUTPUT: Table 3 (betas) and Table 3 OR (odds ratios)
-53          *
-54          ****************************************************************/
-55         
-56         options orientation=portrait nodate nonumber nocenter formchar="|----|+|---+=|-/\<>*" ps=59 ls=174 varinitchk=error mprint validvarname=upcase;
-57         ods escapechar '^';
-58         
-59         * Set libraries name;
-60         libname data "&homepath.\data";
+46          *                        Correct marital collapse -- single/separated/other vs cohabiting.
+47          *                        update Table 3 title -- overweight or obese status or not
+48         
+49          * ----------------------------------------------------------
+50          *
+51          *  INPUT:  data.HC338353_imputed_data_&datefile.
+52          *
+53          *  OUTPUT: Table 3 (betas) and Table 3 OR (odds ratios)
+54          *
+55          ****************************************************************/
+56         
+57         options orientation=portrait nodate nonumber nocenter formchar="|----|+|---+=|-/\<>*" ps=59 ls=174 varinitchk=error mprint validvarname=upcase;
+58         ods escapechar '^';
+59         
+60         * Set libraries name;
+61         libname data "&homepath.\data";
 NOTE: Libref DATA was successfully assigned as follows: 
       Engine:        V9 
       Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\data
-61         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+62         libname hchstyle 'J:\hchs\sc\styledef\sty904';
 NOTE: Libref HCHSTYLE was successfully assigned as follows: 
       Engine:        V9 
       Physical Name: J:\hchs\sc\styledef\sty904
-62         
-63         * Define macro variables;
-64         %put JOB=&job.;
+63         
+64         * Define macro variables;
+65         %put JOB=&job.;
 JOB=HC338358b
-65         %let prg = AQA;
-66         %let impdb = data.HC338353_imputed_data_&datefile.;
-67         %let lf_margin = 0.7in;
-68         %let rg_margin = 0.7in;
-69         %let table_num = 3;
-70         
-71         * Include SAS scripts with formats and macros;
-72         %include "&homepath.\scripts\HC3383XX\HC3383XX.sas";
+66         %let prg = AQA;
+67         %let impdb = data.HC338353_imputed_data_&datefile.;
+68         %let lf_margin = 0.7in;
+69         %let rg_margin = 0.7in;
+70         %let table_num = 3;
+71         
+72         * Include SAS scripts with formats and macros;
+73         %include "&homepath.\scripts\HC3383XX\HC3383XX.sas";
 NOTE: Format BKGRD1_C7NOMISS_FMT has been output.
 NOTE: Format BKGRD1_C3NOMISS_FMT has been output.
 NOTE: Format PV has been output.
 NOTE: Format CENTERNUM_FMT has been output.
 NOTE: Format LANG_PREF_FMT has been output.
 NOTE: Format MARITAL_STATUS_FMT has been output.
-NOTE: Format MARITAL_STATUS_C2_FMT has been output.
 The SAS System
 
+NOTE: Format MARITAL_STATUS_C2_FMT has been output.
 NOTE: Format EDUCATION_C3_FMT has been output.
 NOTE: Format N_HC_FMT has been output.
 NOTE: Format INCOME_C2_FMT has been output.
@@ -110,88 +111,88 @@ NOTE: Format PCT_BLANK has been output.
 NOTE: Format AME_FMT has been output.
 
 NOTE: PROCEDURE FORMAT used (Total process time):
-      real time           0.06 seconds
-      cpu time            0.01 seconds
+      real time           0.02 seconds
+      cpu time            0.00 seconds
       
 
 227        %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
-338        %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
-382        
-383        * Macro to process imputed odds ratios;
-384        %macro process_imputed_or(in_db=, out_db=, model=);
-385            data &in_db.;
-386                set &in_db.;
-387                length EffectName $50;
-388                if missing(Level1) then EffectName = Parameter;
-389                else EffectName = catx('_', Parameter, Level1);
-390            run;
-391        
-392            proc sort data = &in_db.;
-393                by EffectName;
-394            run;
-395        
-396            ods output ParameterEstimates = &out_db._p;
-397            proc mianalyze data = &in_db.;
-398                by EffectName;
-399                modeleffects Estimate;
-400                stderr StdErr;
-401            run;
-402            ods output close;
-403        
-404            data &out_db.(keep = order model label or_txt ci_txt pv);
-405                length model $10 or_txt $20 ci_txt $30;
-406                set &out_db._p(rename = (EffectName = variable));
-407                model = &model.;
-408        
+340        %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
+384        
+385        * Macro to process imputed odds ratios;
+386        %macro process_imputed_or(in_db=, out_db=, model=);
+387            data &in_db.;
+388                set &in_db.;
+389                length EffectName $50;
+390                if missing(Level1) then EffectName = Parameter;
+391                else EffectName = catx('_', Parameter, Level1);
+392            run;
+393        
+394            proc sort data = &in_db.;
+395                by EffectName;
+396            run;
+397        
+398            ods output ParameterEstimates = &out_db._p;
+399            proc mianalyze data = &in_db.;
+400                by EffectName;
+401                modeleffects Estimate;
+402                stderr StdErr;
+403            run;
+404            ods output close;
+405        
+406            data &out_db.(keep = order model label or_txt ci_txt pv);
+407                length model $10 or_txt $20 ci_txt $30;
+408                set &out_db._p(rename = (EffectName = variable));
+409                model = &model.;
 The SAS System
 
-409                %labels;
-410                if variable not in ('Scale','Intercept');
-411        
-412                if std = 99 then do;
-413                    or_txt = 'Ref.';
-414                    ci_txt = ' ';
-415                end;
-416                else do;
-417                    or_txt = strip(put(exp(estimate), 8.2));
-418                    ci_txt = cats('(', strip(put(exp(LCLMean), 8.2)), ', ',
-419                                   strip(put(exp(UCLMean), 8.2)), ')');
-420                end;
-421            run;
-422        %mend process_imputed_or;
-423        
-424        * Prepare outcome variable in temporary dataset;
-425        data impdb;
-426            set &impdb.;
-427        
-428            if BMIPCT_C3 in (2,3) then BMIPCT_C2 = 1;
-429            else if BMIPCT_C3 = 1 then BMIPCT_C2 = 0;
-430            else BMIPCT_C2 = .;
-431            label BMIPCT_C2 = 'Respondent is Overweight or Obese';
-432        run;
+410        
+411                %labels;
+412                if variable not in ('Scale','Intercept');
+413        
+414                if std = 99 then do;
+415                    or_txt = 'Ref.';
+416                    ci_txt = ' ';
+417                end;
+418                else do;
+419                    or_txt = strip(put(exp(estimate), 8.2));
+420                    ci_txt = cats('(', strip(put(exp(LCLMean), 8.2)), ', ',
+421                                   strip(put(exp(UCLMean), 8.2)), ')');
+422                end;
+423            run;
+424        %mend process_imputed_or;
+425        
+426        * Prepare outcome variable in temporary dataset;
+427        data impdb;
+428            set &impdb.;
+429        
+430            if BMIPCT_C3 in (2,3) then BMIPCT_C2 = 1;
+431            else if BMIPCT_C3 = 1 then BMIPCT_C2 = 0;
+432            else BMIPCT_C2 = .;
+433            label BMIPCT_C2 = 'Respondent is Overweight or Obese';
+434        run;
 
 NOTE: There were 2270 observations read from the data set DATA.HC338353_IMPUTED_DATA_20MAY26.
 NOTE: The data set WORK.IMPDB has 2270 observations and 273 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.08 seconds
-      cpu time            0.00 seconds
+      real time           0.07 seconds
+      cpu time            0.01 seconds
       
 
-433        
-434        * Fit the models using the imputed data;
-435        title 'Model 1 - Sociodemographics';
-436        proc genmod data = impdb;
-437            by _imputation_;
-438            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
-439                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-440                  yrsus_c3(ref='US_BORN') bmipct_c2(ref='NORMAL');
-441            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-442                               parity_v1 employedyn marital_status yrsus_c3 / dist = binomial;
-443            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-444                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-445                   education_c3 education_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
-446            ods output ParameterEstimates = genmod_results_1;
-447        run;
+435        
+436        * Fit the models using the imputed data;
+437        title 'Model 1 - Sociodemographics';
+438        proc genmod data = impdb;
+439            by _imputation_;
+440            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+441                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+442                  yrsus_c3(ref='US_BORN') bmipct_c2(ref='NORMAL');
+443            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+444                               parity_v1 employedyn marital_status yrsus_c3 / dist = binomial;
+445            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
+446                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+447                   education_c3 education_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
+448            ods output ParameterEstimates = genmod_results_1;
+449        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
@@ -201,9 +202,9 @@ NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
       Imputation Number=1
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
-      DESCENDING option in the PROC statement.
 The SAS System
 
+      DESCENDING option in the PROC statement.
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
@@ -260,9 +261,9 @@ NOTE: The above message was for the following BY group:
       Imputation Number=9
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
-NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 The SAS System
 
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
@@ -270,27 +271,27 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 240 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 1-20.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.10 seconds
-      cpu time            0.09 seconds
+      real time           0.09 seconds
+      cpu time            0.04 seconds
       
 
-448        
-449        title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur)';
-450        proc genmod data = impdb;
-451            by _imputation_;
-452            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
-453                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-454                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
-455                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") bmipct_c2(ref='NORMAL');
-456            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-457                               parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
-458                               alcohol_use pag2008yn slpdur / dist = binomial;
-459            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-460                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-461                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
-462                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
-463            ods output ParameterEstimates = genmod_results_2;
-464        run;
+450        
+451        title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur)';
+452        proc genmod data = impdb;
+453            by _imputation_;
+454            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+455                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+456                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+457                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") bmipct_c2(ref='NORMAL');
+458            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+459                               parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
+460                               alcohol_use pag2008yn slpdur / dist = binomial;
+461            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
+462                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+463                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+464                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
+465            ods output ParameterEstimates = genmod_results_2;
+466        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
@@ -319,9 +320,9 @@ NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE o
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
-      Imputation Number=4
 The SAS System
 
+      Imputation Number=4
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
@@ -367,31 +368,31 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_2 has 360 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 21-50.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.11 seconds
+      real time           0.08 seconds
       cpu time            0.04 seconds
       
 
-465        
-466        title 'Model 3: Model 2 + mental health';
-467        proc genmod data = impdb;
-468            by _imputation_;
-469            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
-470                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-471                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
-472                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
+467        
+468        title 'Model 3: Model 2 + mental health';
+469        proc genmod data = impdb;
+470            by _imputation_;
+471            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+472                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+473                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
 The SAS System
 
-473                  bmipct_c2(ref='NORMAL');
-474            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-475                               parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
-476                               alcohol_use pag2008yn slpdur cesd10 stai10 / dist = binomial;
-477            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-478                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-479                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
-480                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
-481                   bmipct_c2 bmipct_c2_fmt.;
-482            ods output ParameterEstimates = genmod_results_3;
-483        run;
+474                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
+475                  bmipct_c2(ref='NORMAL');
+476            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
+477                               parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
+478                               alcohol_use pag2008yn slpdur cesd10 stai10 / dist = binomial;
+479            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
+480                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+481                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+482                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
+483                   bmipct_c2 bmipct_c2_fmt.;
+484            ods output ParameterEstimates = genmod_results_3;
+485        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
@@ -437,9 +438,9 @@ NOTE: The above message was for the following BY group:
       Imputation Number=6
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
-NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 The SAS System
 
+NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
@@ -468,37 +469,37 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 400 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 51-80.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.08 seconds
-      cpu time            0.06 seconds
+      real time           0.11 seconds
+      cpu time            0.09 seconds
       
 
-484        
-485        title 'Model 4: Model 3 + PRS';
-486        proc genmod data = impdb;
-487            by _imputation_;
-488            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE')
-489                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-490                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
-491                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
-492                  bmipct_c2(ref='NORMAL');
-493            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1
-494                               employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use
-495                               pag2008yn slpdur cesd10 stai10 child_prs_bmi_a / dist = binomial;
-496            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-497                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-498                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
-499                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
-500                   bmipct_c2 bmipct_c2_fmt.;
-501            ods output ParameterEstimates = genmod_results_4;
-502        run;
+486        
+487        title 'Model 4: Model 3 + PRS';
+488        proc genmod data = impdb;
+489            by _imputation_;
+490            class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+491                  employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
+492                  yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+493                  pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
+494                  bmipct_c2(ref='NORMAL');
+495            model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1
+496                               employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use
+497                               pag2008yn slpdur cesd10 stai10 child_prs_bmi_a / dist = binomial;
+498            format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
+499                   marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+500                   education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+501                   pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
+502                   bmipct_c2 bmipct_c2_fmt.;
+503            ods output ParameterEstimates = genmod_results_4;
+504        run;
 
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
-NOTE: The scale parameter was held fixed.
 The SAS System
 
+NOTE: The scale parameter was held fixed.
 NOTE: The above message was for the following BY group:
       Imputation Number=1
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
@@ -555,9 +556,9 @@ NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBES
 NOTE: The Pearson chi-square and deviance are not computed since the AGGREGATE option is not specified.
 NOTE: Algorithm converged.
 NOTE: The scale parameter was held fixed.
-NOTE: The above message was for the following BY group:
 The SAS System
 
+NOTE: The above message was for the following BY group:
       Imputation Number=9
 NOTE: PROC GENMOD is modeling the probability that BMIPCT_C2='OVERWEIGHT OR OBESE'. One way to change this to model the probability that BMIPCT_C2='NORMAL' is to specify the 
       DESCENDING option in the PROC statement.
@@ -569,19 +570,19 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 410 observations and 10 variables.
 NOTE: The PROCEDURE GENMOD printed pages 81-110.
 NOTE: PROCEDURE GENMOD used (Total process time):
-      real time           0.12 seconds
-      cpu time            0.07 seconds
+      real time           0.09 seconds
+      cpu time            0.06 seconds
       
 
-503        
-504        * Process the imputed estimates for betas and odds ratios;
-505        %macro summarize_models;
-506            %do m = 1 %to 4;
-507                %process_imputed(in_db = genmod_results_&m., out_db = beta_results_&m., model = &m.);
-508                %process_imputed_or(in_db = genmod_results_&m., out_db = or_results_&m., model = &m.);
-509            %end;
-510        %mend summarize_models;
-511        %summarize_models;
+505        
+506        * Process the imputed estimates for betas and odds ratios;
+507        %macro summarize_models;
+508            %do m = 1 %to 4;
+509                %process_imputed(in_db = genmod_results_&m., out_db = beta_results_&m., model = &m.);
+510                %process_imputed_or(in_db = genmod_results_&m., out_db = or_results_&m., model = &m.);
+511            %end;
+512        %mend summarize_models;
+513        %summarize_models;
 MPRINT(PROCESS_IMPUTED):   * Reshape the dataset to include effect names;
 MPRINT(PROCESS_IMPUTED):   data genmod_results_1;
 MPRINT(PROCESS_IMPUTED):   set genmod_results_1;
@@ -593,7 +594,7 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 240 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 240 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -605,7 +606,7 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 240 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 240 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -614,9 +615,9 @@ MPRINT(PROCESS_IMPUTED):   ods output ParameterEstimates = beta_results_1_p;
 MPRINT(PROCESS_IMPUTED):   proc mianalyze data=genmod_results_1;
 MPRINT(PROCESS_IMPUTED):   by EffectName;
 MPRINT(PROCESS_IMPUTED):   modeleffects Estimate;
-MPRINT(PROCESS_IMPUTED):   stderr StdErr;
 The SAS System
 
+MPRINT(PROCESS_IMPUTED):   stderr StdErr;
 MPRINT(PROCESS_IMPUTED):   run;
 
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
@@ -673,14 +674,14 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
-WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 The SAS System
 
+WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -720,7 +721,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.BETA_RESULTS_1_P has 24 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 111-134.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.10 seconds
+      real time           0.02 seconds
       cpu time            0.01 seconds
       
 
@@ -732,9 +733,9 @@ MPRINT(LABELS):   attrib label length = $ 150 model length = $ 10;
 WARNING: Length of character variable MODEL has already been set. 
          Use the LENGTH statement as the very first statement in the DATA STEP to declare the length of a character variable.
 MPRINT(LABELS):   * categorize the p-value into 4 levels;
-MPRINT(LABELS):   if probt <= 0.01 then pv = 1;
 The SAS System
 
+MPRINT(LABELS):   if probt <= 0.01 then pv = 1;
 MPRINT(LABELS):   else if probt > 0.01 and probt <= 0.05 then pv = 2;
 MPRINT(LABELS):   else if probt > 0.05 and probt <= 0.1 then pv = 3;
 MPRINT(LABELS):   else if probt > 0.1 and probt <= 0.2 then pv = 4;
@@ -791,9 +792,9 @@ MPRINT(LABELS):   ORDER=3;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   STD=99;
 MPRINT(LABELS):   pv = 5;
-MPRINT(LABELS):   END;
 The SAS System
 
+MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = "N_HC_YES" THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Yes";
 MPRINT(LABELS):   ORDER=3.1;
@@ -849,19 +850,22 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
-MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   estimate = 99;
 The SAS System
 
+MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -906,12 +910,12 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'AGG_PHYS' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Physical health summary score";
 MPRINT(LABELS):   order = 0.031;
+The SAS System
+
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CESD10' then do;
 MPRINT(LABELS):   label = "{\b Mental health \b0 \line \li250   Depression score (CESD-10)}";
 MPRINT(LABELS):   order = 0.032;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CESD10_NODEPRE' then do;
 MPRINT(LABELS):   label = "{\b Depression symptoms (CESD-10) \b0 \line \li250   No (<10)}";
@@ -965,12 +969,12 @@ MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'ALCOHOL_USE_FORMER' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Former";
+The SAS System
+
 MPRINT(LABELS):   order = 0.011;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'ALCOHOL_USE_CURRENT' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Current";
-The SAS System
-
 MPRINT(LABELS):   order = 0.012;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CURRENT_SMOKER_NO' then do;
@@ -1024,12 +1028,12 @@ MPRINT(LABELS):   order = 0.01603;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'PCT_MVPA' then do;
 MPRINT(LABELS):   label = "{\b % Time in MVPA \b0}";
+The SAS System
+
 MPRINT(LABELS):   order = 0.017;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'SLPDUR' then do;
 MPRINT(LABELS):   label = "{\b Sleeping duration (>8 hrs/day) \b0}";
-The SAS System
-
 MPRINT(LABELS):   order = 0.018;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = "PAG2008YN_YES" then do;
@@ -1083,12 +1087,12 @@ MPRINT(LABELS):   if variable = 'YRS_BTWN_V1FLOR' then do;
 MPRINT(LABELS):   label = "{\b Years between baseline & FLOR \b0 \li250}";
 MPRINT(LABELS):   order = 95;
 MPRINT(LABELS):   end;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'YRSV1BIRTH' then do;
 MPRINT(LABELS):   label = "{\b Years between baseline & birth \b0 \li250}";
 MPRINT(LABELS):   order = 95;
 MPRINT(LABELS):   end;
-The SAS System
-
 MPRINT(PROCESS_IMPUTED):  ;
 MPRINT(PROCESS_IMPUTED):   if variable not in ('Scale','Intercept');
 MPRINT(PROCESS_IMPUTED):   run;
@@ -1096,7 +1100,7 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 24 observations read from the data set WORK.BETA_RESULTS_1_P.
 NOTE: The data set WORK.BETA_RESULTS_1 has 22 observations and 9 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1111,7 +1115,7 @@ MPRINT(PROCESS_IMPUTED_OR):   run;
 NOTE: There were 240 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 240 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.01 seconds
       
 
@@ -1122,7 +1126,7 @@ MPRINT(PROCESS_IMPUTED_OR):   run;
 NOTE: There were 240 observations read from the data set WORK.GENMOD_RESULTS_1.
 NOTE: The data set WORK.GENMOD_RESULTS_1 has 240 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -1142,12 +1146,12 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=BKGRD1_C7NOMISS_MEXICAN
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -1194,19 +1198,19 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
-The SAS System
-
 NOTE: The above message was for the following BY group:
       EFFECTNAME=N_HC_NO
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
@@ -1236,7 +1240,7 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.OR_RESULTS_1_P has 24 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 135-158.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.09 seconds
+      real time           0.02 seconds
       cpu time            0.01 seconds
       
 
@@ -1260,12 +1264,12 @@ MPRINT(LABELS):   label = "{\b Maternal age (years) \b0 \li250}";
 MPRINT(LABELS):   order = 1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_MEXICAN' THEN DO;
+The SAS System
+
 MPRINT(LABELS):   LABEL = "{\b Hispanic/Latino Background \b0 \line \li250   Mexican}";
 MPRINT(LABELS):   ORDER = 2;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   STD = 99;
-The SAS System
-
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_P_RICAN' THEN DO;
@@ -1319,12 +1323,12 @@ MPRINT(LABELS):   STD = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'EDUCATION_C3_AT_MOST_HIGHSCHOOL_GED' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "^S={indent=2mm} High school";
 MPRINT(LABELS):   order = 4.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'EDUCATION_C3_G_HIGHSCHOOL' then do;
-The SAS System
-
 MPRINT(LABELS):   label = "^S={indent=2mm} Greater than high school";
 MPRINT(LABELS):   order = 4.2;
 MPRINT(LABELS):   end;
@@ -1364,7 +1368,7 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   estimate = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -1372,9 +1376,14 @@ MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+The SAS System
+
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -1382,8 +1391,6 @@ MPRINT(LABELS):   order = 8.2;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'PARITY_V1' then do;
 MPRINT(LABELS):   label = "{\b Parity \b0 \li250}";
-The SAS System
-
 MPRINT(LABELS):   order = 9;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'POVPCT' then do;
@@ -1434,6 +1441,8 @@ MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CESD10_DEPRE' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "^S={indent=2mm} Yes (>=10)";
 MPRINT(LABELS):   order = 0.0322;
 MPRINT(LABELS):   end;
@@ -1441,8 +1450,6 @@ MPRINT(LABELS):   if variable = 'STAI10' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Anxiety score (STAI-10)";
 MPRINT(LABELS):   order = 0.033;
 MPRINT(LABELS):   end;
-The SAS System
-
 MPRINT(LABELS):   if variable = 'STAI10_NOANX' then do;
 MPRINT(LABELS):   label = "{\b Anxiety symptoms (STAI-10) \b0 \line \li250   No (<20)}";
 MPRINT(LABELS):   order = 0.0331;
@@ -1493,6 +1500,8 @@ MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   estimate = 98;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   end;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'CURRENT_SMOKER_YES' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Current smoker";
 MPRINT(LABELS):   order = 0.014;
@@ -1500,8 +1509,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CURRENT_SMOKER' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Current smoker";
 MPRINT(LABELS):   order = 0.015;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_NEVER' then do;
 MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Never}";
@@ -1552,6 +1559,8 @@ MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
+The SAS System
+
 MPRINT(LABELS):   if variable = "PAG2008YN_NO" then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} No";
 MPRINT(LABELS):   order = 0.020;
@@ -1559,8 +1568,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'SLPDUR_LT8HRS_<8_hours' then do;
 MPRINT(LABELS):   label = "{\b Sleep duration \b0 \line \li250   Less than 8 hours}";
 MPRINT(LABELS):   order = 0.021;
-The SAS System
-
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
@@ -1611,17 +1618,17 @@ MPRINT(PROCESS_IMPUTED_OR):   end;
 MPRINT(PROCESS_IMPUTED_OR):   else do;
 MPRINT(PROCESS_IMPUTED_OR):   or_txt = strip(put(exp(estimate), 8.2));
 MPRINT(PROCESS_IMPUTED_OR):   ci_txt = cats('(', strip(put(exp(LCLMean), 8.2)), ', ', strip(put(exp(UCLMean), 8.2)), ')');
+The SAS System
+
 MPRINT(PROCESS_IMPUTED_OR):   end;
 MPRINT(PROCESS_IMPUTED_OR):   run;
 
 NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
-      511:2   
+      513:2   
 NOTE: There were 24 observations read from the data set WORK.OR_RESULTS_1_P.
 NOTE: The data set WORK.OR_RESULTS_1 has 22 observations and 6 variables.
-The SAS System
-
 NOTE: DATA statement used (Total process time):
-      real time           0.02 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -1649,7 +1656,7 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 360 observations read from the data set WORK.GENMOD_RESULTS_2.
 NOTE: The data set WORK.GENMOD_RESULTS_2 has 360 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.03 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -1670,6 +1677,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=ALCOHOL_USE_NEVER
@@ -1677,8 +1686,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
@@ -1729,6 +1736,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -1736,8 +1745,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 NOTE: The above message was for the following BY group:
       EFFECTNAME=EMPLOYEDYN_NOT_EMPLOYED
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -1760,7 +1767,7 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -1788,6 +1795,8 @@ NOTE: The above message was for the following BY group:
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
@@ -1795,8 +1804,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
-The SAS System
-
 NOTE: The above message was for the following BY group:
       EFFECTNAME=Scale
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
@@ -1814,8 +1821,8 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.BETA_RESULTS_2_P has 36 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 159-194.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.09 seconds
-      cpu time            0.04 seconds
+      real time           0.03 seconds
+      cpu time            0.01 seconds
       
 
 MPRINT(PROCESS_IMPUTED):   ods output close;
@@ -1847,6 +1854,8 @@ MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_P_RICAN' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Puerto Rican";
+The SAS System
+
 MPRINT(LABELS):   ORDER = 2.1;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_CUBAN' THEN DO;
@@ -1854,8 +1863,6 @@ MPRINT(LABELS):   LABEL = "^S={indent=2mm} Cuban";
 MPRINT(LABELS):   ORDER = 2.2;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_DOMINICAN' THEN DO;
-The SAS System
-
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Dominican";
 MPRINT(LABELS):   ORDER = 2.3;
 MPRINT(LABELS):   END;
@@ -1906,6 +1913,8 @@ MPRINT(LABELS):   label = "^S={indent=2mm} Greater than high school";
 MPRINT(LABELS):   order = 4.2;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'EMPLOYEDYN_NOT_EMPLOYED' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "{\b Employment status \b0 \line \li250   Not employed}";
 MPRINT(LABELS):   order = 5;
 MPRINT(LABELS):   estimate=99;
@@ -1913,8 +1922,6 @@ MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'EMPLOYEDYN_EMPLOYED' then do;
-The SAS System
-
 MPRINT(LABELS):   label = "^S={indent=2mm} Employed";
 MPRINT(LABELS):   order = 5.1;
 MPRINT(LABELS):   end;
@@ -1943,7 +1950,7 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   estimate = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -1951,9 +1958,12 @@ MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -1962,6 +1972,8 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'PARITY_V1' then do;
 MPRINT(LABELS):   label = "{\b Parity \b0 \li250}";
 MPRINT(LABELS):   order = 9;
+The SAS System
+
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'POVPCT' then do;
 MPRINT(LABELS):   label = "{\b Household income as % of poverty \b0 \li250}";
@@ -1972,8 +1984,6 @@ MPRINT(LABELS):   label = "{\b Years in the U.S. \b0 \line \li250   U.S.-born}";
 MPRINT(LABELS):   order = 12;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
-The SAS System
-
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_<10_Years' then do;
@@ -2021,6 +2031,8 @@ MPRINT(LABELS):   label = "^S={indent=2mm} Anxiety score (STAI-10)";
 MPRINT(LABELS):   order = 0.033;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'STAI10_NOANX' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "{\b Anxiety symptoms (STAI-10) \b0 \line \li250   No (<20)}";
 MPRINT(LABELS):   order = 0.0331;
 MPRINT(LABELS):   ESTIMATE = 99;
@@ -2031,8 +2043,6 @@ MPRINT(LABELS):   if variable = 'STAI10_ANX' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Yes (>=20)";
 MPRINT(LABELS):   order = 0.0332;
 MPRINT(LABELS):   end;
-The SAS System
-
 MPRINT(LABELS):   if variable = 'HEIGHT' then do;
 MPRINT(LABELS):   label = "{\b Anthropometry \b0 \line \li250   Height (cm)}";
 MPRINT(LABELS):   order = 0.034;
@@ -2080,6 +2090,8 @@ MPRINT(LABELS):   if variable = 'CURRENT_SMOKER' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Current smoker";
 MPRINT(LABELS):   order = 0.015;
 MPRINT(LABELS):   end;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_NEVER' then do;
 MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Never}";
 MPRINT(LABELS):   order = 0.013;
@@ -2090,8 +2102,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_FORMER' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Former";
 MPRINT(LABELS):   order = 0.014;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_CURRENT' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Current";
@@ -2139,6 +2149,8 @@ MPRINT(LABELS):   if variable = 'SLPDUR_LT8HRS_<8_hours' then do;
 MPRINT(LABELS):   label = "{\b Sleep duration \b0 \line \li250   Less than 8 hours}";
 MPRINT(LABELS):   order = 0.021;
 MPRINT(LABELS):   ESTIMATE = 99;
+The SAS System
+
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -2149,8 +2161,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   *model 5 variable;
 MPRINT(LABELS):   if variable = 'CHILD_PRS_BMI_A' then do;
 MPRINT(LABELS):   label = "{\b Child's obesity Poligenic Risk Score \b0 \li250}";
-The SAS System
-
 MPRINT(LABELS):   order = 0.04;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   * adjusted by these variables;
@@ -2188,7 +2198,7 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 36 observations read from the data set WORK.BETA_RESULTS_2_P.
 NOTE: The data set WORK.BETA_RESULTS_2 has 34 observations and 9 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.03 seconds
+      real time           0.01 seconds
       cpu time            0.00 seconds
       
 
@@ -2198,25 +2208,25 @@ MPRINT(PROCESS_IMPUTED_OR):   set genmod_results_2;
 MPRINT(PROCESS_IMPUTED_OR):   length EffectName $50;
 MPRINT(PROCESS_IMPUTED_OR):   if missing(Level1) then EffectName = Parameter;
 MPRINT(PROCESS_IMPUTED_OR):   else EffectName = catx('_', Parameter, Level1);
+The SAS System
+
 MPRINT(PROCESS_IMPUTED_OR):   run;
 
 NOTE: There were 360 observations read from the data set WORK.GENMOD_RESULTS_2.
 NOTE: The data set WORK.GENMOD_RESULTS_2 has 360 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED_OR):   proc sort data = genmod_results_2;
-The SAS System
-
 MPRINT(PROCESS_IMPUTED_OR):   by EffectName;
 MPRINT(PROCESS_IMPUTED_OR):   run;
 
 NOTE: There were 360 observations read from the data set WORK.GENMOD_RESULTS_2.
 NOTE: The data set WORK.GENMOD_RESULTS_2 has 360 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -2257,6 +2267,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -2267,8 +2279,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
@@ -2316,6 +2326,8 @@ NOTE: The above message was for the following BY group:
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
@@ -2324,10 +2336,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -2375,18 +2385,18 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=YRSUS_C3_US_BORN
+The SAS System
+
 NOTE: The data set WORK.OR_RESULTS_2_P has 36 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 195-230.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.07 seconds
-      cpu time            0.01 seconds
+      real time           0.03 seconds
+      cpu time            0.03 seconds
       
 
 MPRINT(PROCESS_IMPUTED_OR):   ods output close;
 MPRINT(PROCESS_IMPUTED_OR):   data or_results_2(keep = order model label or_txt ci_txt pv);
 MPRINT(PROCESS_IMPUTED_OR):   length model $10 or_txt $20 ci_txt $30;
-The SAS System
-
 MPRINT(PROCESS_IMPUTED_OR):   set or_results_2_p(rename = (EffectName = variable));
 MPRINT(PROCESS_IMPUTED_OR):   model = 2;
 MPRINT(LABELS):   attrib label length = $ 150 model length = $ 10;
@@ -2434,6 +2444,8 @@ MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_BK_OTHER' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Other heritage";
 MPRINT(LABELS):   ORDER = 2.6;
 MPRINT(LABELS):   END;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_CARIBBEAN' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Caribbean";
 MPRINT(LABELS):   ORDER = 2.1;
@@ -2444,8 +2456,6 @@ MPRINT(LABELS):   ORDER = 2.2;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = "N_HC_NO" THEN DO;
 MPRINT(LABELS):   LABEL = "{\b Health Insurance \line \b0 \li250   No}";
-The SAS System
-
 MPRINT(LABELS):   ORDER=3;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   STD=99;
@@ -2493,6 +2503,8 @@ MPRINT(LABELS):   label = "^S={indent=2mm} <$30,000";
 MPRINT(LABELS):   order = 6.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'LANG_PREF_ENGLISH' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "{\b Language preference \b0 \line \li250   English}";
 MPRINT(LABELS):   order = 7;
 MPRINT(LABELS):   ESTIMATE = 99;
@@ -2503,12 +2515,10 @@ MPRINT(LABELS):   if variable = 'LANG_PREF_SPANISH' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Spanish";
 MPRINT(LABELS):   order = 7.1;
 MPRINT(LABELS):   end;
-The SAS System
-
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   estimate = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -2516,9 +2526,12 @@ MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -2549,6 +2562,8 @@ MPRINT(LABELS):   order = 12.2;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_L10' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} <10 years";
+The SAS System
+
 MPRINT(LABELS):   order = 12.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_G10' then do;
@@ -2562,8 +2577,6 @@ MPRINT(LABELS):   order = 0.030;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'AGG_PHYS' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Physical health summary score";
-The SAS System
-
 MPRINT(LABELS):   order = 0.031;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CESD10' then do;
@@ -2608,6 +2621,8 @@ MPRINT(LABELS):   if variable = 'ANTA10A' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Waist circumference (cm)";
 MPRINT(LABELS):   order = 0.035;
 MPRINT(LABELS):   end;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'BMI' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Body Mass Index (BMI)";
 MPRINT(LABELS):   order = 0.036;
@@ -2621,8 +2636,6 @@ MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'ALCOHOL_USE_FORMER' then do;
-The SAS System
-
 MPRINT(LABELS):   label = "^S={indent=2mm} Former";
 MPRINT(LABELS):   order = 0.011;
 MPRINT(LABELS):   end;
@@ -2667,6 +2680,8 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'HEI2010_C3_LOW' then do;
 MPRINT(LABELS):   label = "{\b Healthy Eating Index (HEI-2010) \b0 \line \li250   Low (<=50.1)}";
 MPRINT(LABELS):   order = 0.01601;
+The SAS System
+
 MPRINT(LABELS):   estimate = 98;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
@@ -2680,8 +2695,6 @@ MPRINT(LABELS):   label = "^S={indent=2mm} High (>60.5)";
 MPRINT(LABELS):   order = 0.01603;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'PCT_MVPA' then do;
-The SAS System
-
 MPRINT(LABELS):   label = "{\b % Time in MVPA \b0}";
 MPRINT(LABELS):   order = 0.017;
 MPRINT(LABELS):   end;
@@ -2726,6 +2739,8 @@ MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CENTERNUM_CHICAGO' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Chicago";
+The SAS System
+
 MPRINT(LABELS):   order = 93.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CENTERNUM_MIAMI' then do;
@@ -2739,8 +2754,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRS_BTWN_V1FLOR' then do;
 MPRINT(LABELS):   label = "{\b Years between baseline & FLOR \b0 \li250}";
 MPRINT(LABELS):   order = 95;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSV1BIRTH' then do;
 MPRINT(LABELS):   label = "{\b Years between baseline & birth \b0 \li250}";
@@ -2759,11 +2772,11 @@ MPRINT(PROCESS_IMPUTED_OR):   end;
 MPRINT(PROCESS_IMPUTED_OR):   run;
 
 NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
-      511:2   
+      513:2   
 NOTE: There were 36 observations read from the data set WORK.OR_RESULTS_2_P.
 NOTE: The data set WORK.OR_RESULTS_2 has 34 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -2779,27 +2792,27 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 400 observations read from the data set WORK.GENMOD_RESULTS_3.
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 400 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.05 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED):   * Sort the dataset by effect name;
 MPRINT(PROCESS_IMPUTED):   proc sort data = genmod_results_3;
+The SAS System
+
 MPRINT(PROCESS_IMPUTED):   by Effectname;
 MPRINT(PROCESS_IMPUTED):   run;
 
 NOTE: There were 400 observations read from the data set WORK.GENMOD_RESULTS_3.
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 400 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.12 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED):   * Combine estimates in the imputated dataset using Rubin method in MiAnalize;
 MPRINT(PROCESS_IMPUTED):   ods output ParameterEstimates = beta_results_3_p;
 MPRINT(PROCESS_IMPUTED):   proc mianalyze data=genmod_results_3;
-The SAS System
-
 MPRINT(PROCESS_IMPUTED):   by EffectName;
 MPRINT(PROCESS_IMPUTED):   modeleffects Estimate;
 MPRINT(PROCESS_IMPUTED):   stderr StdErr;
@@ -2844,6 +2857,8 @@ NOTE: The above message was for the following BY group:
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
@@ -2857,8 +2872,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
@@ -2903,6 +2916,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=HEI2010_C3_LOW
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -2914,10 +2929,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -2962,6 +2975,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=Scale
@@ -2975,14 +2990,12 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
-The SAS System
-
 NOTE: The above message was for the following BY group:
       EFFECTNAME=YRSUS_C3_US_BORN
 NOTE: The data set WORK.BETA_RESULTS_3_P has 40 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 231-270.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.31 seconds
+      real time           0.03 seconds
       cpu time            0.01 seconds
       
 
@@ -3021,6 +3034,8 @@ MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_CUBAN' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Cuban";
 MPRINT(LABELS):   ORDER = 2.2;
 MPRINT(LABELS):   END;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_DOMINICAN' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Dominican";
 MPRINT(LABELS):   ORDER = 2.3;
@@ -3034,8 +3049,6 @@ MPRINT(LABELS):   LABEL = "^S={indent=2mm} South American";
 MPRINT(LABELS):   ORDER = 2.5;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_BK_OTHER' THEN DO;
-The SAS System
-
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Other heritage";
 MPRINT(LABELS):   ORDER = 2.6;
 MPRINT(LABELS):   END;
@@ -3080,6 +3093,8 @@ MPRINT(LABELS):   estimate=99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'EMPLOYEDYN_EMPLOYED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Employed";
 MPRINT(LABELS):   order = 5.1;
@@ -3093,8 +3108,6 @@ MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'INCOME_C2_<30' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} <$30,000";
-The SAS System
-
 MPRINT(LABELS):   order = 6.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'LANG_PREF_ENGLISH' then do;
@@ -3111,7 +3124,7 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   estimate = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -3119,9 +3132,12 @@ MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -3136,6 +3152,8 @@ MPRINT(LABELS):   label = "{\b Household income as % of poverty \b0 \li250}";
 MPRINT(LABELS):   order = 10;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_US_BORN' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "{\b Years in the U.S. \b0 \line \li250   U.S.-born}";
 MPRINT(LABELS):   order = 12;
 MPRINT(LABELS):   ESTIMATE = 99;
@@ -3152,8 +3170,6 @@ MPRINT(LABELS):   order = 12.2;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_L10' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} <10 years";
-The SAS System
-
 MPRINT(LABELS):   order = 12.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_G10' then do;
@@ -3195,6 +3211,8 @@ MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
+The SAS System
+
 MPRINT(LABELS):   if variable = 'STAI10_ANX' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Yes (>=20)";
 MPRINT(LABELS):   order = 0.0332;
@@ -3211,8 +3229,6 @@ MPRINT(LABELS):   if variable = 'ANTA10A' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Waist circumference (cm)";
 MPRINT(LABELS):   order = 0.035;
 MPRINT(LABELS):   end;
-The SAS System
-
 MPRINT(LABELS):   if variable = 'BMI' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Body Mass Index (BMI)";
 MPRINT(LABELS):   order = 0.036;
@@ -3254,6 +3270,8 @@ MPRINT(LABELS):   order = 0.013;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   estimate = 98;
 MPRINT(LABELS):   std = 99;
+The SAS System
+
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_FORMER' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Former";
@@ -3270,8 +3288,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'HEI2010_C3_LOW' then do;
 MPRINT(LABELS):   label = "{\b Healthy Eating Index (HEI-2010) \b0 \line \li250   Low (<=50.1)}";
 MPRINT(LABELS):   order = 0.01601;
-The SAS System
-
 MPRINT(LABELS):   estimate = 98;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
@@ -3313,6 +3329,8 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'SLPDUR_LT8HRS_>=8_hours' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} More than 8 hours";
 MPRINT(LABELS):   order = 0.022;
+The SAS System
+
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   *model 5 variable;
 MPRINT(LABELS):   if variable = 'CHILD_PRS_BMI_A' then do;
@@ -3329,8 +3347,6 @@ MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CENTERNUM_CHICAGO' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Chicago";
-The SAS System
-
 MPRINT(LABELS):   order = 93.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CENTERNUM_MIAMI' then do;
@@ -3356,7 +3372,7 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 40 observations read from the data set WORK.BETA_RESULTS_3_P.
 NOTE: The data set WORK.BETA_RESULTS_3 has 38 observations and 9 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.08 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -3371,7 +3387,9 @@ MPRINT(PROCESS_IMPUTED_OR):   run;
 NOTE: There were 400 observations read from the data set WORK.GENMOD_RESULTS_3.
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 400 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
+The SAS System
+
       cpu time            0.00 seconds
       
 
@@ -3382,14 +3400,12 @@ MPRINT(PROCESS_IMPUTED_OR):   run;
 NOTE: There were 400 observations read from the data set WORK.GENMOD_RESULTS_3.
 NOTE: The data set WORK.GENMOD_RESULTS_3 has 400 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED_OR):   ods output ParameterEstimates = or_results_3_p;
 MPRINT(PROCESS_IMPUTED_OR):   proc mianalyze data = genmod_results_3;
-The SAS System
-
 MPRINT(PROCESS_IMPUTED_OR):   by EffectName;
 MPRINT(PROCESS_IMPUTED_OR):   modeleffects Estimate;
 MPRINT(PROCESS_IMPUTED_OR):   stderr StdErr;
@@ -3431,6 +3447,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=CENTERNUM_BRONX
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -3447,8 +3465,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
@@ -3490,6 +3506,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=HEI2010_C3_LOW
@@ -3504,10 +3522,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -3549,6 +3565,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -3565,15 +3583,13 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
-The SAS System
-
 NOTE: The above message was for the following BY group:
       EFFECTNAME=YRSUS_C3_US_BORN
 NOTE: The data set WORK.OR_RESULTS_3_P has 40 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 271-310.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.10 seconds
-      cpu time            0.01 seconds
+      real time           0.03 seconds
+      cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED_OR):   ods output close;
@@ -3608,6 +3624,8 @@ MPRINT(LABELS):   ORDER = 2.1;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_CUBAN' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Cuban";
+The SAS System
+
 MPRINT(LABELS):   ORDER = 2.2;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_DOMINICAN' THEN DO;
@@ -3624,8 +3642,6 @@ MPRINT(LABELS):   ORDER = 2.5;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_BK_OTHER' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Other heritage";
-The SAS System
-
 MPRINT(LABELS):   ORDER = 2.6;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_CARIBBEAN' THEN DO;
@@ -3667,6 +3683,8 @@ MPRINT(LABELS):   label = "{\b Employment status \b0 \line \li250   Not employed
 MPRINT(LABELS):   order = 5;
 MPRINT(LABELS):   estimate=99;
 MPRINT(LABELS):   std = 99;
+The SAS System
+
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'EMPLOYEDYN_EMPLOYED' then do;
@@ -3683,8 +3701,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'INCOME_C2_<30' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} <$30,000";
 MPRINT(LABELS):   order = 6.1;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'LANG_PREF_ENGLISH' then do;
 MPRINT(LABELS):   label = "{\b Language preference \b0 \line \li250   English}";
@@ -3700,7 +3716,7 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   estimate = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -3708,9 +3724,12 @@ MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -3723,6 +3742,8 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'POVPCT' then do;
 MPRINT(LABELS):   label = "{\b Household income as % of poverty \b0 \li250}";
 MPRINT(LABELS):   order = 10;
+The SAS System
+
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_US_BORN' then do;
 MPRINT(LABELS):   label = "{\b Years in the U.S. \b0 \line \li250   U.S.-born}";
@@ -3742,8 +3763,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_L10' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} <10 years";
 MPRINT(LABELS):   order = 12.1;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_G10' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} >=10 years";
@@ -3782,6 +3801,8 @@ MPRINT(LABELS):   label = "{\b Anxiety symptoms (STAI-10) \b0 \line \li250   No 
 MPRINT(LABELS):   order = 0.0331;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
+The SAS System
+
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'STAI10_ANX' then do;
@@ -3801,8 +3822,6 @@ MPRINT(LABELS):   label = "^S={indent=2mm} Waist circumference (cm)";
 MPRINT(LABELS):   order = 0.035;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'BMI' then do;
-The SAS System
-
 MPRINT(LABELS):   label = "^S={indent=2mm} Body Mass Index (BMI)";
 MPRINT(LABELS):   order = 0.036;
 MPRINT(LABELS):   end;
@@ -3841,6 +3860,8 @@ MPRINT(LABELS):   if variable = 'CIGARETTE_USE_NEVER' then do;
 MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Never}";
 MPRINT(LABELS):   order = 0.013;
 MPRINT(LABELS):   pv = 5;
+The SAS System
+
 MPRINT(LABELS):   estimate = 98;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   end;
@@ -3860,8 +3881,6 @@ MPRINT(LABELS):   if variable = 'HEI2010_C3_LOW' then do;
 MPRINT(LABELS):   label = "{\b Healthy Eating Index (HEI-2010) \b0 \line \li250   Low (<=50.1)}";
 MPRINT(LABELS):   order = 0.01601;
 MPRINT(LABELS):   estimate = 98;
-The SAS System
-
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -3900,6 +3919,8 @@ MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'SLPDUR_LT8HRS_>=8_hours' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "^S={indent=2mm} More than 8 hours";
 MPRINT(LABELS):   order = 0.022;
 MPRINT(LABELS):   end;
@@ -3919,8 +3940,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CENTERNUM_CHICAGO' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Chicago";
 MPRINT(LABELS):   order = 93.1;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CENTERNUM_MIAMI' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Miami";
@@ -3951,13 +3970,15 @@ MPRINT(PROCESS_IMPUTED_OR):   end;
 MPRINT(PROCESS_IMPUTED_OR):   run;
 
 NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
-      511:2   
+      513:2   
 NOTE: There were 40 observations read from the data set WORK.OR_RESULTS_3_P.
 NOTE: The data set WORK.OR_RESULTS_3 has 38 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.04 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
+
+The SAS System
 
 MPRINT(SUMMARIZE_MODELS):  ;
 MPRINT(PROCESS_IMPUTED):   * Reshape the dataset to include effect names;
@@ -3971,21 +3992,19 @@ MPRINT(PROCESS_IMPUTED):   run;
 NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 410 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED):   * Sort the dataset by effect name;
 MPRINT(PROCESS_IMPUTED):   proc sort data = genmod_results_4;
 MPRINT(PROCESS_IMPUTED):   by Effectname;
-The SAS System
-
 MPRINT(PROCESS_IMPUTED):   run;
 
 NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 410 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -4018,6 +4037,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=BKGRD1_C7NOMISS_MEXICAN
@@ -4037,8 +4058,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
@@ -4077,6 +4096,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -4096,8 +4117,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 NOTE: The above message was for the following BY group:
       EFFECTNAME=HEI2010_C3_LOW
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -4108,7 +4127,7 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -4136,6 +4155,8 @@ NOTE: The above message was for the following BY group:
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
@@ -4155,8 +4176,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
-The SAS System
-
 NOTE: The above message was for the following BY group:
       EFFECTNAME=Scale
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
@@ -4174,8 +4193,8 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.BETA_RESULTS_4_P has 41 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 311-351.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.09 seconds
-      cpu time            0.03 seconds
+      real time           0.03 seconds
+      cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED):   ods output close;
@@ -4195,6 +4214,8 @@ MPRINT(LABELS):   * Sntadrd error negative to be formatted within parenthesis;
 MPRINT(LABELS):   std = -1 * stderr;
 MPRINT(LABELS):   * Model 1 variables;
 MPRINT(LABELS):   if variable = 'AGE' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "{\b Maternal age (years) \b0 \li250}";
 MPRINT(LABELS):   order = 1;
 MPRINT(LABELS):   end;
@@ -4214,8 +4235,6 @@ MPRINT(LABELS):   LABEL = "^S={indent=2mm} Cuban";
 MPRINT(LABELS):   ORDER = 2.2;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_DOMINICAN' THEN DO;
-The SAS System
-
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Dominican";
 MPRINT(LABELS):   ORDER = 2.3;
 MPRINT(LABELS):   END;
@@ -4254,6 +4273,8 @@ MPRINT(LABELS):   if variable = 'EDUCATION_C3_N_HIGHSCHOOL_GED' then do;
 MPRINT(LABELS):   label = "{\b Education \b0 \line \li250   Less than high school}";
 MPRINT(LABELS):   order = 4;
 MPRINT(LABELS):   ESTIMATE = 99;
+The SAS System
+
 MPRINT(LABELS):   STD = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -4273,8 +4294,6 @@ MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'EMPLOYEDYN_EMPLOYED' then do;
-The SAS System
-
 MPRINT(LABELS):   label = "^S={indent=2mm} Employed";
 MPRINT(LABELS):   order = 5.1;
 MPRINT(LABELS):   end;
@@ -4303,7 +4322,7 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   estimate = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -4311,9 +4330,14 @@ MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+The SAS System
+
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -4332,8 +4356,6 @@ MPRINT(LABELS):   label = "{\b Years in the U.S. \b0 \line \li250   U.S.-born}";
 MPRINT(LABELS):   order = 12;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
-The SAS System
-
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_<10_Years' then do;
@@ -4369,6 +4391,8 @@ MPRINT(LABELS):   if variable = 'CESD10_NODEPRE' then do;
 MPRINT(LABELS):   label = "{\b Depression symptoms (CESD-10) \b0 \line \li250   No (<10)}";
 MPRINT(LABELS):   order = 0.0321;
 MPRINT(LABELS):   ESTIMATE = 99;
+The SAS System
+
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -4391,8 +4415,6 @@ MPRINT(LABELS):   if variable = 'STAI10_ANX' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Yes (>=20)";
 MPRINT(LABELS):   order = 0.0332;
 MPRINT(LABELS):   end;
-The SAS System
-
 MPRINT(LABELS):   if variable = 'HEIGHT' then do;
 MPRINT(LABELS):   label = "{\b Anthropometry \b0 \line \li250   Height (cm)}";
 MPRINT(LABELS):   order = 0.034;
@@ -4428,6 +4450,8 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CURRENT_SMOKER_NO' then do;
 MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Not currently smoking}";
 MPRINT(LABELS):   order = 0.013;
+The SAS System
+
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   estimate = 98;
 MPRINT(LABELS):   std = 99;
@@ -4450,8 +4474,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_FORMER' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Former";
 MPRINT(LABELS):   order = 0.014;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_CURRENT' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Current";
@@ -4487,6 +4509,8 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = "PAG2008YN_YES" then do;
 MPRINT(LABELS):   label = "{\b Meets 2008 PA guidelines \b0 \line \li250   Yes}";
 MPRINT(LABELS):   order = 0.019;
+The SAS System
+
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
@@ -4509,8 +4533,6 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   *model 5 variable;
 MPRINT(LABELS):   if variable = 'CHILD_PRS_BMI_A' then do;
 MPRINT(LABELS):   label = "{\b Child's obesity Poligenic Risk Score \b0 \li250}";
-The SAS System
-
 MPRINT(LABELS):   order = 0.04;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   * adjusted by these variables;
@@ -4546,9 +4568,11 @@ MPRINT(PROCESS_IMPUTED):   if variable not in ('Scale','Intercept');
 MPRINT(PROCESS_IMPUTED):   run;
 
 NOTE: There were 41 observations read from the data set WORK.BETA_RESULTS_4_P.
+The SAS System
+
 NOTE: The data set WORK.BETA_RESULTS_4 has 39 observations and 9 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -4563,20 +4587,18 @@ MPRINT(PROCESS_IMPUTED_OR):   run;
 NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 410 observations and 11 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
 MPRINT(PROCESS_IMPUTED_OR):   proc sort data = genmod_results_4;
-The SAS System
-
 MPRINT(PROCESS_IMPUTED_OR):   by EffectName;
 MPRINT(PROCESS_IMPUTED_OR):   run;
 
 NOTE: There were 410 observations read from the data set WORK.GENMOD_RESULTS_4.
 NOTE: The data set WORK.GENMOD_RESULTS_4 has 410 observations and 11 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
@@ -4605,6 +4627,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
@@ -4627,8 +4651,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 7 in the input DATA= data set.
@@ -4664,6 +4686,8 @@ NOTE: The above message was for the following BY group:
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 5 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 6 in the input DATA= data set.
@@ -4686,8 +4710,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 NOTE: The above message was for the following BY group:
       EFFECTNAME=HEI2010_C3_LOW
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
-The SAS System
-
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 4 in the input DATA= data set.
@@ -4698,7 +4720,7 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
-      EFFECTNAME=MARITAL_STATUS_SINGLE
+      EFFECTNAME=MARITAL_STATUS_SINGLE_OTHER
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -4723,6 +4745,8 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
 NOTE: The above message was for the following BY group:
       EFFECTNAME=PAG2008YN_YES
+The SAS System
+
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 2 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 3 in the input DATA= data set.
@@ -4745,8 +4769,6 @@ WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_=
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 8 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 9 in the input DATA= data set.
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 10 in the input DATA= data set.
-The SAS System
-
 NOTE: The above message was for the following BY group:
       EFFECTNAME=Scale
 WARNING: Within-imputation StdErr is zero for variable Estimate in _Imputation_= 1 in the input DATA= data set.
@@ -4764,8 +4786,8 @@ NOTE: The above message was for the following BY group:
 NOTE: The data set WORK.OR_RESULTS_4_P has 41 observations and 13 variables.
 NOTE: The PROCEDURE MIANALYZE printed pages 352-392.
 NOTE: PROCEDURE MIANALYZE used (Total process time):
-      real time           0.06 seconds
-      cpu time            0.01 seconds
+      real time           0.03 seconds
+      cpu time            0.03 seconds
       
 
 MPRINT(PROCESS_IMPUTED_OR):   ods output close;
@@ -4782,6 +4804,8 @@ MPRINT(LABELS):   else if probt > 0.1 and probt <= 0.2 then pv = 4;
 MPRINT(LABELS):   else if probt >= 0.2 then pv = 5;
 MPRINT(LABELS):   * Sntadrd error negative to be formatted within parenthesis;
 MPRINT(LABELS):   std = -1 * stderr;
+The SAS System
+
 MPRINT(LABELS):   * Model 1 variables;
 MPRINT(LABELS):   if variable = 'AGE' then do;
 MPRINT(LABELS):   label = "{\b Maternal age (years) \b0 \li250}";
@@ -4804,8 +4828,6 @@ MPRINT(LABELS):   ORDER = 2.2;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_DOMINICAN' THEN DO;
 MPRINT(LABELS):   LABEL = "^S={indent=2mm} Dominican";
-The SAS System
-
 MPRINT(LABELS):   ORDER = 2.3;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_C_AMERICAN' THEN DO;
@@ -4841,6 +4863,8 @@ MPRINT(LABELS):   ORDER=3.1;
 MPRINT(LABELS):   END;
 MPRINT(LABELS):   if variable = 'EDUCATION_C3_N_HIGHSCHOOL_GED' then do;
 MPRINT(LABELS):   label = "{\b Education \b0 \line \li250   Less than high school}";
+The SAS System
+
 MPRINT(LABELS):   order = 4;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   STD = 99;
@@ -4863,8 +4887,6 @@ MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'EMPLOYEDYN_EMPLOYED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Employed";
-The SAS System
-
 MPRINT(LABELS):   order = 5.1;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'INCOME_C2_>30' then do;
@@ -4892,7 +4914,7 @@ MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
 MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
 MPRINT(LABELS):   order = 8;
-MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   estimate = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
@@ -4900,9 +4922,14 @@ MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
 MPRINT(LABELS):   order = 8.1;
 MPRINT(LABELS):   end;
-MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING/SEPARATED' then do;
-MPRINT(LABELS):   label = "^S={indent=2mm} Cohabiting, separated, other";
-MPRINT(LABELS):   order = 8.1;
+The SAS System
+
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
@@ -4922,8 +4949,6 @@ MPRINT(LABELS):   order = 12;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
 MPRINT(LABELS):   pv = 5;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'YRSUS_C3_<10_Years' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} <10 years";
@@ -4956,6 +4981,8 @@ MPRINT(LABELS):   order = 0.032;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CESD10_NODEPRE' then do;
 MPRINT(LABELS):   label = "{\b Depression symptoms (CESD-10) \b0 \line \li250   No (<10)}";
+The SAS System
+
 MPRINT(LABELS):   order = 0.0321;
 MPRINT(LABELS):   ESTIMATE = 99;
 MPRINT(LABELS):   std = 99;
@@ -4981,8 +5008,6 @@ MPRINT(LABELS):   label = "^S={indent=2mm} Yes (>=20)";
 MPRINT(LABELS):   order = 0.0332;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'HEIGHT' then do;
-The SAS System
-
 MPRINT(LABELS):   label = "{\b Anthropometry \b0 \line \li250   Height (cm)}";
 MPRINT(LABELS):   order = 0.034;
 MPRINT(LABELS):   end;
@@ -5015,6 +5040,8 @@ MPRINT(LABELS):   label = "^S={indent=2mm} Current";
 MPRINT(LABELS):   order = 0.012;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = 'CURRENT_SMOKER_NO' then do;
+The SAS System
+
 MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Not currently smoking}";
 MPRINT(LABELS):   order = 0.013;
 MPRINT(LABELS):   pv = 5;
@@ -5040,8 +5067,6 @@ MPRINT(LABELS):   if variable = 'CIGARETTE_USE_FORMER' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Former";
 MPRINT(LABELS):   order = 0.014;
 MPRINT(LABELS):   end;
-The SAS System
-
 MPRINT(LABELS):   if variable = 'CIGARETTE_USE_CURRENT' then do;
 MPRINT(LABELS):   label = "^S={indent=2mm} Current";
 MPRINT(LABELS):   order = 0.015;
@@ -5074,6 +5099,8 @@ MPRINT(LABELS):   label = "{\b Sleeping duration (>8 hrs/day) \b0}";
 MPRINT(LABELS):   order = 0.018;
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   if variable = "PAG2008YN_YES" then do;
+The SAS System
+
 MPRINT(LABELS):   label = "{\b Meets 2008 PA guidelines \b0 \line \li250   Yes}";
 MPRINT(LABELS):   order = 0.019;
 MPRINT(LABELS):   ESTIMATE = 99;
@@ -5099,8 +5126,6 @@ MPRINT(LABELS):   *model 5 variable;
 MPRINT(LABELS):   if variable = 'CHILD_PRS_BMI_A' then do;
 MPRINT(LABELS):   label = "{\b Child's obesity Poligenic Risk Score \b0 \li250}";
 MPRINT(LABELS):   order = 0.04;
-The SAS System
-
 MPRINT(LABELS):   end;
 MPRINT(LABELS):   * adjusted by these variables;
 MPRINT(LABELS):   if variable = 'CENTERNUM_BRONX' then do;
@@ -5133,6 +5158,8 @@ MPRINT(LABELS):   end;
 MPRINT(PROCESS_IMPUTED_OR):  ;
 MPRINT(PROCESS_IMPUTED_OR):   if variable not in ('Scale','Intercept');
 MPRINT(PROCESS_IMPUTED_OR):   if std = 99 then do;
+The SAS System
+
 MPRINT(PROCESS_IMPUTED_OR):   or_txt = 'Ref.';
 MPRINT(PROCESS_IMPUTED_OR):   ci_txt = ' ';
 MPRINT(PROCESS_IMPUTED_OR):   end;
@@ -5143,200 +5170,198 @@ MPRINT(PROCESS_IMPUTED_OR):   end;
 MPRINT(PROCESS_IMPUTED_OR):   run;
 
 NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
-      511:2   
+      513:2   
 NOTE: There were 41 observations read from the data set WORK.OR_RESULTS_4_P.
 NOTE: The data set WORK.OR_RESULTS_4 has 39 observations and 6 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.01 seconds
       
 
 MPRINT(SUMMARIZE_MODELS):  ;
-512        
-513        data table3_beta;
-514            set beta_results_1 beta_results_2 beta_results_3 beta_results_4;
-515        run;
+514        
+515        data table3_beta;
+516            set beta_results_1 beta_results_2 beta_results_3 beta_results_4;
+517        run;
 
 NOTE: There were 22 observations read from the data set WORK.BETA_RESULTS_1.
-The SAS System
-
 NOTE: There were 34 observations read from the data set WORK.BETA_RESULTS_2.
 NOTE: There were 38 observations read from the data set WORK.BETA_RESULTS_3.
 NOTE: There were 39 observations read from the data set WORK.BETA_RESULTS_4.
 NOTE: The data set WORK.TABLE3_BETA has 133 observations and 9 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
-516        
-517        data table3_beta;
-518            set table3_beta;
-519            if std = 99 then estimate = 98;
-520        run;
+518        
+519        data table3_beta;
+520            set table3_beta;
+521            if std = 99 then estimate = 98;
+522        run;
 
 NOTE: There were 133 observations read from the data set WORK.TABLE3_BETA.
 NOTE: The data set WORK.TABLE3_BETA has 133 observations and 9 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.00 seconds
+      real time           0.00 seconds
+      cpu time            0.01 seconds
       
 
-521        
-522        data table3_or_long;
-523            set or_results_1 or_results_2 or_results_3 or_results_4;
-524        run;
+523        
+524        data table3_or_long;
+525            set or_results_1 or_results_2 or_results_3 or_results_4;
+526        run;
 
 NOTE: There were 22 observations read from the data set WORK.OR_RESULTS_1.
 NOTE: There were 34 observations read from the data set WORK.OR_RESULTS_2.
 NOTE: There were 38 observations read from the data set WORK.OR_RESULTS_3.
 NOTE: There were 39 observations read from the data set WORK.OR_RESULTS_4.
 NOTE: The data set WORK.TABLE3_OR_LONG has 133 observations and 6 variables.
+The SAS System
+
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
-525        
-526        proc sort data = table3_or_long;
-527            by order label model;
-528        run;
+527        
+528        proc sort data = table3_or_long;
+529            by order label model;
+530        run;
 
 NOTE: There were 133 observations read from the data set WORK.TABLE3_OR_LONG.
 NOTE: The data set WORK.TABLE3_OR_LONG has 133 observations and 6 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
-      cpu time            0.00 seconds
+      real time           0.00 seconds
+      cpu time            0.03 seconds
       
 
-529        
-530        data table3_or_wide;
-531            length label $300 or_txt_1-or_txt_4 $40 ci_txt_1-ci_txt_4 $60 pv_1-pv_4 $20;
-532            retain or_txt_1-or_txt_4 ci_txt_1-ci_txt_4 pv_1-pv_4;
-533        
-534            set table3_or_long;
-535            by order label;
-536        
-The SAS System
-
-537            if first.label then do;
-538                call missing(of or_txt_1-or_txt_4);
-539                call missing(of ci_txt_1-ci_txt_4);
-540                call missing(of pv_1-pv_4);
-541            end;
-542        
-543            select (model);
-544                when (1) do; or_txt_1 = or_txt; ci_txt_1 = ci_txt; pv_1 = pv; end;
-545                when (2) do; or_txt_2 = or_txt; ci_txt_2 = ci_txt; pv_2 = pv; end;
-546                when (3) do; or_txt_3 = or_txt; ci_txt_3 = ci_txt; pv_3 = pv; end;
-547                when (4) do; or_txt_4 = or_txt; ci_txt_4 = ci_txt; pv_4 = pv; end;
-548                otherwise;
-549            end;
-550        
-551            if last.label then output;
-552            keep order label or_txt_: ci_txt_: pv_:;
-553        run;
+531        
+532        data table3_or_wide;
+533            length label $300 or_txt_1-or_txt_4 $40 ci_txt_1-ci_txt_4 $60 pv_1-pv_4 $20;
+534            retain or_txt_1-or_txt_4 ci_txt_1-ci_txt_4 pv_1-pv_4;
+535        
+536            set table3_or_long;
+537            by order label;
+538        
+539            if first.label then do;
+540                call missing(of or_txt_1-or_txt_4);
+541                call missing(of ci_txt_1-ci_txt_4);
+542                call missing(of pv_1-pv_4);
+543            end;
+544        
+545            select (model);
+546                when (1) do; or_txt_1 = or_txt; ci_txt_1 = ci_txt; pv_1 = pv; end;
+547                when (2) do; or_txt_2 = or_txt; ci_txt_2 = ci_txt; pv_2 = pv; end;
+548                when (3) do; or_txt_3 = or_txt; ci_txt_3 = ci_txt; pv_3 = pv; end;
+549                when (4) do; or_txt_4 = or_txt; ci_txt_4 = ci_txt; pv_4 = pv; end;
+550                otherwise;
+551            end;
+552        
+553            if last.label then output;
+554            keep order label or_txt_: ci_txt_: pv_:;
+555        run;
 
 NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
-      544:15   545:15   546:15   547:15   
+      546:15   547:15   548:15   549:15   
 NOTE: Numeric values have been converted to character values at the places given by: (Line):(Column).
-      544:67   545:67   546:67   547:67   
+      546:67   547:67   548:67   549:67   
 NOTE: There were 133 observations read from the data set WORK.TABLE3_OR_LONG.
 NOTE: The data set WORK.TABLE3_OR_WIDE has 39 observations and 14 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.02 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
-554        
-555        data table3_or_wide;
-556            set table3_or_wide;
-557            sig_1 = (pv_1 in (1,2));
-558            sig_2 = (pv_2 in (1,2));
-559            sig_3 = (pv_3 in (1,2));
-560            sig_4 = (pv_4 in (1,2));
-561        run;
+556        
+557        data table3_or_wide;
+558            set table3_or_wide;
+The SAS System
+
+559            sig_1 = (pv_1 in (1,2));
+560            sig_2 = (pv_2 in (1,2));
+561            sig_3 = (pv_3 in (1,2));
+562            sig_4 = (pv_4 in (1,2));
+563        run;
 
 NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
-      557:14   558:14   559:14   560:14   
+      559:14   560:14   561:14   562:14   
 NOTE: There were 39 observations read from the data set WORK.TABLE3_OR_WIDE.
 NOTE: The data set WORK.TABLE3_OR_WIDE has 39 observations and 18 variables.
 NOTE: DATA statement used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
       
 
-562        
-563        proc sort data = table3_or_wide;
-564            by order;
-565        run;
+564        
+565        proc sort data = table3_or_wide;
+566            by order;
+567        run;
 
 NOTE: There were 39 observations read from the data set WORK.TABLE3_OR_WIDE.
 NOTE: The data set WORK.TABLE3_OR_WIDE has 39 observations and 18 variables.
 NOTE: PROCEDURE SORT used (Total process time):
-      real time           0.01 seconds
+      real time           0.00 seconds
       cpu time            0.00 seconds
-The SAS System
-
       
 
-566        
-567        * Obtain ids and save it in a macro variable;
-568        proc sql noprint;
-569            select count(distinct(id)) into :n_ids trimmed from &impdb.;
-570        quit;
+568        
+569        * Obtain ids and save it in a macro variable;
+570        proc sql noprint;
+571            select count(distinct(id)) into :n_ids trimmed from &impdb.;
+572        quit;
 NOTE: PROCEDURE SQL used (Total process time):
       real time           0.01 seconds
-      cpu time            0.00 seconds
+      cpu time            0.01 seconds
       
 
-571        
-572        * Print final reports;
-573        ods listing close;
-574        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
-575        
-576        %let fs = 11pt;
-577        %let fs_body = 11pt;
-578        %let fs_titles = 11pt;
-579        %let lft_mgn = 0.3in;
-580        %let rgt_mgn = 0.1in;
-581        
-582        ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._bts_&sysdate..rtf" style = manuscrt bodytitle;
+573        
+574        * Print final reports;
+575        ods listing close;
+576        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+577        
+578        %let fs = 11pt;
+579        %let fs_body = 11pt;
+580        %let fs_titles = 11pt;
+581        %let lft_mgn = 0.3in;
+582        %let rgt_mgn = 0.1in;
+583        
+584        ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._bts_&sysdate..rtf" style = manuscrt bodytitle;
 NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\scripts\HC338358b\HC338358b_Table3_bts_24JUN26.rtf
-583        proc report data = table3_beta;
-584            title j = center height = &fs font = 'times roman' bold
-585                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3. Association among maternal preconception socio-behavioral factors and child's overweight or obese
-585      ! status or not, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
-586            footnote1 j = left height = &fs_titles font = 'times roman'
-587                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
-588            footnote2 j = left height = &fs_titles font = 'times roman'
-589                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and
-589      ! FLOR visit.";
-590            footnote3 j = left height = &fs_titles font = 'times roman'
-591                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR
-591      ! visit.";
-592            footnote4 j = left height = &fs_titles font = 'times roman'
-593                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR
-593      ! visit.";
-594            footnote5 j = left height = &fs_titles font = 'times roman'
-595                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
-596            footnote6 j = left height = 10pt font = 'times roman'
-597                "{\line \line Job &job run by &prg using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
-598            columns order label model,(estimate std pv);
-599            define order / order group noprint order = internal;
-600            define label / display group ' ' style(header)=[fontsize=&fs just=left] style=[fontsize=&fs width=2.5in];
-601            define model / across ' ' style = [fontsize=&fs];
-602            define estimate / analysis 'Beta' style=[fontsize=&fs vjust=bottom];
-603            define std / analysis '(SE)' style=[fontsize=&fs vjust=bottom];
-604            define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
-605                                           style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
-606            format pv pv. std paren. estimate refnum.;
-607            compute after _page_ / style = [just=left font_size=&fs];
-608                line "* p <= .10, ** p <= .05, *** p <= .01";
-609            endcomp;
-610        run;
+585        proc report data = table3_beta;
+586            title j = center height = &fs font = 'times roman' bold
+587                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3. Association among maternal preconception socio-behavioral factors and child's overweight or obese
+587      ! status or not, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+588            footnote1 j = left height = &fs_titles font = 'times roman'
+589                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
+590            footnote2 j = left height = &fs_titles font = 'times roman'
 The SAS System
 
+591                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and
+591      ! FLOR visit.";
+592            footnote3 j = left height = &fs_titles font = 'times roman'
+593                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR
+593      ! visit.";
+594            footnote4 j = left height = &fs_titles font = 'times roman'
+595                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR
+595      ! visit.";
+596            footnote5 j = left height = &fs_titles font = 'times roman'
+597                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
+598            footnote6 j = left height = 10pt font = 'times roman'
+599                "{\line \line Job &job run by &prg using FLOR data on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+600            columns order label model,(estimate std pv);
+601            define order / order group noprint order = internal;
+602            define label / display group ' ' style(header)=[fontsize=&fs just=left] style=[fontsize=&fs width=2.5in];
+603            define model / across ' ' style = [fontsize=&fs];
+604            define estimate / analysis 'Beta' style=[fontsize=&fs vjust=bottom];
+605            define std / analysis '(SE)' style=[fontsize=&fs vjust=bottom];
+606            define pv / analysis ' ' group style=[fontsize=&fs vjust=bottom just=left]
+607                                           style(header)=[cellpadding=0in cellheight=0in cellspacing=0in];
+608            format pv pv. std paren. estimate refnum.;
+609            compute after _page_ / style = [just=left font_size=&fs];
+610                line "* p <= .10, ** p <= .05, *** p <= .01";
+611            endcomp;
+612        run;
 
 NOTE: PROCEDURE REPORT used (Total process time):
       real time           0.05 seconds
@@ -5344,83 +5369,83 @@ NOTE: PROCEDURE REPORT used (Total process time):
       
 NOTE: There were 133 observations read from the data set WORK.TABLE3_BETA.
 
-611        ods rtf close;
-612        
-613        ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._or_&sysdate..rtf" style = manuscrt bodytitle;
+613        ods rtf close;
+614        
+615        ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._or_&sysdate..rtf" style = manuscrt bodytitle;
 NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\scripts\HC338358b\HC338358b_Table3_or_24JUN26.rtf
-614        proc report data = table3_or_wide;
-615            title j = center height = &fs font = 'times roman' bold
-616                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Association among maternal preconception socio-behavioral factors and child's overweight
-616      ! or obese status or not, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
-617            footnote1 j = left height = &fs_titles font = 'times roman'
-618                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
-619            footnote2 j = left height = &fs_titles font = 'times roman'
-620                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and
-620      ! FLOR visit.";
-621            footnote3 j = left height = &fs_titles font = 'times roman'
-622                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR
-622      ! visit.";
-623            footnote4 j = left height = &fs_titles font = 'times roman'
-624                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR
+616        proc report data = table3_or_wide;
+617            title j = center height = &fs font = 'times roman' bold
+618                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Association among maternal preconception socio-behavioral factors and child's overweight
+618      ! or obese status or not, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+619            footnote1 j = left height = &fs_titles font = 'times roman'
+620                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
+621            footnote2 j = left height = &fs_titles font = 'times roman'
+622                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 1: Sociodemographic & acculturation predictors adjusted by field center, years between baseline and
+622      ! FLOR visit.";
+623            footnote3 j = left height = &fs_titles font = 'times roman'
+624                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR
 624      ! visit.";
-625            footnote5 j = left height = &fs_titles font = 'times roman'
-626                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
-627            footnote6 j = left height = 10pt font = 'times roman'
-628                "{\line \line Job &job run by &prg using FLOR analytic file (HC338353) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
-629            columns order label
-630                    sig_1 ('Model 1' or_txt_1 ci_txt_1)
-631                    sig_2 ('Model 2' or_txt_2 ci_txt_2)
-632                    sig_3 ('Model 3' or_txt_3 ci_txt_3)
-633                    sig_4 ('Model 4' or_txt_4 ci_txt_4);
-634            define order / order = internal noprint;
-635            define label / display "Predictor" style(header)=[fontsize=&fs just=left] style=[fontsize=&fs width=2.5in];
-636            define or_txt_1 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
-637            define ci_txt_1 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
-638            define or_txt_2 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
-639            define ci_txt_2 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
-640            define or_txt_3 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
-641            define ci_txt_3 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
-642            define or_txt_4 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
-643            define ci_txt_4 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
-644            define sig_1 / display noprint;
-645            define sig_2 / display noprint;
-646            define sig_3 / display noprint;
-647            define sig_4 / display noprint;
-648            compute or_txt_1;
-649                if sig_1 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
-650            endcomp;
-651            compute ci_txt_1;
-652                if sig_1 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
-653            endcomp;
-654            compute or_txt_2;
-655                if sig_2 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+625            footnote4 j = left height = &fs_titles font = 'times roman'
+626                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR
+626      ! visit.";
+627            footnote5 j = left height = &fs_titles font = 'times roman'
+628                "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
+629            footnote6 j = left height = 10pt font = 'times roman'
+630                "{\line \line Job &job run by &prg using FLOR analytic file (HC338353) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+631            columns order label
+632                    sig_1 ('Model 1' or_txt_1 ci_txt_1)
 The SAS System
 
-656            endcomp;
-657            compute ci_txt_2;
-658                if sig_2 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
-659            endcomp;
-660            compute or_txt_3;
-661                if sig_3 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
-662            endcomp;
-663            compute ci_txt_3;
-664                if sig_3 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
-665            endcomp;
-666            compute or_txt_4;
-667                if sig_4 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
-668            endcomp;
-669            compute ci_txt_4;
-670                if sig_4 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
-671            endcomp;
-672        run;
+633                    sig_2 ('Model 2' or_txt_2 ci_txt_2)
+634                    sig_3 ('Model 3' or_txt_3 ci_txt_3)
+635                    sig_4 ('Model 4' or_txt_4 ci_txt_4);
+636            define order / order = internal noprint;
+637            define label / display "Predictor" style(header)=[fontsize=&fs just=left] style=[fontsize=&fs width=2.5in];
+638            define or_txt_1 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+639            define ci_txt_1 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+640            define or_txt_2 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+641            define ci_txt_2 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+642            define or_txt_3 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+643            define ci_txt_3 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+644            define or_txt_4 / display "OR" style=[fontsize=&fs vjust=bottom just=center];
+645            define ci_txt_4 / display "95% CI" style=[fontsize=&fs vjust=bottom just=center];
+646            define sig_1 / display noprint;
+647            define sig_2 / display noprint;
+648            define sig_3 / display noprint;
+649            define sig_4 / display noprint;
+650            compute or_txt_1;
+651                if sig_1 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+652            endcomp;
+653            compute ci_txt_1;
+654                if sig_1 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+655            endcomp;
+656            compute or_txt_2;
+657                if sig_2 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+658            endcomp;
+659            compute ci_txt_2;
+660                if sig_2 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+661            endcomp;
+662            compute or_txt_3;
+663                if sig_3 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+664            endcomp;
+665            compute ci_txt_3;
+666                if sig_3 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+667            endcomp;
+668            compute or_txt_4;
+669                if sig_4 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+670            endcomp;
+671            compute ci_txt_4;
+672                if sig_4 = 1 then call define(_col_, 'style', 'style=[font_weight=bold]');
+673            endcomp;
+674        run;
 
 NOTE: PROCEDURE REPORT used (Total process time):
-      real time           0.03 seconds
+      real time           0.04 seconds
       cpu time            0.01 seconds
       
 NOTE: There were 39 observations read from the data set WORK.TABLE3_OR_WIDE.
 
-673        ods rtf close;
-674        
-675        proc printto; run;
+675        ods rtf close;
+676        
+677        proc printto; run;
 

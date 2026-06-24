@@ -51,6 +51,7 @@ run;
 				24jun26 (AQA)
 						Copy from HC338302 -- collapse Hispanic/Latino background
 						to 3 categories and marital status to 2 categories.
+						Correct marital collapse -- single/separated/other vs cohabiting.
 						child sex -- show % and p-value for FLOR and non-FLOR columns
 						replace WAZ with BMI-for-age z score (BMIZ)
 						reorder child rows -- birthweight z before BMI category
@@ -101,8 +102,8 @@ data repdata;
         else if bkgrd1_c7nomiss in (1, 5, 6) then bkgrd_c3 = 3;
     end;
     if not missing(marital_status) then do;
-        if marital_status = 1 then marital_c2 = 1;
-        else if marital_status in (2, 3) then marital_c2 = 2;
+        if marital_status = 2 then marital_c2 = 1;
+        else if marital_status in (1, 3) then marital_c2 = 2;
     end;
     format bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt. marital_status marital_status_c2_fmt.;
 run;
@@ -436,8 +437,8 @@ run;
 %categorical(EDUCATION_C3,1,&y Less than high school,EDUCATION_C3 gt .z,1)
 %categorical(EDUCATION_C3,2,&y High school graduate,EDUCATION_C3 gt .z,1)
 %categorical(EDUCATION_C3,3,&y Greater than high school,EDUCATION_C3 gt .z,1) 
-%categorical(MARITAL_C2,1,&y Single,MARITAL_C2 gt .z,1)
-%categorical(MARITAL_C2,2,%bquote(&y Cohabiting, separated, other),MARITAL_C2 gt .z,1)
+%categorical(MARITAL_C2,2,%bquote(&y Single, separated, divorced or widowed),MARITAL_C2 gt .z,2)
+%categorical(MARITAL_C2,1,&y Married or with a partner,MARITAL_C2 gt .z,2)
 %categorical(EMPLOYEDYN,1,&y Yes, EMPLOYEDYN gt .z, 1);
 %categorical(EMPLOYEDYN,0,&y No, EMPLOYEDYN gt .z, 1);
 %categorical(YRSUS_C3,1,&y < 10 years,YRSUS_C3 gt .z,1)
@@ -476,7 +477,7 @@ data allrows;
         BKGRD_C3_1 BKGRD_C3_2 BKGRD_C3_3 PARITY_V1
         toplines(where=(line=2)) /* Education, % */ EDUCATION_C3_1
         EDUCATION_C3_2 EDUCATION_C3_3 toplines(where=(line=4))
-        /* Marital status, % */ marital_c2_1 marital_c2_2 toplines(where=(line=5)) /* Employment, % */
+        /* Marital status, % */ marital_c2_2 marital_c2_1 toplines(where=(line=5)) /* Employment, % */
         EMPLOYEDYN_1 EMPLOYEDYN_0 toplines(where=(line=6))
         /* Years in the US, % */ yrsus_c3_1 yrsus_c3_2 yrsus_c3_3
         toplines(where=(line=7)) /* Health insurance */ N_HC_1 N_HC_0
