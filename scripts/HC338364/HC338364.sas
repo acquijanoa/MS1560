@@ -35,6 +35,7 @@ run;
 *                Replace cumulative logit / unequal slopes with multinomial logistic
 *                (link=glogit; BMIPCT_C3 reference Normal).
 *                Revise table footnotes to MS1560 abbreviation, model, and footer standards.
+*       24jun26: Revise table footnotes (aligned with HC338364b).
 *
 *  INPUT: HC338353_imputed_data_&datefile.
 *
@@ -57,7 +58,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let rg_margin = 0.7in;
 %let table_num = 4;
 
-%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC3383XX\HC3383XX.sas";
 %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
 
 data logistic_input / view = logistic_input;
@@ -73,7 +74,7 @@ proc logistic data = logistic_input plots=none;
 		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
 		cigarette_use(ref="NEVER") alcohol_use(ref="NEVER") pag2008yn(ref="YES")
 		hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX") / param = ref;
-	model BMIPCT_C3 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1
+	model BMIPCT_C3 = centernum yrs_btwn_v1flor age n_hc education_c3 parity_v1
 		employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur
 		cesd10 stai10 child_prs_bmi_a / link = glogit expb clodds = wald covb;
 	format BMIPCT_C3 bmipct_c3_fmt. centernum centernum_fmt. n_hc n_hc_fmt.
@@ -434,12 +435,10 @@ proc report data = db_join split = '#'
 	title j = center height = &fs font = 'times roman' bold
 		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Table &table_num.. Maternal preconception socio-behavioral factors and child BMI category, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
 	footnote1 j = left height = &fs_titles font = 'times roman'
-		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; OR, odds ratio from multinomial logistic regression for child BMI category (reference category, Normal); PA, physical activity.";
+		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; OR, odds ratios; PA, physical activity.";
 	footnote2 j = left height = &fs_titles font = 'times roman'
-		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score; adjusted for field center and years between baseline and FLOR visit.";
+		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Odds ratios and 95% confidence intervals from multinomial logistic regression models (Overweight vs Normal and Obese vs Normal) fit to multiply imputed data (10 imputations) and pooled using Rubin's rules. Obese vs Overweight odds ratios were derived from the corresponding log-odds contrast.";
 	footnote3 j = left height = &fs_titles font = 'times roman'
-		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Odds ratios and 95% confidence intervals from generalized logit models (Overweight vs Normal and Obese vs Normal) fit to multiply imputed data (10 imputations) and pooled using Rubin's rules. Obese vs Overweight odds ratios were derived from the corresponding log-odds contrast.";
-	footnote4 j = left height = &fs_titles font = 'times roman'
 		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Bold odds ratio (95% CI) indicates the confidence interval excludes 1.00 (two-sided nominal alpha = 0.05).";
 	footnote5 j = left height = 10pt font = 'times roman'
 		"{\line \line Job &job run by &prg using FLOR analytic file (HC338353) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";

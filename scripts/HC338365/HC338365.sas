@@ -53,7 +53,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let table_num = 4.1;
 
 * Include sas scripts with formats and macros;
-%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC3383XX\HC3383XX.sas";
 %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
 
 /* Macro to process imputed odds ratios (proportional odds; same structure as job 58 / HC338358) */

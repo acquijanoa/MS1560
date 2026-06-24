@@ -38,6 +38,7 @@ run;
 
 				 20may26: update input dataset to *_20may26
 						  correct script so it finally shows both bts and OR tables
+ *               24jun26: update Table 3 title -- overweight or obese status or not
 
  * ----------------------------------------------------------
  *
@@ -63,7 +64,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let table_num = 3;
 
 * Include SAS scripts with formats and macros;
-%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC3383XX\HC3383XX.sas";
 %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
 %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
 
@@ -269,7 +270,7 @@ ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
 ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._bts_&sysdate..rtf" style = manuscrt bodytitle;
 proc report data = table3_beta;
     title j = center height = &fs font = 'times roman' bold
-        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table 3. Association among maternal preconception socio-behavioral factors and child's overweight or obese status or not, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
     footnote1 j = left height = &fs_titles font = 'times roman'
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
     footnote2 j = left height = &fs_titles font = 'times roman'
@@ -300,7 +301,7 @@ ods rtf close;
 ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._or_&sysdate..rtf" style = manuscrt bodytitle;
 proc report data = table3_or_wide;
     title j = center height = &fs font = 'times roman' bold
-        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Association among maternal preconception socio-behavioral factors and child's overweight or obese status, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
+        "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Table &table_num.. Association among maternal preconception socio-behavioral factors and child's overweight or obese status or not, HCHS/SOL FLOR Ancillary Study (n=%qtrim(&n_ids))";
     footnote1 j = left height = &fs_titles font = 'times roman'
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; PA, physical activity.";
     footnote2 j = left height = &fs_titles font = 'times roman'

@@ -14,6 +14,12 @@ scripts:
     created: 2026-03-08
     status: "completed"
 
+  - code: HC338302b/HC338302b.sas
+    task: "Job 02b: Table 1 with collapsed Hispanic/Latino background (3 categories) and marital status (2 categories); aligned with model jobs 54b-64b."
+    software: SAS
+    created: 2026-06-24
+    status: "completed"
+
   - code: HC338351/HC338351.sas
     task: "Job 51: builds FLOR-only and all-eligible analytic datasets for QC."
     software: SAS
@@ -44,6 +50,12 @@ scripts:
     created: 2025-11-03
     status: "completed"
 
+  - code: HC338354b/HC338354b.sas
+    task: "Job 54b: same as job 54 with collapsed background and marital status (Table 2.1)."
+    software: SAS
+    created: 2026-06-24
+    status: "completed"
+
   - code: HC338354a/HC338354a.sas
     task: "Job 54a: same pooled linear model as job 54 for WAZ on the PRS-complete imputed sample; produces Table 2.1a."
     software: SAS
@@ -56,6 +68,12 @@ scripts:
     created: 2025-11-04
     status: "completed"
 
+  - code: HC338358b/HC338358b.sas
+    task: "Job 58b: same as job 58 with collapsed background and marital status (Table 3)."
+    software: SAS
+    created: 2026-06-24
+    status: "completed"
+
   - code: HC338358a/HC338358a.sas
     task: "Job 58a: same BMIPCT_C2 logistic model as job 58 on the PRS-complete imputed sample; produces Table 3a."
     software: SAS
@@ -66,6 +84,12 @@ scripts:
     task: "Job 61: same pooled model Table 2 structure as job 54 with response BMIZ instead of WAZ."
     software: SAS
     created: 2026-04-13
+    status: "completed"
+
+  - code: HC338361b/HC338361b.sas
+    task: "Job 61b: same as job 61 with collapsed background and marital status (Table 2)."
+    software: SAS
+    created: 2026-06-24
     status: "completed"
 
   - code: HC338361a/HC338361a.sas
@@ -92,6 +116,12 @@ scripts:
     created: 2026-04-27
     status: "completed"
 
+  - code: HC338363b/HC338363b.sas
+    task: "Job 63b: same as job 63 with collapsed background and marital status (Table 5)."
+    software: SAS
+    created: 2026-06-24
+    status: "completed"
+
   - code: HC338363a/HC338363a.sas
     task: "Job 63a: birthwt_ga_z linear model pipeline; produces Table 5a."
     software: SAS
@@ -102,6 +132,12 @@ scripts:
     task: "Job 64: pooled ordinal model for child BMI category BMIPCT_C3 (normal/overweight/obese); Table 4 (main sample)."
     software: SAS
     created: 2026-04-30
+    status: "completed"
+
+  - code: HC338364b/HC338364b.sas
+    task: "Job 64b: multinomial logistic for BMIPCT_C3 (Model 4) with collapsed background and marital status (Table 4)."
+    software: SAS
+    created: 2026-06-24
     status: "completed"
 
   - code: HC338364a/HC338365.sas
@@ -116,8 +152,8 @@ scripts:
     created: 2025-11-03
     status: "completed"
 
-  - code: HC338390/HC338390.sas
-    task: "Job 90: centralized PROC FORMAT definitions for categorical displays and reporting conventions used downstream."
+  - code: HC3383XX/HC3383XX.sas
+    task: "Job 90: centralized PROC FORMAT catalog (renamed from HC338390, Jun 2026). Includes collapsed-category formats for b-version jobs."
     software: SAS
     created: 2025-11-03
     status: "completed"
