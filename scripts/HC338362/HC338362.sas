@@ -60,7 +60,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %let rg_margin = 0.7in;
 
 * Include sas scripts with formats and macros;
-%include "&homepath.\scripts\HC338390\HC338390.sas";
+%include "&homepath.\scripts\HC3383XX\HC3383XX.sas";
 %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
 %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
 %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";

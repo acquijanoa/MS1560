@@ -1,6 +1,9 @@
 /data
 *.sas7bdat
-/docs
+
+# Manuscript supporting documents (Word, analysis plans, etc.)
+docs/
+
 **/old_files/
 /gplot
 **/gplot/

@@ -9,6 +9,7 @@
 	Version control:	10jun25:	update POVPCT label
 						18nov25:    update labels of SLPDUR and HEI2010_C3 to 
 										include units and tertiles, respectively
+						24jun26:    update CHILD_PRS_BMI_A label
 
 */
 
@@ -36,9 +37,8 @@
 	if variable = 'BKGRD1_C7NOMISS_C_AMERICAN' THEN DO; LABEL = "^S={indent=2mm} Central American"; ORDER = 2.4; END;
 	if variable = 'BKGRD1_C7NOMISS_SOUTH' THEN DO; LABEL = "^S={indent=2mm} South American"; ORDER = 2.5; END;
 	if variable = 'BKGRD1_C7NOMISS_BK_OTHER' THEN DO; LABEL = "^S={indent=2mm} Other heritage"; ORDER = 2.6; END;
-	if variable = 'BKGRD1_C3NOMISS_MEXICAN' THEN DO; LABEL = "{\b Hispanic/Latino Background \b0 \line \li250   Mexican}"; ORDER = 2; ESTIMATE = 99; STD = 99; pv = 5; END;
-	if variable = 'BKGRD1_C3NOMISS_CARIBBEAN' THEN DO; LABEL = "^S={indent=2mm} Caribbean"; ORDER = 2.1; END; 
-	if variable = 'BKGRD1_C3NOMISS_SC_OTHER' THEN DO; LABEL = "^S={indent=2mm} Central and South America/Other"; ORDER = 2.2; END;
+	if variable = 'BKGRD1_C7NOMISS_CARIBBEAN' THEN DO; LABEL = "^S={indent=2mm} Caribbean"; ORDER = 2.1; END; 
+	if variable = 'BKGRD1_C7NOMISS_SC_OTHER' THEN DO; LABEL = "^S={indent=2mm} Central and South America/Other"; ORDER = 2.2; END;
 	if variable = "N_HC_NO" THEN DO; LABEL = "{\b Health Insurance \line \b0 \li250   No}"; ORDER=3; ESTIMATE = 99; STD=99; pv = 5; END;
 	if variable = "N_HC_YES" THEN DO; LABEL = "^S={indent=2mm} Yes"; ORDER=3.1; END; 
 	if variable = 'EDUCATION_C3_N_HIGHSCHOOL_GED' then do; label = "{\b Education \b0 \line \li250   Less than high school}"; order = 4; ESTIMATE = 99; STD = 99; pv = 5; end;
@@ -98,7 +98,7 @@
 	if variable = 'SLPDUR_LT8HRS_>=8_hours' then do; label = "^S={indent=2mm} More than 8 hours"; order = 0.022; end;
 
 	*model 5 variable; 
-	if variable = 'CHILD_PRS_BMI_A' then do; label = "{\b Child Polygenic Risk Score \b0 \li250}"; order = 0.04; end;
+	if variable = 'CHILD_PRS_BMI_A' then do; label = "{\b Child's obesity Poligenic Risk Score \b0 \li250}"; order = 0.04; end;
 
 	* adjusted by these variables;
 	if variable = 'CENTERNUM_BRONX' then do; label = "{\b Field center \line \b0 \li250   Bronx}"; order = 93; ESTIMATE = 99; std=99; pv = 5; end;

@@ -1,0 +1,177 @@
+                                                          MS#1560 SOL/FLOR preconceptional factors and child weight
+                                                                                      
+                                                                      Confidential/Not for distribution
+                                                                                      
+^S={leftmargin=0.7in rightmargin=0.7in} Table 0.  Missing patterns of sociodemographic and acculturation factors and child weight among Hispanic/Latina mother-child dyads in
+
+                                                                              The MI Procedure
+
+                                                                            Missing Data Patterns
+ 
+                                                             MARITAL_                  EDUCATION_
+                                Group    WAZ    PARITY_V1    STATUS      EMPLOYEDYN    C3            YRSUS_C3    N_HC        Freq     Percent
+
+                                    1    X      X            X           X             X             X           X            217       74.57
+                                    2    X      X            X           X             X             .           X              1        0.34
+                                    3    X      X            X           .             X             X           X              1        0.34
+                                    4    X      X            X           .             X             X           .              4        1.37
+                                    5    X      X            .           .             .             .           .              1        0.34
+                                    6    X      .            X           X             X             X           X              3        1.03
+                                    7    .      X            X           X             X             X           X             61       20.96
+                                    8    .      X            X           X             X             X           .              2        0.69
+                                    9    .      X            X           X             X             .           X              1        0.34
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+                         ^S={leftmargin=0.7in rightmargin=0.7in} Variables BKGRD1_C7, AGE and LANG_PREF are not included since have no missing data
+                       ^S={leftmargin=0.7in rightmargin=0.7in} Abbrev: weight-for-age z-score (WAZ), health coverage (N_HC), years in the US (YRSUS).
+                                                       24JUN26, 12:53 -- HC338352 (AQA) using V1 and FLOR inv_use data
+                                                          MS#1560 SOL/FLOR preconceptional factors and child weight
+                                                                                      
+                                                                      Confidential/Not for distribution
+                                                                                      
+^S={leftmargin=0.7in rightmargin=0.7in} Table 0.  Missing patterns of anthropometry and physical and mental health factors and child weight among Hispanic/Latina mother-chil
+
+                                                                              The MI Procedure
+
+                                                                            Missing Data Patterns
+ 
+                                                          Group    WAZ    CESD10    STAI10        Freq     Percent
+
+                                                              1    X      X         X              221       75.95
+                                                              2    X      .         .                6        2.06
+                                                              3    .      X         X               64       21.99
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+          ^S={leftmargin=0.7in rightmargin=0.7in} The variable STAI10 was not updated for participants born after Visit 2, since it was not measured at that visit.
+^S={leftmargin=0.7in rightmargin=0.7in} Abbrev: weight-for-age z-score (WAZ), 10-items state-trait anxiety inventory (STAI10), Center for Epidemiologic Studies Depression Sc
+                                                       24JUN26, 12:53 -- HC338352 (AQA) using V1 and FLOR inv_use data
+                                                          MS#1560 SOL/FLOR preconceptional factors and child weight
+                                                                                      
+                                                                      Confidential/Not for distribution
+                                                                                      
+^S={leftmargin=0.7in rightmargin=0.7in} Table 0.  Missing patterns of maternal health behaviors factors and child weight among Hispanic/Latina mother-child dyads in the HCHS
+
+                                                                              The MI Procedure
+
+                                                                            Missing Data Patterns
+ 
+                                                      CURRENT_    HEI2010_    ALCOHOL_                 SLPDUR_
+                                      Group    WAZ    SMOKER      C3          USE         PAG2008YN    LT8HRS         Freq     Percent
+
+                                          1    X      X           X           X           X            X               158       54.30
+                                          2    X      X           X           X           X            .                 7        2.41
+                                          3    X      X           X           X           .            X                57       19.59
+                                          4    X      X           X           X           .            .                 4        1.37
+                                          5    X      .           .           .           .            .                 1        0.34
+                                          6    .      X           X           X           X            X                45       15.46
+                                          7    .      X           X           X           X            .                 6        2.06
+                                          8    .      X           X           X           .            X                13        4.47
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+^S={leftmargin=0.7in rightmargin=0.7in} Abbrev: weight-for-age z-score (WAZ), health eating index 2010 (HEI2010), sleep duration (SLPDUR) and Physical actitivity meets 2008 
+                                                       24JUN26, 12:53 -- HC338352 (AQA) using V1 and FLOR inv_use data

@@ -46,6 +46,17 @@ run;
 						uses flag variable keep_ms1560 instead of flor_dyad
 						add complete/incomplete anthropometry to the table's header
 
+				24jun26 (AQA)
+						child sex -- show % and p-value for FLOR and non-FLOR columns
+						replace WAZ with BMI-for-age z score (BMIZ)
+						reorder child rows -- birthweight z before BMI category
+						drop income, housing %, acculturation, and % MVPA from table
+						Mental health section -- CESD-10 and STAI-10 only
+						drop anthropometry section (BMI, waist circumference)
+						replace continuous HEI-2010 with categorical HEI2010_C3
+						update sleep duration row label
+						update BMI group level labels with superscript th
+
   NOTE:          Related: HC3139 - MS1207 [FLOR grant aim #1] Uses final INV1 data and MI
 -----------------------------------------------------------------
 
@@ -57,9 +68,6 @@ run;
 *******************************************************************;
 OPTIONS ps=59 ls=max nodate nonumber MPRINT errors=50 orientation=landscape;
 %LET prog=AQA;
-
-* set footnote;
-FOOTNOTE "Job &job run by &prog on &SYSDATE at &SYSTIME";
 
 * macro variable;
 %let home=J:\HCHS\SC\&prog.\&req.;
@@ -102,10 +110,6 @@ data toplines;
     vartext='Education, %';
     output;
 
-    line=3;
-    vartext='Income, % ';
-    output;
-
     line=4;
     vartext='Marital status, %';
     output;
@@ -122,20 +126,8 @@ data toplines;
     vartext='Health insurance';
     output;
 
-    line=8;
-    vartext='Acculturation' ;
-    output;
-
-    line=9;
-    vartext='Language of Preference, %';
-    output;
-
     line=10;
-    vartext='Physical and Mental Health';
-    output;
-
-    line=11;
-    vartext='Anthropometry';
+    vartext='Mental health';
     output;
 
     line=12;
@@ -148,6 +140,10 @@ data toplines;
 
     line=14;
     vartext='Smoking, %';
+    output;
+
+    line=11;
+    vartext='Diet (Healthy Eating Index), %';
     output;
 
     line=15;
@@ -163,7 +159,7 @@ data toplines;
     output;
 
 	line=18;
-    vartext='BMI';
+    vartext='BMI group, %';
     output;
 run;
 
@@ -219,11 +215,6 @@ run;
         vartext="&text";
         var="&var";
 
-        if upcase(&var)="DEMB1" then do;
-            flor_dyad0_n='0';
-            flor_dyad0_p='**';
-        end;
-
         rename flor_dyad0_n=nonflor_n flor_dyad0_p=nonflor_p flor_dyad1_n=flor_n
             flor_dyad1_p=flor_p ;
     run;
@@ -246,21 +237,15 @@ run;
  */
 %macro model_cat(catvar);
 
-    %if %upcase(&catvar)=DEMB1 %then %do;
-        %put DEMB1;
-        %let pcat=**;
-    %end;
-    %else %do;
-        PROC FREQ data=repdata;
-            table &catvar*keep_ms1560 / chisq;
-            ods output ChiSq=chisq_out (where=(Statistic="Chi-Square")
-                rename=(prob=p));
-        run;
+    PROC FREQ data=repdata;
+        table &catvar*keep_ms1560 / chisq;
+        ods output ChiSq=chisq_out (where=(Statistic="Chi-Square")
+            rename=(prob=p));
+    run;
 
-        proc sql;
-            select strip(put(p,pvalue6.3)) into :pcat trimmed from chisq_out;
-        quit;
-    %end;
+    proc sql;
+        select strip(put(p,pvalue6.3)) into :pcat trimmed from chisq_out;
+    quit;
     %put pcat &pcat;
 
     data chisq_&catvar;
@@ -271,7 +256,7 @@ run;
         keep var pvalue;
     run;
 
- %if %upcase(&catvar)=BMIPCT_C3 or %upcase(&catvar)=DEMB1 %then %do;
+ %if %upcase(&catvar)=BMIPCT_C3 %then %do;
 	data chisq_&catvar;
 		set chisq_&catvar;
 		nonflor_n='';
@@ -364,7 +349,7 @@ run;
 
             rename n_nonflor=nonflor_n n_flor=flor_n ;
 
-            %if %upcase(&var)=WAZ or %upcase(&var)=BMIPCT_C3 or %upcase(&var)=DEMB1 %then %do;
+            %if %upcase(&var)=BMIPCT_C3 or %upcase(&var)=BMIZ %then %do;
                 n_nonflor='';
                 nonflor_p='';
                 pvalue='**';
@@ -438,9 +423,6 @@ run;
 %categorical(EDUCATION_C3,1,&y Less than high school,EDUCATION_C3 gt .z,1)
 %categorical(EDUCATION_C3,2,&y High school graduate,EDUCATION_C3 gt .z,1)
 %categorical(EDUCATION_C3,3,&y Greater than high school,EDUCATION_C3 gt .z,1) 
-%categorical(INCOME_C3,1,%str(&y < $30,000),INCOME_C3 gt .z,1)
-%categorical(INCOME_C3,2,%str(&y ^{unicode '2265'x} $30,000),INCOME_C3 gt .z,1) 
-%categorical(INCOME_C3,3,&y Not reported,INCOME_C3 gt .z,1)
 %categorical(MARITAL_STATUS,1,&y Single,MARITAL_STATUS gt .z,1)
 %categorical(MARITAL_STATUS,2,&y Married or with a partner,MARITAL_STATUS gt .z,1) 
 %categorical(MARITAL_STATUS,3,&y %bquote(Separated, divorced or widowed),MARITAL_STATUS gt .z,1)
@@ -449,45 +431,30 @@ run;
 %categorical(YRSUS_C3,1,&y < 10 years,YRSUS_C3 gt .z,1)
 %categorical(YRSUS_C3,2,%str(&y ^{unicode '2265'x} 10 years),YRSUS_C3 gt .z,1) 
 %categorical(YRSUS_C3,3,&y Born in US,YRSUS_C3 gt .z,1)
-%continuous(POVPCT,%bquote(Housing, %),POVPCT gt .z ) 
 %categorical(N_HC,1,&y Yes,N_HC gt .z,1) 
 %categorical(N_HC,0,&y No,N_HC gt .z,1)
-%categorical(LANG_PREF,1,&y Spanish,LANG_PREF gt .z,1)
-%categorical(LANG_PREF,2,&y English,LANG_PREF gt .z,1)
-%continuous(ACCULT_MESA,MESA acculturation,ACCULT_MESA gt .z)
-%continuous(AGG_PHYS,Physical health scale,AGG_PHYS gt .z)
-%continuous(AGG_MENT,Mental health scale,AGG_MENT gt .z)
 %continuous(CESD10,Depressive symptoms,CESD10 gt .z)
 %continuous(STAI10,Anxiety,STAI10 gt .z) 
-%continuous(BMI,BMI (kg/m2), BMI gt .z) 
-%continuous(ANTA10A, Waist Circumference (cm), ANTA10A gt .z)
-
 %categorical(CIGARETTE_USE,1,&y Never,CIGARETTE_USE gt .z,1)
 %categorical(CIGARETTE_USE,2,&y Former,CIGARETTE_USE gt .z,1)
 %categorical(CIGARETTE_USE,3,&y Current,CIGARETTE_USE gt .z,1)
 
-%continuous(HEI2010,Healthy Eating Index, HEI2010 gt .z)
-%continuous(PCT_MVPA,%bquote(% MVPA, min/day), PCT_MVPA gt .z)
+%categorical(HEI2010_C3,1,%str(&y Low (<=50.1)),HEI2010_C3 gt .z,1)
+%categorical(HEI2010_C3,2,%str(&y Medium (>50.1-62.5)),HEI2010_C3 gt .z,1)
+%categorical(HEI2010_C3,3,%str(&y High (>62.5)),HEI2010_C3 gt .z,1)
 %categorical(ALCOHOL_USE,1,&y Never,ALCOHOL_USE gt .z, 1)
 %categorical(ALCOHOL_USE,2,&y Former,ALCOHOL_USE gt .z, 1)
 %categorical(ALCOHOL_USE,3,&y Current,ALCOHOL_USE gt .z, 1)
-%continuous(SLPDUR,Sleep duration, SLPDUR gt .z)
+%continuous(SLPDUR,%str(Sleep duration (>8 hrs/day)), SLPDUR gt .z)
 %categorical(PAG2008YN,1,&y Yes,PAG2008YN gt .z, 1) 
 %categorical(PAG2008YN,0,&y No,PAG2008YN gt .z, 1)
 %categorical(DEMB1,1,&y Boy, DEMB1 gt .z, 1) 
 %categorical(DEMB1,2,&y Girl, DEMB1 gt .z, 1) 
-%categorical(BMIPCT_C3,1,&y Normal, BMIPCT_C3 gt .z, 1) 
-%categorical(BMIPCT_C3,2,&y Overweight, BMIPCT_C3 gt .z, 1) 
-%categorical(BMIPCT_C3,3,&y Obese, BMIPCT_C3 gt .z, 1) 
-%continuous(WAZ,Weight-for-age z score, WAZ gt .z)
-%continuous(BIRTHWT_GA_Z,Birth weight z score, BIRTHWT_GA_Z gt .z) 
-run;
-
-* Reset values;
-data demb1_2; 
-	set demb1_2;
-	nonflor_n = '';
-	nonflor_p = '';
+%continuous(BIRTHWT_GA_Z,Birth weight-for-gestational-age z score, BIRTHWT_GA_Z gt .z)
+%categorical(BMIPCT_C3,1,%str(&y Normal (lower than 85^{super th} percentile)), BMIPCT_C3 gt .z, 1) 
+%categorical(BMIPCT_C3,2,%str(&y Overweight (85^{super th} to less than 95^{super th} percentile)), BMIPCT_C3 gt .z, 1) 
+%categorical(BMIPCT_C3,3,%str(&y Obese (95^{super th} percentile or over)), BMIPCT_C3 gt .z, 1) 
+%continuous(BMIZ,BMI-for-age z score, BMIZ gt .z)
 run;
 
 data allrows;
@@ -497,36 +464,40 @@ data allrows;
         BKGRD1_C7NOMISS_2 BKGRD1_C7NOMISS_0 BKGRD1_C7NOMISS_3 BKGRD1_C7NOMISS_4
         BKGRD1_C7NOMISS_5 BKGRD1_C7NOMISS_1 BKGRD1_C7NOMISS_6 PARITY_V1
         toplines(where=(line=2)) /* Education, % */ EDUCATION_C3_1
-        EDUCATION_C3_2 EDUCATION_C3_3 toplines(where=(line=3)) /* Income, % */
-        income_c3_1 income_c3_2 income_c3_3 toplines(where=(line=4))
+        EDUCATION_C3_2 EDUCATION_C3_3 toplines(where=(line=4))
         /* Marital status, % */ marital_status_1 marital_status_2
         marital_status_3 toplines(where=(line=5)) /* Employment, % */
         EMPLOYEDYN_1 EMPLOYEDYN_0 toplines(where=(line=6))
-        /* Years in the US, % */ yrsus_c3_1 yrsus_c3_2 yrsus_c3_3 POVPCT
-        toplines(where=(line=7)) /* Health care access */ N_HC_1 N_HC_0
-        toplines(where=(line=8)) /* Acculturation */ toplines(where=(line=9))
-        /* Language of Preference, % */ lang_pref_1 lang_pref_2 ACCULT_MESA
-        toplines(where=(line=10)) /* Physical and Mental Health */ AGG_PHYS
-        AGG_MENT CESD10 STAI10 toplines(where=(line=11)) /* Anthropometry */ BMI
-        ANTA10A toplines(where=(line=12)) /* Health Behaviors */
+        /* Years in the US, % */ yrsus_c3_1 yrsus_c3_2 yrsus_c3_3
+        toplines(where=(line=7)) /* Health insurance */ N_HC_1 N_HC_0
+        toplines(where=(line=10)) /* Mental health */ CESD10 STAI10
+        toplines(where=(line=12)) /* Health Behaviors */
         toplines(where=(line=13)) /* Alcohol Use, % */ ALCOHOL_USE_1
         ALCOHOL_USE_2 ALCOHOL_USE_3 toplines(where=(line=14)) /* Smoking, % */
-        CIGARETTE_USE_1 CIGARETTE_USE_2 CIGARETTE_USE_3 
-		HEI2010 SLPDUR PCT_MVPA
+        CIGARETTE_USE_1 CIGARETTE_USE_2 CIGARETTE_USE_3
+        toplines(where=(line=11)) /* Diet */ HEI2010_C3_1 HEI2010_C3_2 HEI2010_C3_3
+		SLPDUR
         toplines(where=(line=15)) /* Phisical activity, % */ PAG2008YN_1
         PAG2008YN_0 toplines(where=(line=16)) /* Child */
-        toplines(where=(line=17)) /* Sex, % */ DEMB1_1
-        /* is child�s sex (1-boy; 2-girl). */ DEMB1_2 
- 		toplines(where=(line=18)) BMIPCT_C3_1 BMIPCT_C3_2 BMIPCT_C3_3 WAZ BIRTHWT_GA_Z ;
+        toplines(where=(line=17)) /* Sex, % */ DEMB1_1 DEMB1_2
+        BIRTHWT_GA_Z
+ 		toplines(where=(line=18)) BMIPCT_C3_1 BMIPCT_C3_2 BMIPCT_C3_3 BMIZ ;
 
     ods rtf file="&homepath.\scripts\&job.\&job._Table1_&sysdate..rtf" bodytitle
         style=journal;
     ods escapechar="^";
-    title1
+    * title1
         "Table 1. Maternal Preconception and Child Characteristics among HCHS/SOL women with a child born ^n between baseline (2008-11) and Visit 2 (2014-17), by FLOR participation.";
+    title1 j=left 
+        "^S={leftmargin=1.5in}Table 1. Maternal Preconception and Child Characteristics among HCHS/SOL women with a child born ^n after baseline (2008-11) by availability of child's anthropometry.";
     options orientation=landscape ;
 
     ods listing close;
+
+    footnote1 j=left height=10pt font='times roman'
+        "^S={leftmargin=1.5in}Abbreviations: BMI, body mass index; PA, physical activity.";
+    footnote2 j=left height=10pt font='times roman'
+        "{\line \line Job &job run by &prog on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
 
 proc report data=allrows nowd style(header)=header{background=lightgray};
     columns vartext ("FLOR dyads ^n and complete ^n anthropometry ^n (N=&flor_ct)" flor_n flor_p)
@@ -541,9 +512,8 @@ proc report data=allrows nowd style(header)=header{background=lightgray};
         style(column)=[cellwidth=1.5 in];
     define pvalue / display "P-value" center;
     compute vartext;
-    if vartext in ('Sociodemographic', 'Acculturation', 'Anthropometry',
-        'Physical and Mental Health', 'Health Behaviors',
-        'Child characteristics') THEN do;
+    if vartext in ('Sociodemographic', 'Mental health',
+        'Health Behaviors', 'Child characteristics') THEN do;
         call define (_COL_,"STYLE", "STYLE=[fontweight=BOLD]");
     end;
     endcomp;
