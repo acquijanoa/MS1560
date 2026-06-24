@@ -16,7 +16,7 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 | Code | Task |
 |------|------|
 | HC338302/HC338302.sas | Job 02 (adapted from SC HC338302): descriptive Table 1 with maternal preconception and child characteristics. |
-| HC338302b/HC338302b.sas | Job 02b: Table 1 sensitivity version with collapsed Hispanic/Latino background (3 categories) and marital status (2 categories); aligned with model jobs 54b–64b. |
+| HC338302b/HC338302b.sas | Job 02b: Table 1 with collapsed Hispanic/Latino background (3 categories) and marital status (2 categories); aligned with model jobs 54b-64b. |
 | HC338351/HC338351.sas | Job 51: builds FLOR-only and all-eligible analytic datasets for QC. |
 | HC338352/HC338352.sas | Job 52: missing-data pattern tables by manuscript domains using the FLOR analytic dataset. |
 | HC338353/HC338353.sas | Job 53: multiple imputation (10 imputations, n=227 main sample); output HC338353_imputed_data_<datefile>; waz/bmiz in MI model; raw anthropometry not imputed. |
@@ -36,19 +36,14 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 | HC338363b/HC338363b.sas | Job 63b: same as job 63 with collapsed background and marital status (Table 5). |
 | HC338363a/HC338363a.sas | Job 63a: birthwt_ga_z linear model pipeline; produces Table 5a. |
 | HC338364/HC338364.sas | Job 64: pooled ordinal model for child BMI category BMIPCT_C3 (normal/overweight/obese); Table 4 (main sample). |
-| HC338364b/HC338364b.sas | Job 64b: multinomial logistic (generalized logit) for BMIPCT_C3, Model 4 only; collapsed background and marital status (Table 4). |
+| HC338364b/HC338364b.sas | Job 64b: multinomial logistic for BMIPCT_C3 (Model 4) with collapsed background and marital status (Table 4). |
 | HC338364a/HC338365.sas | Job 65: BMIPCT_C3 ordinal OR table (proportional odds; Model 4 covariates). |
 | HC338357/HC338357.sas | Job 57: inclusion/exclusion table for analytic sample construction. |
-| HC3383XX/HC3383XX.sas | Job 90: centralized PROC FORMAT catalog (renamed from HC338390, Jun 2026). All table and model jobs `%include` this script for display formats, including collapsed-category formats used by `b` jobs (`bkgrd1_c3nomiss_fmt`, `marital_status_c2_fmt`). |
+| HC3383XX/HC3383XX.sas | Job 90: centralized PROC FORMAT catalog (renamed from HC338390, Jun 2026). Includes collapsed-category formats for b-version jobs. |
 | HC338391/ | Job 91: shared SAS macros used across jobs (labels for PROC REPORT-style tables, pooling multiply imputed results, partial R² helpers, anonymization utilities). |
 | HC338398/ | Job 98: analytic file QC—cross-checks and comparisons vs Statistical Computing reference datasets. |
 | HC338399/ | Job 99 miscellaneous scripts. |
 
 ---
 
-## Sensitivity jobs (`b` suffix)
-Jobs **02b**, **54b**, **58b**, **61b**, **63b**, and **64b** mirror their parent jobs but apply collapsed Hispanic/Latino background (3 categories) and marital status (2 categories) via formats in `HC3383XX`. Use these when manuscript tables or models require the reduced category scheme.
-
----
-
-**Generated on:** 2026-06-24 (updated manually; originally 2026-05-20 via `generate_md.R`)
+**Generated on:** 2026-06-24 using `generate_md.R` by Alvaro Quijano-Angarita
