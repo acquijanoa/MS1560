@@ -1,7 +1,7 @@
 %let req=HC3383;
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = &req.61b;
-%let datefile = 20may26;
+%let datefile = 29jun26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log" 
 	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new; 
 run;
@@ -16,11 +16,12 @@ run;
 *                                       
 *  PROGRAMMER: Alvaro Quijano (AQ)
 *
-*  DESCRIPTION: Imputation model (replicate HC338354 job 54);
+*  DESCRIPTION: Imputation model (replicate HC338354 job 54).
 *               outcome is child BMI-for-age z-score (BMIZ)
 *               instead of weight-for-age z-score (WAZ).
-*               Collapsed Hispanic/Latino background (3 categories)
-*               and marital status (2 categories) via PROC FORMAT.
+*               Collapsed Hispanic/Latino background (3 categories),
+*               marital status (2 categories), and smoking (never vs
+*               current or former) via HC338353b imputed covariates.
 *
 * ---------------------------------------------------------
 *
@@ -31,19 +32,20 @@ run;
 *  LANGUAGE: SAS 9.4
 *
 *  VERSION CONTROL: 
-*					13apr26: Create from HC338354 (job 54);
+*					13apr26: Create from HC338354 (job 54).
 *							 response is BMIZ instead of WAZ.
-*					13apr26: Init macros &req, &job (&req.61b), &datefile;
-*							 impdb uses &datefile; printto/ODS use &job.
+*					13apr26: Init macros &req, &job (&req.61b), &datefile.
+*							 impdb uses &datefile. printto/ODS use &job.
 *					29apr26: update imputed dataset to 29apr26 and replace
 *							 current_smoker with cigarette_use (models 2-4).
 *					05may26: table_num macro variable added
 *					20may26: input dataset was updated
-*					24jun26: Copy from HC338361; collapse background (bkgrd1_c3nomiss_fmt) and marital status (marital_status_c2_fmt).
-*					Correct marital collapse -- single/separated/other vs cohabiting.
+*					24jun26: Copy from HC338361 -- collapse background (bkgrd1_c3nomiss_fmt) and marital status (marital_status_c2_fmt).
+*					Collapse cigarette_use to never vs current or former (cigarette_use_c2_fmt).
+*					29jun26: Input HC338353b imputed data; use derived collapsed covariates.
 * ----------------------------------------------------------
 *
-*  INPUT:  DATA.HC338353_imputed_data_<datefile> (see %let impdb)
+*  INPUT:  DATA.HC338353b_imputed_data_&datefile. (see %let impdb)
 *                                        
 *  OUTPUT: 
 *
@@ -57,7 +59,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Define macro variables; 
 %let prg = AQA;
-%let impdb = data.HC338353_imputed_data_&datefile.;
+%let impdb = data.HC338353b_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 %let table_num = 2;
@@ -68,8 +70,8 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 %include "&homepath.\scripts\HC338391\HC3383_process_imputed.sas";
 %include "&homepath.\scripts\HC338391\HC3383_partial_r2.sas";
 
-%let pr2_class_vars = bkgrd1_c7nomiss marital_status employedyn education_c3 n_hc
-			yrsus_c3 cigarette_use alcohol_use pag2008yn hei2010_c3 cesd10 stai10
+%let pr2_class_vars = bkgrd1_c3nomiss marital_status_c2 employedyn education_c3 n_hc
+			yrsus_c3 cigarette_use_c2 alcohol_use pag2008yn hei2010_c3 cesd10 stai10
 			centernum;
 %let pr2_cont_vars = age parity_v1 slpdur child_prs_bmi_a yrs_btwn_v1flor;
 %let pr2_table_vars = &pr2_cont_vars centernum;
@@ -88,10 +90,10 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 title 'Model 1 - Sociodemographics';
 proc genmod data = &impdb;
 	by _imputation_;
-	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
+	class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN');
-	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3 / d=normal;
-	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt. marital_status marital_status_c2_fmt. 
+	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3 parity_v1 employedyn marital_status_c2 yrsus_c3 / d=normal;
+	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt. marital_status_c2 marital_status_c2_fmt. 
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.;
 	ods output ParameterEstimates=genmod_results_1;
 run;
@@ -99,15 +101,15 @@ run;
 title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur) ';
 proc genmod data = &impdb;
 	by _imputation_;
-	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
+	class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER") 
+			cigarette_use_c2(REF="NEVER") alcohol_use(REF="NEVER") 
 			pag2008yn(ref="YES") hei2010_c3(ref="LOW"); 
-	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur / dist = normal;
-	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt. marital_status marital_status_c2_fmt. 
+	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3 parity_v1 employedyn marital_status_c2 yrsus_c3
+			cigarette_use_c2 hei2010_c3 alcohol_use pag2008yn slpdur / dist = normal;
+	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt. marital_status_c2 marital_status_c2_fmt. 
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt. 
+			alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt. 
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.;
 	ods output ParameterEstimates=genmod_results_2;
 run;
@@ -115,17 +117,17 @@ run;
 title 'Model 3: Model 2 + mental health';
 proc genmod data = &impdb;
 	by _imputation_;
-	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
+	class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER") 
+			cigarette_use_c2(REF="NEVER") alcohol_use(REF="NEVER") 
 			pag2008yn(ref="YES") hei2010_c3(ref="LOW") 
 			cesd10(ref="NODEPRE") stai10(ref="NOANX"); 
-	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur
+	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3 parity_v1 employedyn marital_status_c2 yrsus_c3
+			cigarette_use_c2 hei2010_c3 alcohol_use pag2008yn slpdur
 			cesd10 stai10/ dist = normal;
-	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt. marital_status marital_status_c2_fmt. 
+	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt. marital_status_c2 marital_status_c2_fmt. 
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt. 
+			alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt. 
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. 
 			cesd10 cesd10_fmt. stai10 stai10_fmt.;
 	ods output ParameterEstimates=genmod_results_3;
@@ -134,17 +136,17 @@ run;
 title 'Model 4: Model 3 + PRS';
 proc genmod data = &impdb;
 	by _imputation_;
-	class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
+	class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED") 
 			education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-			cigarette_use(REF="NEVER") alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW") 
+			cigarette_use_c2(REF="NEVER") alcohol_use(REF="NEVER") pag2008yn(ref="YES") hei2010_c3(ref="LOW") 
 			cesd10(ref="NODEPRE") stai10(ref="NOANX");  
-	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1 employedyn marital_status yrsus_c3
-			cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur 
+	model bmiz = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3 parity_v1 employedyn marital_status_c2 yrsus_c3
+			cigarette_use_c2 hei2010_c3 alcohol_use pag2008yn slpdur 
 			cesd10 stai10
 			child_prs_bmi_a/ dist = normal type3;
-	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt. marital_status marital_status_c2_fmt. 
+	format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt. marital_status_c2 marital_status_c2_fmt. 
 			employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-			alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt. 
+			alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt. 
 			pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt.
 			cesd10 cesd10_fmt. stai10 stai10_fmt.;
 	ods output ParameterEstimates=genmod_results_4 ModelANOVA=type3;
@@ -223,7 +225,7 @@ proc report data = db_join;
 	footnote3 J=LEFT HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 2: Model 1 + health behavior predictors adjusted by field center and years between baseline and FLOR visit.";
 	footnote4 J=LEFT HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 3: Model 2 + mental health predictors adjusted by field center and years between baseline and FLOR visit.";
 	footnote5 J=LEFT HEIGHT=&fs_titles FONT='times roman' "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
-	footnote6 J=LEFT HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR analytic file (HC338353) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+	footnote6 J=LEFT HEIGHT=10pt FONT='times roman' "{\line \line Job &job run by &PRG using FLOR analytic file (HC338353b) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
 	columns order label model,(estimate STD PV) partial_r2_pct;
 	define order / order group noprint order = internal;
 	define label / display group ' ' style(HEADER)=[FONTSIZE = &fs JUST = left] style = [FONTSIZE=&fs width = 2.5in];

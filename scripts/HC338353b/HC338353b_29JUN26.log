@@ -1,0 +1,367 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.01 seconds
+      
+
+8          /*********************************************************
+9          *                                                         *
+10         *  SAS PROGRAM - MI JOB HC3383     *
+11         *                                                         *
+12         **********************************************************
+13         *                                                         *
+14         *  PROGRAM NAME: HC338353b.sas
+15         *
+16         *  PROGRAMMER: Alvaro Quijano (AQA)
+17         *
+18         *  TITLE:        Multiple imputation
+19         *
+20         *  DESCRIPTION:  PROC MI (10 imputations) for FLOR MS1560 cohort
+21         *                (keep_ms1560) on full-granularity covariates (same model as
+22         *                HC338353). Post-process collapsed Hispanic/Latino background
+23         *                (3 categories), marital status (2 categories), smoking (never
+24         *                vs current or former), HEI2010_C3, and SLPDUR_LT8HRS.
+25         *
+26         *  MANUSCRIPT:   MS1560
+27         *
+28         * ---------------------------------------------------------
+29         *
+2                                                          The SAS System                                13:00 Monday, June 29, 2026
+
+30         *  JOB NUMBER: HC338353b
+31         *
+32         *  PREVIOUS JOB: HC338351
+33         *
+34         *  LANGUAGE: SAS 9.4
+35         *
+36         *  DATE:         29jun26
+37         *
+38         *  VERSION CONTROL:
+39         *		29jun26: Create from HC338353; output imputed dataset dated with
+40         *			 run date (&sysdate.) for traceability.
+41         *			 Impute full-granularity covariates; derive collapsed variables
+42         *			 after MI (bkgrd1_c3nomiss, marital_status_c2, cigarette_use_c2).
+43         * ----------------------------------------------------------
+44         *
+45         *  INPUT:  HC338351_flor_&datefile..sas7bdat
+46         *
+47         *  OUTPUT: HC338353b_imputed_data_&sysdate..sas7bdat
+48         *          HC338353b_mi_&sysdate..rtf
+49         *
+50         **********************************************************/
+51         options orientation=landscape ps=59 ls=173 nodate nonumber nocenter
+52                 formchar="|----|+|---+=|-/\<>*" mprint varinitchk=error
+53                 validvarname=upcase;
+54         ods escapechar='^';
+55         
+56         * Set libraries;
+57         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\data
+58         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+59         
+60         * Define macro variables;
+61         %let prg = AQA;
+62         %let data = data.HC338351_flor_&datefile.;
+63         %let impds = &job._imputed_data_&sysdate.;
+64         %let lf_margin = 0.7in;
+65         %let rg_margin = 0.7in;
+66         
+67         * Set footnote;
+68         footnote "&sysdate -- &job (&prg)";
+69         
+70         ods listing gpath = "&homepath.\scripts\&job.\gplot";
+71         ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+72         ods listing close;
+73         ods rtf file = "&homepath.\scripts\&job.\&job._mi_&sysdate..rtf" bodytitle style=manuscrt;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\scripts\HC338353b\HC338353b_mi_29JUN26.rtf
+74         
+75         * Transform variables to produce plots;
+76         data db;
+77         	set &data;
+78         run;
+
+The SAS System
+
+NOTE: There were 291 observations read from the data set DATA.HC338351_FLOR_20MAY26.
+NOTE: The data set WORK.DB has 291 observations and 271 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+79         
+80         * Plot the continuous variables;
+81         %macro histogram_density(var=);
+82         	proc sgplot data = db;
+83         		histogram &var.;
+84         		density &var. / type = normal;
+85         	run;
+86         %mend histogram_density;
+87         
+88         title 'Variable: Weight-for-age (WAZ)';
+89         %histogram_density(var = waz);
+MPRINT(HISTOGRAM_DENSITY):   proc sgplot data = db;
+MPRINT(HISTOGRAM_DENSITY):   histogram waz;
+MPRINT(HISTOGRAM_DENSITY):   density waz / type = normal;
+MPRINT(HISTOGRAM_DENSITY):   run;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           1.41 seconds
+      cpu time            0.07 seconds
+      
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+90         
+91         title 'Variable: hei2010';
+92         %histogram_density(var = hei2010);
+MPRINT(HISTOGRAM_DENSITY):   proc sgplot data = db;
+MPRINT(HISTOGRAM_DENSITY):   histogram hei2010;
+MPRINT(HISTOGRAM_DENSITY):   density hei2010 / type = normal;
+MPRINT(HISTOGRAM_DENSITY):   run;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.23 seconds
+      cpu time            0.03 seconds
+      
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+93         
+94         title 'Variable: pag2008yn';
+95         proc sgplot data=db;
+96         	vbar pag2008yn;
+97         run;
+
+NOTE: Since no format is assigned, the numeric category variable will use the default of BEST6.
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.16 seconds
+      cpu time            0.06 seconds
+      
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+98         
+The SAS System
+
+99         title 'Variable: child_prs_bmi_a';
+100        %histogram_density(var = child_prs_bmi_a);
+MPRINT(HISTOGRAM_DENSITY):   proc sgplot data = db;
+MPRINT(HISTOGRAM_DENSITY):   histogram child_prs_bmi_a;
+MPRINT(HISTOGRAM_DENSITY):   density child_prs_bmi_a / type = normal;
+MPRINT(HISTOGRAM_DENSITY):   run;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.15 seconds
+      cpu time            0.04 seconds
+      
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+101        
+102        title 'Variable: sleep duration';
+103        %histogram_density(var=slpdur);
+MPRINT(HISTOGRAM_DENSITY):   proc sgplot data = db;
+MPRINT(HISTOGRAM_DENSITY):   histogram slpdur;
+MPRINT(HISTOGRAM_DENSITY):   density slpdur / type = normal;
+MPRINT(HISTOGRAM_DENSITY):   run;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.15 seconds
+      cpu time            0.03 seconds
+      
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+104        
+105        title 'Variable: birthwt_ga_z';
+106        %histogram_density(var=birthwt_ga_z);
+MPRINT(HISTOGRAM_DENSITY):   proc sgplot data = db;
+MPRINT(HISTOGRAM_DENSITY):   histogram birthwt_ga_z;
+MPRINT(HISTOGRAM_DENSITY):   density birthwt_ga_z / type = normal;
+MPRINT(HISTOGRAM_DENSITY):   run;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.14 seconds
+      cpu time            0.03 seconds
+      
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+107        
+108        title 'Variable: bmiz';
+109        %histogram_density(var=bmiz);
+MPRINT(HISTOGRAM_DENSITY):   proc sgplot data = db;
+MPRINT(HISTOGRAM_DENSITY):   histogram bmiz;
+MPRINT(HISTOGRAM_DENSITY):   density bmiz / type = normal;
+MPRINT(HISTOGRAM_DENSITY):   run;
+
+NOTE: PROCEDURE SGPLOT used (Total process time):
+      real time           0.14 seconds
+      cpu time            0.01 seconds
+      
+NOTE: There were 291 observations read from the data set WORK.DB.
+
+110        
+111        * Impute variables of interest;
+The SAS System
+
+112        proc mi data=db out=data.&impds. nimpute=10 seed=3383
+113        	minimum= . . . . . . . 0 . . . . 0 . . . . . . . .
+114        	maximum= . . . . . . . . . . . . . . . . . . . . . ;
+115           ods exclude modelinfo fcsmodel misspattern;
+116           class centernum bkgrd1_c7nomiss employedyn n_hc
+117        			cigarette_use alcohol_use yrsus_c3 education_c3 marital_status pag2008yn;
+118           fcs reg(waz cesd10 stai10 child_prs_bmi_a birthwt_ga_z hei2010 slpdur)
+119        	   regpmm(parity_v1);
+120           fcs logistic(employedyn n_hc pag2008yn / link=logit likelihood=augment)
+121        	   logistic(cigarette_use alcohol_use yrsus_c3 education_c3 marital_status / likelihood=augment);	
+122        	var waz centernum bkgrd1_c7nomiss yrs_btwn_v1flor age birthwt_ga_z slpdur
+123        		hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a
+124        		employedyn n_hc cigarette_use
+125        		alcohol_use yrsus_c3 education_c3 marital_status
+126        		bmiz
+127        		;
+128        	where keep_ms1560;
+129        run;
+
+NOTE: The data set DATA.HC338353B_IMPUTED_DATA_29JUN26 has 2270 observations and 272 variables.
+NOTE: PROCEDURE MI used (Total process time):
+      real time           12.34 seconds
+      cpu time            11.23 seconds
+      
+
+130        
+131        * Macro to summarize imputed dataset;
+132        %macro summary_imputation(vars=);
+133        	proc means data = data.&impds. nmiss;
+134        		by _imputation_;
+135        		var &vars.;
+136        		output out = a;
+137        	run;
+138        	proc transpose data = a out=b(drop=_label_ rename=(_name_= Variable));
+139        		by _imputation_;
+140        		id _stat_;
+141        		var &vars.;
+142        	run;
+143        	proc sort data = b out=c; by Variable; run;
+144        	proc print data = c; run;
+145        %mend summary_imputation;
+146        
+147        * Summarize the imputated variables;
+148        title 'Imputed variables';
+149        %summary_imputation(vars=waz birthwt_ga_z slpdur hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a
+150        				employedyn n_hc cigarette_use alcohol_use yrsus_c3 education_c3 marital_status);
+MPRINT(SUMMARY_IMPUTATION):   proc means data = data.HC338353b_imputed_data_29JUN26 nmiss;
+MPRINT(SUMMARY_IMPUTATION):   by _imputation_;
+MPRINT(SUMMARY_IMPUTATION):   var waz birthwt_ga_z slpdur hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a employedyn n_hc cigarette_use alcohol_use yrsus_c3 
+education_c3 marital_status;
+MPRINT(SUMMARY_IMPUTATION):   output out = a;
+MPRINT(SUMMARY_IMPUTATION):   run;
+
+NOTE: There were 2270 observations read from the data set DATA.HC338353B_IMPUTED_DATA_29JUN26.
+NOTE: The data set WORK.A has 50 observations and 20 variables.
+NOTE: PROCEDURE MEANS used (Total process time):
+      real time           0.07 seconds
+The SAS System
+
+      cpu time            0.00 seconds
+      
+
+MPRINT(SUMMARY_IMPUTATION):   proc transpose data = a out=b(drop=_label_ rename=(_name_= Variable));
+MPRINT(SUMMARY_IMPUTATION):   by _imputation_;
+MPRINT(SUMMARY_IMPUTATION):   id _stat_;
+MPRINT(SUMMARY_IMPUTATION):   var waz birthwt_ga_z slpdur hei2010 cesd10 stai10 parity_v1 pag2008yn child_prs_bmi_a employedyn n_hc cigarette_use alcohol_use yrsus_c3 
+education_c3 marital_status;
+MPRINT(SUMMARY_IMPUTATION):   run;
+
+NOTE: There were 50 observations read from the data set WORK.A.
+NOTE: The data set WORK.B has 160 observations and 7 variables.
+NOTE: PROCEDURE TRANSPOSE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+MPRINT(SUMMARY_IMPUTATION):   proc sort data = b out=c;
+MPRINT(SUMMARY_IMPUTATION):   by Variable;
+MPRINT(SUMMARY_IMPUTATION):   run;
+
+NOTE: There were 160 observations read from the data set WORK.B.
+NOTE: The data set WORK.C has 160 observations and 7 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+MPRINT(SUMMARY_IMPUTATION):   proc print data = c;
+MPRINT(SUMMARY_IMPUTATION):   run;
+
+NOTE: There were 160 observations read from the data set WORK.C.
+NOTE: PROCEDURE PRINT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.03 seconds
+      
+
+151        
+152        * Post-process: collapse covariates and categorize hei2010 and slpdur;
+153        data data.&impds.;
+154        	set data.&impds.;
+155        
+156        	if not missing(bkgrd1_c7nomiss) then do;
+157        		if bkgrd1_c7nomiss = 3 then bkgrd1_c3nomiss = 1;
+158        		else if bkgrd1_c7nomiss in (0, 2, 4) then bkgrd1_c3nomiss = 2;
+159        		else if bkgrd1_c7nomiss in (1, 5, 6) then bkgrd1_c3nomiss = 3;
+160        	end;
+161        	else bkgrd1_c3nomiss = .;
+162        
+163        	if not missing(marital_status) then do;
+164        		if marital_status in (1, 3) then marital_status_c2 = 1;
+165        		else if marital_status = 2 then marital_status_c2 = 2;
+166        	end;
+167        	else marital_status_c2 = .;
+168        
+169        	if not missing(cigarette_use) then do;
+170        		if cigarette_use = 1 then cigarette_use_c2 = 1;
+The SAS System
+
+171        		else if cigarette_use in (2, 3) then cigarette_use_c2 = 2;
+172        	end;
+173        	else cigarette_use_c2 = .;
+174        
+175        	label bkgrd1_c3nomiss = 'Hispanic/Latino background (3 categories)';
+176        	label marital_status_c2 = 'Marital status (2 categories)';
+177        	label cigarette_use_c2 = 'Cigarette use (never vs current or former)';
+178        
+179        	if missing(SLPDUR) then SLPDUR_LT8HRS = .;
+180        	else if SLPDUR < 8 then SLPDUR_LT8HRS = 1;
+181        	else SLPDUR_LT8HRS = 0;
+182        	label SLPDUR_LT8HRS = 'Sleep duration (<8 hours)';
+183        
+184        	if HEI2010 <= 50.1 then HEI2010_C3 = 1;
+185        	else if HEI2010 > 50.1 and HEI2010 <= 62.5 then HEI2010_C3 = 2;
+186        	else if HEI2010 > 62.5 then HEI2010_C3 = 3;
+187        	label HEI2010_C3 = '3-level Health Index Score 2010';
+188        run;
+
+NOTE: There were 2270 observations read from the data set DATA.HC338353B_IMPUTED_DATA_29JUN26.
+NOTE: The data set DATA.HC338353B_IMPUTED_DATA_29JUN26 has 2270 observations and 275 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.18 seconds
+      cpu time            0.00 seconds
+      
+
+189        
+190        title 'Contents in imputed dataset';
+191        proc contents data = data.&impds.;
+192        ods noproctitle;
+193        run;
+
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.07 seconds
+      cpu time            0.01 seconds
+      
+
+194        
+195        ods rtf close;
+196        ods listing;
+197        
+198        proc printto; run;
+

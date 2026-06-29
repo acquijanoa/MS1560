@@ -1,0 +1,1704 @@
+NOTE: PROCEDURE PRINTTO used (Total process time):
+      real time           0.02 seconds
+      cpu time            0.00 seconds
+      
+
+8          /*********************************************************
+9          *
+10         *  SAS PROGRAM - JOB HC338364b
+11         *
+12         **********************************************************
+13         *
+14         *  PROGRAM NAME: HC338364b.sas
+15         *
+16         *  PROGRAMMER: Alvaro Quijano (AQA)
+17         *
+18         *  MANUSCRIPT: MS1560
+19         *
+20         *  DESCRIPTION: [copy from job 64] Multinomial logistic (generalized logit) for BMIPCT_C3 with multiply-imputed
+21         *               data. Only Model 4 (full covariate set from HC338365). Reference category:
+22         *               Normal. Odds ratios with 95% Wald CIs for Overweight vs Normal, Obesity vs
+23         *               Normal, and Obesity vs Overweight.
+24         *				
+25         *
+26         *  JOB NUMBER: HC338364
+27         *
+28         *  LANGUAGE: SAS 9.4
+29         *
+2                                                          The SAS System                                13:09 Monday, June 29, 2026
+
+30         *  VERSION CONTROL:
+31         *       05may26: Initial version from HC338365 Model 4 + HC313953 OR method.
+32         *       13may26: Use PROC LOGISTIC DESCENDING with BMIPCT_C3_V3 as unformatted numeric
+33         *                outcome and UNEQUALSLOPES.
+34         *		20may26: update input dataset to *_20may26
+35         *                Initialize MODEL before %labels (fixes uninitialized MODEL error).
+36         *                Replace cumulative logit / unequal slopes with multinomial logistic
+37         *                (link=glogit, BMIPCT_C3 reference Normal).
+38         *                Revise table footnotes to MS1560 abbreviation, model, and footer standards.
+39         *
+40         *		24jun26: updates formats for backgroud and marital status.
+41         *				 Marital status reference = Single/separated/other.
+42         *				 Collapse cigarette_use to never vs current or former (cigarette_use_c2_fmt).
+43         *                Revise table footnotes.
+44         *		29jun26: Input HC338353b imputed data; use derived collapsed covariates.
+45         *
+46         *  INPUT: HC338353b_imputed_data_&datefile.
+47         *
+48         *  OUTPUT: &job._Table4_&sysdate..rtf
+49         *
+50         **********************************************************/
+51         options orientation=portrait ps=59 ls=173 nodate nonumber
+52                 formchar="|----|+|---+=|-/\<>*" mprint varinitchk=error
+53                 validvarname=upcase;
+54         ods escapechar '^';
+55         
+56         * Set libraries;
+57         libname data "&homepath.\data";
+NOTE: Libref DATA was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\data
+58         libname hchstyle 'J:\hchs\sc\styledef\sty904';
+NOTE: Libref HCHSTYLE was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: J:\hchs\sc\styledef\sty904
+59         
+60         * Define macro variables;
+61         %let prg = AQA;
+62         %let impdb = data.HC338353b_imputed_data_&datefile.;
+63         %let lf_margin = 0.6in;
+64         %let rg_margin = 0.7in;
+65         %let table_num = 4;
+66         
+67         * Includes required scripts for reporting;
+68         %include "&homepath.\scripts\HC3383XX\HC3383XX.sas";
+NOTE: Format BKGRD1_C7NOMISS_FMT has been output.
+NOTE: Format BKGRD1_C3NOMISS_FMT has been output.
+NOTE: Format BKGRD1_C3_FMT has been output.
+NOTE: Format PV has been output.
+NOTE: Format CENTERNUM_FMT has been output.
+NOTE: Format LANG_PREF_FMT has been output.
+NOTE: Format MARITAL_STATUS_FMT has been output.
+NOTE: Format MARITAL_STATUS_C2_FMT has been output.
+NOTE: Format EDUCATION_C3_FMT has been output.
+NOTE: Format N_HC_FMT has been output.
+NOTE: Format INCOME_C2_FMT has been output.
+NOTE: Format YRSUS_C3_FMT has been output.
+                                                                               The SAS System
+
+NOTE: Format EMPLOYEDYN_FMT has been output.
+NOTE: Format ALCOHOL_USE_FMT has been output.
+NOTE: Format CIGARETTE_USE_FMT has been output.
+NOTE: Format CIGARETTE_USE_C2_FMT has been output.
+NOTE: Format SLPDUR_LT8HRS_FMT has been output.
+NOTE: Format HEI2010_C3_FMT has been output.
+NOTE: Format BMIPCT_C3_FMT has been output.
+NOTE: Format CESD10_FMT has been output.
+NOTE: Format STAI10_FMT has been output.
+NOTE: Format $STAT has been output.
+NOTE: Format PV is already on the library WORK.FORMATS.
+NOTE: Format PV has been output.
+NOTE: Format YN_FMT has been output.
+NOTE: Format BMIPCT_C2_FMT has been output.
+NOTE: Format BLANKDOT has been output.
+NOTE: Format REFNUM has been output.
+NOTE: Format PAREN has been output.
+NOTE: Format PCT_BLANK has been output.
+NOTE: Format AME_FMT has been output.
+
+NOTE: PROCEDURE FORMAT used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.01 seconds
+      
+
+232        %include "&homepath.\scripts\HC338391\HC3383_labels.sas";
+356        
+357        * Creates input dataset;
+358        data logistic_input / view = logistic_input;
+359        	set &impdb.(where = (keep_ms1560));
+360        run;
+
+NOTE: DATA STEP view saved on file WORK.LOGISTIC_INPUT.
+NOTE: A stored DATA STEP view cannot run under a different operating system.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      cpu time            0.00 seconds
+      
+
+361        
+362        * Model 4 only: multinomial logistic (generalized logit), reference = Normal;
+363        title 'Model 4 (complete): Multinomial logistic (generalized logit)';
+364        proc logistic data = logistic_input plots=none;
+365        	by _imputation_;
+366        	class bmipct_c3(ref='Normal') centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN')
+367        		marital_status_c2(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED")
+368        		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
+369        		cigarette_use_c2(ref="NEVER") alcohol_use(ref="NEVER") pag2008yn(ref="YES")
+370        		hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX") / param = ref;
+371        	model BMIPCT_C3 = centernum yrs_btwn_v1flor bkgrd1_c3nomiss age n_hc education_c3 parity_v1
+372        		employedyn marital_status_c2 yrsus_c3 cigarette_use_c2 hei2010_c3 alcohol_use pag2008yn slpdur
+373        		cesd10 stai10 child_prs_bmi_a / link = glogit expb clodds = wald covb;
+374        	format BMIPCT_C3 bmipct_c3_fmt. centernum centernum_fmt. n_hc n_hc_fmt.
+375        		bkgrd1_c3nomiss bkgrd1_c3_fmt. marital_status_c2 marital_status_c2_fmt.
+376        		employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
+377        		alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt. pag2008yn yn_fmt.
+378        		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
+                                                                               The SAS System
+
+379        	ods output ParameterEstimates = estimate_raw CovB = covb_raw;
+380        run;
+
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: Variable EDUCATION_C3AT_MOST_HIGHSCHOOL_G already exists on file WORK.COVB_RAW, using EDUCATION_C3AT_MOST_HIGHSCHOOL_2 instead.
+NOTE: Variable CIGARETTE_USE_C2CURRENT_OR_FORME already exists on file WORK.COVB_RAW, using CIGARETTE_USE_C2CURRENT_OR_FORM2 instead.
+NOTE: The above message was for the following BY group:
+      Imputation Number=1
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=2
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=3
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=4
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=5
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=6
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=7
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=8
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=9
+NOTE: PROC LOGISTIC is fitting the generalized logit model. The logits modeled contrast each response category against the reference category (BMIPCT_C3='Normal').
+NOTE: Convergence criterion (GCONV=1E-8) satisfied.
+NOTE: The above message was for the following BY group:
+      Imputation Number=10
+NOTE: View WORK.LOGISTIC_INPUT.VIEW used (Total process time):
+      real time           0.41 seconds
+      cpu time            0.14 seconds
+      
+NOTE: There were 2270 observations read from the data set DATA.HC338353B_IMPUTED_DATA_29JUN26.
+      WHERE keep_ms1560;
+NOTE: The data set WORK.COVB_RAW has 520 observations and 54 variables.
+NOTE: The data set WORK.ESTIMATE_RAW has 520 observations and 11 variables.
+NOTE: There were 2270 observations read from the data set WORK.LOGISTIC_INPUT.
+NOTE: The PROCEDURE LOGISTIC printed pages 1-130.
+NOTE: PROCEDURE LOGISTIC used (Total process time):
+      real time           0.42 seconds
+                                                                               The SAS System
+
+      cpu time            0.17 seconds
+      
+
+381        
+382        data estimate_order;
+383        	set estimate_raw;
+384        	retain RowInImp last_imp;
+385        	if _n_ = 1 | _Imputation_ ne last_imp then RowInImp = 0;
+386        	RowInImp + 1;
+387        	last_imp = _Imputation_;
+388        	drop last_imp;
+389        run;
+
+NOTE: There were 520 observations read from the data set WORK.ESTIMATE_RAW.
+NOTE: The data set WORK.ESTIMATE_ORDER has 520 observations and 12 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+390        
+391        proc sort data = estimate_raw out = est_keys nodupkey;
+392        	where DF >= 1 & ^missing(Estimate) & StdErr > 0
+393        		& upcase(Variable) not in ('INTERCEPT');
+394        	by Variable ClassVal0 Response;
+395        run;
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE_RAW.
+      WHERE (DF>=1) and (not MISSING(Estimate)) and (StdErr>0) and (UPCASE(Variable) not = 'INTERCEPT');
+NOTE: 450 observations with duplicate key values were deleted.
+NOTE: The data set WORK.EST_KEYS has 50 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+396        
+397        data parm_key;
+398        	length parm $8 EffectKey $132 LabelBase $132;
+399        	set est_keys;
+400        	ParmNum = _n_;
+401        	parm = cats('PARM', ParmNum);
+402        	EffectKey = cats(Variable, ClassVal0, '_', Response);
+403        	LabelBase = catx('_', Variable, ClassVal0);
+404        	keep parm ParmNum EffectKey LabelBase Variable ClassVal0 Response;
+405        run;
+
+NOTE: There were 50 observations read from the data set WORK.EST_KEYS.
+NOTE: The data set WORK.PARM_KEY has 50 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+406        
+407        proc sort data = estimate_order;
+408        	by Variable ClassVal0 Response;
+                                                                               The SAS System
+
+409        run;
+
+NOTE: There were 520 observations read from the data set WORK.ESTIMATE_ORDER.
+NOTE: The data set WORK.ESTIMATE_ORDER has 520 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+410        
+411        data estimate_covmap;
+412        	merge estimate_order(in = a) parm_key(in = b);
+413        	by Variable ClassVal0 Response;
+414        	if a & b;
+415        	keep _Imputation_ RowInImp parm EffectKey LabelBase Response;
+416        run;
+
+NOTE: There were 520 observations read from the data set WORK.ESTIMATE_ORDER.
+NOTE: There were 50 observations read from the data set WORK.PARM_KEY.
+NOTE: The data set WORK.ESTIMATE_COVMAP has 500 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+417        
+418        proc sort data = estimate_raw;
+419        	by Variable ClassVal0 Response;
+420        run;
+
+NOTE: There were 520 observations read from the data set WORK.ESTIMATE_RAW.
+NOTE: The data set WORK.ESTIMATE_RAW has 520 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+421        
+422        proc sort data = parm_key;
+423        	by Variable ClassVal0 Response;
+424        run;
+
+NOTE: There were 50 observations read from the data set WORK.PARM_KEY.
+NOTE: The data set WORK.PARM_KEY has 50 observations and 7 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+425        
+426        data estimate;
+427        	length Variable $32 EffectKey $132 LabelBase $132 RespLab $20;
+428        	merge estimate_raw(in = a) parm_key(in = b);
+429        	by Variable ClassVal0 Response;
+430        	if a;
+431        	if DF < 1 then delete;
+432        	if upcase(Variable) = 'INTERCEPT' then delete;
+                                                                               The SAS System
+
+433        	if missing(Estimate) | StdErr = 0 then delete;
+434        	if ^b then delete;
+435        	RespLab = strip(vvalue(Response));
+436        	EffectKey = cats(Variable, ClassVal0, '_', Response);
+437        	LabelBase = catx('_', Variable, ClassVal0);
+438        	Variable = parm;
+439        	keep _Imputation_ Variable EffectKey LabelBase RespLab Estimate StdErr WaldChiSq ProbChiSq DF;
+440        run;
+
+NOTE: There were 520 observations read from the data set WORK.ESTIMATE_RAW.
+NOTE: There were 50 observations read from the data set WORK.PARM_KEY.
+NOTE: The data set WORK.ESTIMATE has 500 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+441        
+442        proc sort data = estimate nodupkey;
+443        	by _Imputation_ Variable;
+444        run;
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE.
+NOTE: 0 observations with duplicate key values were deleted.
+NOTE: The data set WORK.ESTIMATE has 500 observations and 10 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+445        
+446        data estimate_covmap2;
+447        	set estimate_covmap(rename = (parm = Variable));
+448        run;
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE_COVMAP.
+NOTE: The data set WORK.ESTIMATE_COVMAP2 has 500 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+449        
+450        proc sort data = estimate_covmap2;
+451        	by _Imputation_ Variable;
+452        run;
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE_COVMAP2.
+NOTE: The data set WORK.ESTIMATE_COVMAP2 has 500 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+453        
+454        data estimate_cov;
+455        	length base $132 lr $80;
+                                                                               The SAS System
+
+456        	merge estimate(in = a) estimate_covmap2(keep = _Imputation_ Variable RowInImp);
+457        	by _Imputation_ Variable;
+458        	if a;
+459        	base = LabelBase;
+460        	lr = lowcase(strip(RespLab));
+461        	if (lr in ('2', 'overweight') | lr =: 'overweight' | index(lr, 'overweight') > 0)
+462        		& ^(lr in ('3', 'obese') | lr =: 'obese') then RespType = 2;
+463        	else if lr in ('3', 'obese') | lr =: 'obese' then RespType = 3;
+464        	else delete;
+465        	keep _Imputation_ Variable base RespType Estimate RowInImp;
+466        run;
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE.
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE_COVMAP2.
+NOTE: The data set WORK.ESTIMATE_COV has 500 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+467        
+468        proc sort data = estimate(keep = Variable EffectKey LabelBase RespLab) out = parm_xwalk nodupkey;
+469        	by Variable EffectKey LabelBase RespLab;
+470        run;
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE.
+NOTE: 450 observations with duplicate key values were deleted.
+NOTE: The data set WORK.PARM_XWALK has 50 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+471        
+472        data parm_xwalk;
+473        	length Variable $ 32;
+474        	set parm_xwalk;
+475        run;
+
+NOTE: There were 50 observations read from the data set WORK.PARM_XWALK.
+NOTE: The data set WORK.PARM_XWALK has 50 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+476        
+477        proc sql noprint;
+478        	select parm into :model_var separated by ' '
+479        	from parm_key
+480        	order by ParmNum;
+NOTE: The query as specified involves ordering by an item that doesn't appear in its SELECT clause.
+481        quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+                                                                               The SAS System
+
+
+482        
+483        * Refactor COVB to the same parameter names used by PROC MIANALYZE;
+484        proc contents data = covb_raw out = covb_cols(keep = name type varnum) noprint;
+485        run;
+
+NOTE: The data set WORK.COVB_COLS has 54 observations and 3 variables.
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+486        
+487        proc sort data = covb_cols;
+488        	by varnum;
+489        run;
+
+NOTE: There were 54 observations read from the data set WORK.COVB_COLS.
+NOTE: The data set WORK.COVB_COLS has 54 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+490        
+491        data covb_cols;
+492        	set covb_cols;
+493        	where type = 1 & upcase(name) ne '_IMPUTATION_';
+494        	RowInImp + 1;
+495        	OldName = nliteral(name);
+496        	keep RowInImp OldName;
+497        run;
+
+NOTE: There were 52 observations read from the data set WORK.COVB_COLS.
+      WHERE (type=1) and (UPCASE(name) not = '_IMPUTATION_');
+NOTE: The data set WORK.COVB_COLS has 52 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+498        
+499        proc sort data = covb_cols;
+500        	by RowInImp;
+501        run;
+
+NOTE: There were 52 observations read from the data set WORK.COVB_COLS.
+NOTE: The data set WORK.COVB_COLS has 52 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+502        
+503        proc sort data = estimate_covmap2(keep = RowInImp Variable) out = covb_effects nodupkey;
+504        	by RowInImp Variable;
+505        run;
+                                                                               The SAS System
+
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE_COVMAP2.
+NOTE: 450 observations with duplicate key values were deleted.
+NOTE: The data set WORK.COVB_EFFECTS has 50 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+506        
+507        proc sort data = covb_effects nodupkey;
+508        	by RowInImp;
+509        run;
+
+NOTE: There were 50 observations read from the data set WORK.COVB_EFFECTS.
+NOTE: 0 observations with duplicate key values were deleted.
+NOTE: The data set WORK.COVB_EFFECTS has 50 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+510        
+511        data covb_colmap;
+512        	merge covb_cols(in = a) covb_effects(in = b);
+513        	by RowInImp;
+514        	if a & b;
+515        	RenamePair = catx('=', OldName, Variable);
+516        run;
+
+NOTE: There were 52 observations read from the data set WORK.COVB_COLS.
+NOTE: There were 50 observations read from the data set WORK.COVB_EFFECTS.
+NOTE: The data set WORK.COVB_COLMAP has 50 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+517        
+518        proc sql noprint;
+519        	select RenamePair into :covb_rename separated by ' '
+520        	from covb_colmap;
+521        quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+522        
+523        data covb_rows;
+524        	set estimate_covmap2(rename = (Variable = Effect));
+525        	keep _Imputation_ RowInImp Effect;
+526        run;
+
+NOTE: There were 500 observations read from the data set WORK.ESTIMATE_COVMAP2.
+NOTE: The data set WORK.COVB_ROWS has 500 observations and 3 variables.
+NOTE: DATA statement used (Total process time):
+                                                                               The SAS System
+
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+527        
+528        proc sort data = covb_rows;
+529        	by _Imputation_ RowInImp;
+530        run;
+
+NOTE: There were 500 observations read from the data set WORK.COVB_ROWS.
+NOTE: The data set WORK.COVB_ROWS has 500 observations and 3 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+531        
+532        data covb_mi_pre;
+533        	set covb_raw;
+534        	retain RowInImp last_imp;
+535        	if _n_ = 1 | _Imputation_ ne last_imp then RowInImp = 0;
+536        	RowInImp + 1;
+537        	last_imp = _Imputation_;
+538        	drop last_imp;
+539        	rename &covb_rename.;
+540        run;
+
+NOTE: There were 520 observations read from the data set WORK.COVB_RAW.
+NOTE: The data set WORK.COVB_MI_PRE has 520 observations and 55 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+541        
+542        proc sort data = covb_mi_pre;
+543        	by _Imputation_ RowInImp;
+544        run;
+
+NOTE: There were 520 observations read from the data set WORK.COVB_MI_PRE.
+NOTE: The data set WORK.COVB_MI_PRE has 520 observations and 55 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+545        
+546        data covb_mi;
+547        	length Effect $32;
+548        	merge covb_mi_pre(in = a) covb_rows(in = b);
+549        	by _Imputation_ RowInImp;
+550        	if a & b;
+551        	keep _Imputation_ Effect &model_var.;
+552        run;
+
+NOTE: There were 520 observations read from the data set WORK.COVB_MI_PRE.
+NOTE: There were 500 observations read from the data set WORK.COVB_ROWS.
+                                                                               The SAS System
+
+NOTE: The data set WORK.COVB_MI has 500 observations and 52 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+553        
+554        proc sort data = covb_mi;
+555        	by _Imputation_ Effect;
+556        run;
+
+NOTE: There were 500 observations read from the data set WORK.COVB_MI.
+NOTE: The data set WORK.COVB_MI has 500 observations and 52 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.01 seconds
+      
+
+557        
+558        * Combine MI estimates using the refactored covariance matrix;
+559        ods listing close;
+560        ods select none;
+561        proc mianalyze parms = estimate(rename = (Variable = Effect)) covb = covb_mi;
+562        	modeleffects &model_var.;
+563        	ods output ParameterEstimates = betas_mi;
+564        run;
+
+NOTE: The data set WORK.BETAS_MI has 50 observations and 12 variables.
+NOTE: PROCEDURE MIANALYZE used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+565        ods select all;
+566        
+567        * Recover EffectKey / LabelBase from pooled Parm (betas_mi keeps Estimate StdErr Probt from MIANALYZE only);
+568        proc sort data = betas_mi; by Parm; run;
+
+NOTE: There were 50 observations read from the data set WORK.BETAS_MI.
+NOTE: The data set WORK.BETAS_MI has 50 observations and 12 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.01 seconds
+      
+
+569        proc sort data = parm_xwalk; by Variable; run;
+
+NOTE: There were 50 observations read from the data set WORK.PARM_XWALK.
+NOTE: The data set WORK.PARM_XWALK has 50 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+570        data betas_mx;
+571        	length Variable $ 32 base $ 132;
+572        	merge betas_mi(in = a rename = (Parm = Variable))
+                                                                               The SAS System
+
+573        		parm_xwalk(in = b);
+574        	by Variable;
+575        	if a;
+576        	base = LabelBase;
+577        run;
+
+NOTE: There were 50 observations read from the data set WORK.BETAS_MI.
+NOTE: There were 50 observations read from the data set WORK.PARM_XWALK.
+NOTE: The data set WORK.BETAS_MX has 50 observations and 16 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+578        
+579        * Rename on SET so KEEP sees Estimate2/3 (KEEP after RENAME statement does not apply to PDV names — estimates were dropped);
+580        * Split pooled parms by multinomial logit (Overweight vs Normal, Obese vs Normal);
+581        data betas_mi2;
+582        	length base $132;
+583        	length lr $80;
+584        	set betas_mx(rename = (Estimate = Estimate2 StdErr = StdErr2 Probt = Probt2));
+585        	lr = lowcase(strip(RespLab));
+586        	if (lr in ('2', 'overweight') | lr =: 'overweight' | index(lr, 'overweight') > 0)
+587        		& ^(lr in ('3', 'obese') | lr =: 'obese') then output;
+588        	keep base Estimate2 StdErr2 Probt2 EffectKey RespLab;
+589        run;
+
+NOTE: There were 50 observations read from the data set WORK.BETAS_MX.
+NOTE: The data set WORK.BETAS_MI2 has 25 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+590        
+591        data betas_mi3;
+592        	length base $132;
+593        	length lr $80;
+594        	set betas_mx(rename = (Estimate = Estimate3 StdErr = StdErr3 Probt = Probt3));
+595        	lr = lowcase(strip(RespLab));
+596        	if lr in ('3', 'obese') | lr =: 'obese' then output;
+597        	keep base Estimate3 StdErr3 Probt3 EffectKey RespLab;
+598        run;
+
+NOTE: There were 50 observations read from the data set WORK.BETAS_MX.
+NOTE: The data set WORK.BETAS_MI3 has 25 observations and 6 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+599        
+600        * Rubin total covariance for the Obese vs Overweight contrast, using PROC LOGISTIC COVB directly;
+601        proc iml;
+NOTE: IML Ready
+602        	
+602      !  use covb_raw;
+                                                                               The SAS System
+
+603        	
+603      !  read all var {_Imputation_} into ImpCov;
+604        	
+604      !  read all var _NUM_ into CAll[colname = CovNames];
+605        	
+605      !  close covb_raw;
+606        	
+606      !  keepCols = loc(upcase(CovNames) ^= '_IMPUTATION_');
+607        	
+607      !  CAll = CAll[, keepCols];
+608        
+609        	
+609      !  use estimate_cov;
+610        	
+610      !  read all var {_Imputation_ RowInImp RespType Estimate} into E;
+611        	
+611      !  read all var {base} into Base;
+612        	
+612      !  close estimate_cov;
+613        
+614        	
+614      !  UBase = unique(Base);
+615        	
+615      !  OutBase = t(UBase);
+616        	
+616      !  StdErr32 = j(nrow(OutBase), 1, .);
+617        
+618        	
+618      !  do b = 1 to nrow(OutBase);
+619        		
+619      !   idxBase = loc(Base = OutBase[b]);
+620        		
+620      !   if ncol(idxBase) = 0 then continue;
+621        		
+621      !   ImpBase = unique(E[idxBase, 1]);
+622        		
+622      !   QDiff = j(ncol(ImpBase), 1, .);
+623        		
+623      !   WDiff = j(ncol(ImpBase), 1, .);
+624        		
+624      !   nUse = 0;
+625        
+626        		
+626      !   do j = 1 to ncol(ImpBase);
+627        			
+627      !    imp = ImpBase[j];
+628        			
+628      !    idxOW = loc(Base = OutBase[b] & E[, 1] = imp & E[, 3] = 2);
+629        			
+629      !    idxOB = loc(Base = OutBase[b] & E[, 1] = imp & E[, 3] = 3);
+630        			
+630      !    idxCov = loc(ImpCov = imp);
+631        			
+631      !    if ncol(idxOW) = 1 & ncol(idxOB) = 1 & ncol(idxCov) > 0 then do;
+632        				
+632      !     rowOW = E[idxOW, 2];
+633        				
+                                                                               The SAS System
+
+633      !     rowOB = E[idxOB, 2];
+634        				
+634      !     nUse = nUse + 1;
+635        				
+635      !     QDiff[nUse] = E[idxOB, 4] - E[idxOW, 4];
+636        				
+636      !     WDiff[nUse] = CAll[idxCov[rowOB], rowOB] + CAll[idxCov[rowOW], rowOW]
+637        					- 2 * CAll[idxCov[rowOB], rowOW];
+638        			
+638      !    end;
+639        		
+639      !   end;
+640        
+641        		
+641      !   if nUse > 0 then do;
+642        			
+642      !    QDiff = QDiff[1:nUse];
+643        			
+643      !    WDiff = WDiff[1:nUse];
+644        			
+644      !    Between = 0;
+645        			
+645      !    if nUse > 1 then Between = var(QDiff);
+646        			
+646      !    TotalVar = mean(WDiff) + (1 + 1 / nUse) * Between;
+647        			
+647      !    if TotalVar >= 0 then StdErr32[b] = sqrt(TotalVar);
+648        		
+648      !   end;
+649        	
+649      !  end;
+650        
+651        	
+651      !  base = OutBase;
+652        	
+652      !  create contrast_cov var {'base' 'StdErr32'};
+653        	
+653      !  append;
+654        	
+654      !  close contrast_cov;
+NOTE: The data set WORK.CONTRAST_COV has 25 observations and 2 variables.
+655        quit;
+NOTE: Exiting IML.
+NOTE: PROCEDURE IML used (Total process time):
+      real time           0.06 seconds
+      cpu time            0.00 seconds
+      
+
+656        
+657        proc sort data = betas_mi2;
+658        	by base;
+659        run;
+
+NOTE: There were 25 observations read from the data set WORK.BETAS_MI2.
+NOTE: The data set WORK.BETAS_MI2 has 25 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+                                                                               The SAS System
+
+      cpu time            0.00 seconds
+      
+
+660        
+661        proc sort data = betas_mi3;
+662        	by base;
+663        run;
+
+NOTE: There were 25 observations read from the data set WORK.BETAS_MI3.
+NOTE: The data set WORK.BETAS_MI3 has 25 observations and 6 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+664        
+665        proc sort data = contrast_cov;
+666        	by base;
+667        run;
+
+NOTE: There were 25 observations read from the data set WORK.CONTRAST_COV.
+NOTE: The data set WORK.CONTRAST_COV has 25 observations and 2 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+668        
+669        data merged_core;
+670        	merge betas_mi2 betas_mi3 contrast_cov;
+671        	by base;
+672        run;
+
+NOTE: There were 25 observations read from the data set WORK.BETAS_MI2.
+NOTE: There were 25 observations read from the data set WORK.BETAS_MI3.
+NOTE: There were 25 observations read from the data set WORK.CONTRAST_COV.
+NOTE: The data set WORK.MERGED_CORE has 25 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+673        
+674        * Reference CLASS levels have no rows in ParameterEstimates insert stubs so %labels can emit section headers + ref titles;
+675        data ref_pad;
+676        	length base $132 EffectKey $132 RespLab $20;
+677        	length Estimate2 StdErr2 Probt2 Estimate3 StdErr3 Probt3 StdErr32 8;
+678        	call missing(Estimate2, StdErr2, Probt2, Estimate3, StdErr3, Probt3, StdErr32);
+679        	EffectKey = '';
+680        	RespLab = '';
+681        	base = 'CENTERNUM_BRONX';
+682        	output;
+683        	base = 'BKGRD1_C7NOMISS_MEXICAN';
+684        	output;
+685        	base = 'N_HC_NO';
+686        	output;
+687        	base = 'EDUCATION_C3_N_HIGHSCHOOL_GED';
+                                                                               The SAS System
+
+688        	output;
+689        	base = 'EMPLOYEDYN_NOT_EMPLOYED';
+690        	output;
+691        	base = 'MARITAL_STATUS_SINGLE_OTHER';
+692        	output;
+693        	base = 'YRSUS_C3_US_BORN';
+694        	output;
+695        	base = 'CIGARETTE_USE_NEVER';
+696        	output;
+697        	base = 'ALCOHOL_USE_NEVER';
+698        	output;
+699        	base = 'PAG2008YN_YES';
+700        	output;
+701        	base = 'HEI2010_C3_LOW';
+702        	output;
+703        	base = 'CESD10_NODEPRE';
+704        	output;
+705        	base = 'STAI10_NOANX';
+706        	output;
+707        run;
+
+NOTE: The data set WORK.REF_PAD has 13 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+708        
+709        data merged;
+710        	set merged_core ref_pad;
+711        run;
+
+NOTE: There were 25 observations read from the data set WORK.MERGED_CORE.
+NOTE: There were 13 observations read from the data set WORK.REF_PAD.
+NOTE: The data set WORK.MERGED has 38 observations and 10 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+712        
+713        proc sort data = merged nodupkey;
+714        	by base;
+715        run;
+
+NOTE: There were 38 observations read from the data set WORK.MERGED.
+NOTE: 0 observations with duplicate key values were deleted.
+NOTE: The data set WORK.MERGED has 38 observations and 10 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+716        
+717        data prelabel;
+718        	set merged;
+719        	variable = upcase(base);
+                                                                               The SAS System
+
+720        	estimate = Estimate2;
+721        	stderr = StdErr2;
+722        	probt = Probt2;
+723        run;
+
+NOTE: There were 38 observations read from the data set WORK.MERGED.
+NOTE: The data set WORK.PRELABEL has 38 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+724        
+725        data labeled;
+726        	set prelabel;
+727        	length label $150 v $132 model $10;
+728        	order = .;
+729        	label = '';
+730        	model = 'Model 4';
+731        	%labels;
+MPRINT(LABELS):   attrib label length = $ 150 model length = $ 10;
+MPRINT(LABELS):   * categorize the p-value into 4 levels;
+MPRINT(LABELS):   if probt <= 0.01 then pv = 1;
+MPRINT(LABELS):   else if probt > 0.01 and probt <= 0.05 then pv = 2;
+MPRINT(LABELS):   else if probt > 0.05 and probt <= 0.1 then pv = 3;
+MPRINT(LABELS):   else if probt > 0.1 and probt <= 0.2 then pv = 4;
+MPRINT(LABELS):   else if probt >= 0.2 then pv = 5;
+MPRINT(LABELS):   * Sntadrd error negative to be formatted within parenthesis;
+MPRINT(LABELS):   std = -1 * stderr;
+MPRINT(LABELS):   * Model 1 variables;
+MPRINT(LABELS):   if variable = 'AGE' then do;
+MPRINT(LABELS):   label = "{\b Maternal age (years) \b0 \li250}";
+MPRINT(LABELS):   order = 1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_MEXICAN' THEN DO;
+MPRINT(LABELS):   LABEL = "{\b Hispanic/Latino Background \b0 \line \li250   Mexican}";
+MPRINT(LABELS):   ORDER = 2;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   STD = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_P_RICAN' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Puerto Rican";
+MPRINT(LABELS):   ORDER = 2.1;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_CUBAN' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Cuban";
+MPRINT(LABELS):   ORDER = 2.2;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_DOMINICAN' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Dominican";
+MPRINT(LABELS):   ORDER = 2.3;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_C_AMERICAN' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Central American";
+MPRINT(LABELS):   ORDER = 2.4;
+MPRINT(LABELS):   END;
+                                                                               The SAS System
+
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_SOUTH' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} South American";
+MPRINT(LABELS):   ORDER = 2.5;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_BK_OTHER' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Other heritage";
+MPRINT(LABELS):   ORDER = 2.6;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_CARIBBEAN' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Caribbean";
+MPRINT(LABELS):   ORDER = 2.1;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C7NOMISS_SC_OTHER' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Central and South America/Other";
+MPRINT(LABELS):   ORDER = 2.2;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C3NOMISS_MEXICAN' THEN DO;
+MPRINT(LABELS):   LABEL = "{\b Hispanic/Latino Background \b0 \line \li250   Mexican}";
+MPRINT(LABELS):   ORDER = 2;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   STD = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C3NOMISS_CARIBBEAN' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Caribbean";
+MPRINT(LABELS):   ORDER = 2.1;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'BKGRD1_C3NOMISS_SC_OTHER' THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Central and South America/Other";
+MPRINT(LABELS):   ORDER = 2.2;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = "N_HC_NO" THEN DO;
+MPRINT(LABELS):   LABEL = "{\b Health Insurance \line \b0 \li250   No}";
+MPRINT(LABELS):   ORDER=3;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   STD=99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = "N_HC_YES" THEN DO;
+MPRINT(LABELS):   LABEL = "^S={indent=2mm} Yes";
+MPRINT(LABELS):   ORDER=3.1;
+MPRINT(LABELS):   END;
+MPRINT(LABELS):   if variable = 'EDUCATION_C3_N_HIGHSCHOOL_GED' then do;
+MPRINT(LABELS):   label = "{\b Education \b0 \line \li250   Less than high school}";
+MPRINT(LABELS):   order = 4;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   STD = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'EDUCATION_C3_AT_MOST_HIGHSCHOOL_GED' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} High school";
+MPRINT(LABELS):   order = 4.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'EDUCATION_C3_G_HIGHSCHOOL' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Greater than high school";
+MPRINT(LABELS):   order = 4.2;
+MPRINT(LABELS):   end;
+                                                                               The SAS System
+
+MPRINT(LABELS):   if variable = 'EMPLOYEDYN_NOT_EMPLOYED' then do;
+MPRINT(LABELS):   label = "{\b Employment status \b0 \line \li250   Not employed}";
+MPRINT(LABELS):   order = 5;
+MPRINT(LABELS):   estimate=99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'EMPLOYEDYN_EMPLOYED' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Employed";
+MPRINT(LABELS):   order = 5.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'INCOME_C2_>30' then do;
+MPRINT(LABELS):   label = "{\b Income \b0 \line \li250   >=$30,000}";
+MPRINT(LABELS):   order = 6;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'INCOME_C2_<30' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} <$30,000";
+MPRINT(LABELS):   order = 6.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'LANG_PREF_ENGLISH' then do;
+MPRINT(LABELS):   label = "{\b Language preference \b0 \line \li250   English}";
+MPRINT(LABELS):   order = 7;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'LANG_PREF_SPANISH' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Spanish";
+MPRINT(LABELS):   order = 7.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_COHABITING' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
+MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_C2_SINGLE_OTHER' then do;
+MPRINT(LABELS):   label = "{\b Marital status \b0 \line \li250   Single, separated, divorced or widowed}";
+MPRINT(LABELS):   order = 8;
+MPRINT(LABELS):   estimate = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+                                                                               The SAS System
+
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_C2_COHABITING' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Married or Living w/ partner";
+MPRINT(LABELS):   order = 8.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'MARITAL_STATUS_SEPARATED' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Separated, divorced or widow(er)";
+MPRINT(LABELS):   order = 8.2;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'PARITY_V1' then do;
+MPRINT(LABELS):   label = "{\b Parity \b0 \li250}";
+MPRINT(LABELS):   order = 9;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'POVPCT' then do;
+MPRINT(LABELS):   label = "{\b Household income as % of poverty \b0 \li250}";
+MPRINT(LABELS):   order = 10;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'YRSUS_C3_US_BORN' then do;
+MPRINT(LABELS):   label = "{\b Years in the U.S. \b0 \line \li250   U.S.-born}";
+MPRINT(LABELS):   order = 12;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'YRSUS_C3_<10_Years' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} <10 years";
+MPRINT(LABELS):   order = 12.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'YRSUS_C3_10+_Years' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} >=10 years";
+MPRINT(LABELS):   order = 12.2;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'YRSUS_C3_L10' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} <10 years";
+MPRINT(LABELS):   order = 12.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'YRSUS_C3_G10' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} >=10 years";
+MPRINT(LABELS):   order = 12.2;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   * model 2 variables;
+MPRINT(LABELS):   if variable = 'AGG_MENT' then do;
+MPRINT(LABELS):   label = "{\b SF-12v2 Health Survey \b0 \line \li250   Mental health summary score}";
+MPRINT(LABELS):   order = 0.030;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'AGG_PHYS' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Physical health summary score";
+MPRINT(LABELS):   order = 0.031;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CESD10' then do;
+MPRINT(LABELS):   label = "{\b Mental health \b0 \line \li250   Depression score (CESD-10)}";
+MPRINT(LABELS):   order = 0.032;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CESD10_NODEPRE' then do;
+MPRINT(LABELS):   label = "{\b Depression symptoms (CESD-10) \b0 \line \li250   No (<10)}";
+MPRINT(LABELS):   order = 0.0321;
+MPRINT(LABELS):   ESTIMATE = 99;
+                                                                               The SAS System
+
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CESD10_DEPRE' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Yes (>=10)";
+MPRINT(LABELS):   order = 0.0322;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'STAI10' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Anxiety score (STAI-10)";
+MPRINT(LABELS):   order = 0.033;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'STAI10_NOANX' then do;
+MPRINT(LABELS):   label = "{\b Anxiety symptoms (STAI-10) \b0 \line \li250   No (<20)}";
+MPRINT(LABELS):   order = 0.0331;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'STAI10_ANX' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Yes (>=20)";
+MPRINT(LABELS):   order = 0.0332;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'HEIGHT' then do;
+MPRINT(LABELS):   label = "{\b Anthropometry \b0 \line \li250   Height (cm)}";
+MPRINT(LABELS):   order = 0.034;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'HAZ' then do;
+MPRINT(LABELS):   label = "{\b Height-for-age z score \b0 \li250}";
+MPRINT(LABELS):   order = 0.034;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'ANTA10A' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Waist circumference (cm)";
+MPRINT(LABELS):   order = 0.035;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'BMI' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Body Mass Index (BMI)";
+MPRINT(LABELS):   order = 0.036;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   * model 3 variables;
+MPRINT(LABELS):   if variable = 'ALCOHOL_USE_NEVER' then do;
+MPRINT(LABELS):   label = "{\b Alcohol use \b0 \line \li250   Never}";
+MPRINT(LABELS):   order = 0.010;
+MPRINT(LABELS):   estimate = 98;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'ALCOHOL_USE_FORMER' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Former";
+MPRINT(LABELS):   order = 0.011;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'ALCOHOL_USE_CURRENT' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Current";
+MPRINT(LABELS):   order = 0.012;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CURRENT_SMOKER_NO' then do;
+MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Not currently smoking}";
+MPRINT(LABELS):   order = 0.013;
+                                                                               The SAS System
+
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   estimate = 98;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CURRENT_SMOKER_YES' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Current smoker";
+MPRINT(LABELS):   order = 0.014;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CURRENT_SMOKER' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Current smoker";
+MPRINT(LABELS):   order = 0.015;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CIGARETTE_USE_NEVER' then do;
+MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Never}";
+MPRINT(LABELS):   order = 0.013;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   estimate = 98;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CIGARETTE_USE_C2_NEVER' then do;
+MPRINT(LABELS):   label = "{\b Smoking status \b0 \line \li250   Never}";
+MPRINT(LABELS):   order = 0.013;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   estimate = 98;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CIGARETTE_USE_CURRENT_OR_FORMER' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Current or former";
+MPRINT(LABELS):   order = 0.014;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CIGARETTE_USE_C2_CURRENT_OR_FORMER' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Current or former";
+MPRINT(LABELS):   order = 0.014;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CIGARETTE_USE_FORMER' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Former";
+MPRINT(LABELS):   order = 0.014;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CIGARETTE_USE_CURRENT' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Current";
+MPRINT(LABELS):   order = 0.015;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'HEI2010' then do;
+MPRINT(LABELS):   label = "{\b Healthy Eating Index (HEI-2010) \b0}";
+MPRINT(LABELS):   order = 0.016;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'HEI2010_C3_LOW' then do;
+MPRINT(LABELS):   label = "{\b Healthy Eating Index (HEI-2010) \b0 \line \li250   Low (<=50.1)}";
+MPRINT(LABELS):   order = 0.01601;
+MPRINT(LABELS):   estimate = 98;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'HEI2010_C3_MEDIUM' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Medium (>50.1-62.5)";
+MPRINT(LABELS):   order = 0.01602;
+MPRINT(LABELS):   end;
+                                                                               The SAS System
+
+MPRINT(LABELS):   if variable = 'HEI2010_C3_HIGH' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} High (>62.5)";
+MPRINT(LABELS):   order = 0.01603;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'PCT_MVPA' then do;
+MPRINT(LABELS):   label = "{\b % Time in MVPA \b0}";
+MPRINT(LABELS):   order = 0.017;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'SLPDUR' then do;
+MPRINT(LABELS):   label = "{\b Sleeping duration (>8 hrs/day) \b0}";
+MPRINT(LABELS):   order = 0.018;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = "PAG2008YN_YES" then do;
+MPRINT(LABELS):   label = "{\b Meets 2008 PA guidelines \b0 \line \li250   Yes}";
+MPRINT(LABELS):   order = 0.019;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = "PAG2008YN_NO" then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} No";
+MPRINT(LABELS):   order = 0.020;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'SLPDUR_LT8HRS_<8_hours' then do;
+MPRINT(LABELS):   label = "{\b Sleep duration \b0 \line \li250   Less than 8 hours}";
+MPRINT(LABELS):   order = 0.021;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   std = 99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'SLPDUR_LT8HRS_>=8_hours' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} More than 8 hours";
+MPRINT(LABELS):   order = 0.022;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   *model 5 variable;
+MPRINT(LABELS):   if variable = 'CHILD_PRS_BMI_A' then do;
+MPRINT(LABELS):   label = "{\b Child's obesity Poligenic Risk Score \b0 \li250}";
+MPRINT(LABELS):   order = 0.04;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   * adjusted by these variables;
+MPRINT(LABELS):   if variable = 'CENTERNUM_BRONX' then do;
+MPRINT(LABELS):   label = "{\b Field center \line \b0 \li250   Bronx}";
+MPRINT(LABELS):   order = 93;
+MPRINT(LABELS):   ESTIMATE = 99;
+MPRINT(LABELS):   std=99;
+MPRINT(LABELS):   pv = 5;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CENTERNUM_CHICAGO' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Chicago";
+MPRINT(LABELS):   order = 93.1;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CENTERNUM_MIAMI' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Miami";
+MPRINT(LABELS):   order = 93.2;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'CENTERNUM_SAN DIEGO' then do;
+MPRINT(LABELS):   label = "^S={indent=2mm} Bronx";
+                                                                               The SAS System
+
+MPRINT(LABELS):   order = 93.3;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'YRS_BTWN_V1FLOR' then do;
+MPRINT(LABELS):   label = "{\b Years between baseline & FLOR \b0 \li250}";
+MPRINT(LABELS):   order = 95;
+MPRINT(LABELS):   end;
+MPRINT(LABELS):   if variable = 'YRSV1BIRTH' then do;
+MPRINT(LABELS):   label = "{\b Years between baseline & birth \b0 \li250}";
+MPRINT(LABELS):   order = 95;
+MPRINT(LABELS):   end;
+732        	if label = '' then do;
+733        		v = strip(upcase(variable));
+734        		if v =: 'YRSUS_C3_' & index(v, 'US_BORN') = 0 then do;
+735        			if index(v, '<10') > 0 | index(v, 'L10') > 0 then do;
+736        				order = 12.1;
+737        				label = "^S={indent=2mm} <10 years";
+738        			end;
+739        			else do;
+740        				order = 12.2;
+741        				label = "^S={indent=2mm} >=10 years";
+742        			end;
+743        		end;
+744        	end;
+745        	drop v;
+746        	keep base order label Estimate2 StdErr2 Probt2 Estimate3 StdErr3 Probt3 StdErr32 variable;
+747        run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      13 at 731:141   
+NOTE: There were 38 observations read from the data set WORK.PRELABEL.
+NOTE: The data set WORK.LABELED has 38 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+748        
+749        proc sort data = labeled;
+750        	by order label base;
+751        run;
+
+NOTE: There were 38 observations read from the data set WORK.LABELED.
+NOTE: The data set WORK.LABELED has 38 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+752        
+753        * Format odds ratios and 95% CIs without PROC IML;
+754        data ORchars;
+755        	length base $132 statsOW statsOB statsOBvsOW $168;
+756        	set labeled(keep = base Estimate2 StdErr2 Estimate3 StdErr3 StdErr32);
+757        
+758        	statsOW = ' ';
+759        	statsOB = ' ';
+                                                                               The SAS System
+
+760        	statsOBvsOW = ' ';
+761        
+762        	if missing(Estimate2) & missing(Estimate3) then return;
+763        	else if missing(Estimate2) | missing(Estimate3) then do;
+764        		statsOW = '---';
+765        		statsOB = '---';
+766        		statsOBvsOW = '---';
+767        		return;
+768        	end;
+769        
+770        	if nmiss(Estimate2, StdErr2) = 0 then do;
+771        		or2 = exp(Estimate2);
+772        		lc2 = exp(Estimate2 - 1.96 * StdErr2);
+773        		uc2 = exp(Estimate2 + 1.96 * StdErr2);
+774        		statsOW = cats(put(or2, 8.2), ' (', put(lc2, 8.2), ', ', put(uc2, 8.2), ')');
+775        	end;
+776        	else statsOW = '---';
+777        
+778        	if nmiss(Estimate3, StdErr3) = 0 then do;
+779        		or3 = exp(Estimate3);
+780        		lc3 = exp(Estimate3 - 1.96 * StdErr3);
+781        		uc3 = exp(Estimate3 + 1.96 * StdErr3);
+782        		statsOB = cats(put(or3, 8.2), ' (', put(lc3, 8.2), ', ', put(uc3, 8.2), ')');
+783        	end;
+784        	else statsOB = '---';
+785        
+786        	if nmiss(Estimate2, Estimate3) = 0 then do;
+787        		diff32 = Estimate3 - Estimate2;
+788        		if missing(StdErr32) then se32 = sqrt(StdErr2 ** 2 + StdErr3 ** 2);
+789        		else se32 = StdErr32;
+790        		if nmiss(diff32, se32) = 0 then do;
+791        			or32 = exp(diff32);
+792        			lc32 = exp(diff32 - 1.96 * se32);
+793        			uc32 = exp(diff32 + 1.96 * se32);
+794        			statsOBvsOW = cats(put(or32, 8.2), ' (', put(lc32, 8.2), ', ', put(uc32, 8.2), ')');
+795        		end;
+796        		else statsOBvsOW = '---';
+797        	end;
+798        	else statsOBvsOW = '---';
+799        
+800        	keep base statsOW statsOB statsOBvsOW;
+801        run;
+
+NOTE: There were 38 observations read from the data set WORK.LABELED.
+NOTE: The data set WORK.ORCHARS has 38 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+802        
+803        data ORchars;
+804        	length base $132;
+805        	set ORchars;
+806        	base = strip(base);
+807        run;
+
+                                                                               The SAS System
+
+NOTE: There were 38 observations read from the data set WORK.ORCHARS.
+NOTE: The data set WORK.ORCHARS has 38 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+808        
+809        * MERGE BY base requires both sets sorted by base (labeled was PROC SORT order label base for %labels);
+810        proc sort data = labeled;
+811        	by base;
+812        run;
+
+NOTE: There were 38 observations read from the data set WORK.LABELED.
+NOTE: The data set WORK.LABELED has 38 observations and 11 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+813        
+814        proc sort data = ORchars;
+815        	by base;
+816        run;
+
+NOTE: There were 38 observations read from the data set WORK.ORCHARS.
+NOTE: The data set WORK.ORCHARS has 38 observations and 4 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+817        
+818        data db_join;
+819        	merge labeled(keep = order label base Estimate2 StdErr2 Estimate3 StdErr3 StdErr32)
+820        		ORchars;
+821        	by base;
+822        run;
+
+NOTE: There were 38 observations read from the data set WORK.LABELED.
+NOTE: There were 38 observations read from the data set WORK.ORCHARS.
+NOTE: The data set WORK.DB_JOIN has 38 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+823        
+824        * Significance: 95% Wald CI on OR scale excludes 1. Keep flags for PROC REPORT styling;
+825        data db_join;
+826        	length statsOW statsOB statsOBvsOW $168;
+827        	length lc2 uc2 lc3 uc3 lc32 uc32 8;
+828        	set db_join;
+829        	call missing(lc2, uc2, lc3, uc3, lc32, uc32);
+830        	sigOW = 0;
+831        	sigOB = 0;
+832        	sigOBvsOW = 0;
+                                                                               The SAS System
+
+833        	if nmiss(Estimate2, StdErr2) = 0 then do;
+834        		z = Estimate2 - 1.96 * StdErr2;
+835        		if z > 709 then lc2 = .;
+836        		else if z < -745 then lc2 = 0;
+837        		else lc2 = exp(z);
+838        		z = Estimate2 + 1.96 * StdErr2;
+839        		if z > 709 then uc2 = .;
+840        		else if z < -745 then uc2 = 0;
+841        		else uc2 = exp(z);
+842        	end;
+843        	if nmiss(Estimate3, StdErr3) = 0 then do;
+844        		z = Estimate3 - 1.96 * StdErr3;
+845        		if z > 709 then lc3 = .;
+846        		else if z < -745 then lc3 = 0;
+847        		else lc3 = exp(z);
+848        		z = Estimate3 + 1.96 * StdErr3;
+849        		if z > 709 then uc3 = .;
+850        		else if z < -745 then uc3 = 0;
+851        		else uc3 = exp(z);
+852        	end;
+853        	if nmiss(Estimate2, StdErr2, Estimate3, StdErr3) = 0 then do;
+854        		diff32 = Estimate3 - Estimate2;
+855        		if missing(StdErr32) then se32 = sqrt(StdErr2 ** 2 + StdErr3 ** 2);
+856        		else se32 = StdErr32;
+857        		z = diff32 - 1.96 * se32;
+858        		if z > 709 then lc32 = .;
+859        		else if z < -745 then lc32 = 0;
+860        		else lc32 = exp(z);
+861        		z = diff32 + 1.96 * se32;
+862        		if z > 709 then uc32 = .;
+863        		else if z < -745 then uc32 = 0;
+864        		else uc32 = exp(z);
+865        	end;
+866        	if nmiss(lc2, uc2) = 0 then sigOW = (lc2 > 1) | (uc2 < 1);
+867        	if nmiss(lc3, uc3) = 0 then sigOB = (lc3 > 1) | (uc3 < 1);
+868        	if nmiss(lc32, uc32) = 0 then sigOBvsOW = (lc32 > 1) | (uc32 < 1);
+869        	drop lc2 uc2 lc3 uc3 lc32 uc32 z diff32 se32;
+870        run;
+
+NOTE: There were 38 observations read from the data set WORK.DB_JOIN.
+NOTE: The data set WORK.DB_JOIN has 38 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+
+871        
+872        proc sort data = db_join;
+873        	by order label base;
+874        run;
+
+NOTE: There were 38 observations read from the data set WORK.DB_JOIN.
+NOTE: The data set WORK.DB_JOIN has 38 observations and 14 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      cpu time            0.00 seconds
+      
+                                                                               The SAS System
+
+
+875        
+876        proc sql noprint;
+877        	select count(distinct(id)) into :n_ids trimmed
+878        	from &impdb.
+879        	where keep_ms1560;
+880        quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.01 seconds
+      cpu time            0.00 seconds
+      
+
+881        
+882        ods listing close;
+883        ods path sashelp.tmplmst(read) hchstyle.hchs_stp(read);
+884        ods rtf file = "&homepath.\scripts\&job.\&job._Table&table_num._&sysdate..rtf" style = manuscrt bodytitle;
+NOTE: Writing RTF Body file: J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560\scripts\HC338364b\HC338364b_Table4_29JUN26.rtf
+885        %let fs = 11pt;
+886        %let fs_titles = 11pt;
+887        %let rgt_mgn = 0.1in;
+888        
+889        * SPLIT must not be '^' — same as ODS ESCAPECHAR so inline ^S={...} breaks and prints verbatim (headers showed crude style text);
+890        proc report data = db_join split = '#'
+891        	style(header) = [fontsize = &fs]
+892        	style(column) = [fontsize = &fs];
+893        	title j = center height = &fs font = 'times roman' bold
+894        		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Table &table_num.. Maternal preconception socio-behavioral factors and child BMI category, HCHS/SOL FLOR
+894      ! Ancillary Study (n=%qtrim(&n_ids))";
+895        	footnote1 j = left height = &fs_titles font = 'times roman'
+896        		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Abbreviations: CI, confidence interval; FLOR, Family Lifestyle Outcomes Research; OR, odds ratios; PA, physical
+896      ! activity.";
+897        	footnote2 j = left height = &fs_titles font = 'times roman'
+898        		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Odds ratios and 95% confidence intervals from multinomial logistic regression models (Overweight vs Normal and
+898      ! Obese vs Normal) fit to multiply imputed data (10 imputations) and pooled using Rubin's rules. Obese vs Overweight odds ratios were derived from the corresponding
+898      !  log-odds contrast.";
+NOTE: The quoted string currently being processed has become more than 262 characters long.  You might have unbalanced quotation marks.
+899        	footnote3 j = left height = &fs_titles font = 'times roman'
+900        		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Bold odds ratio (95% CI) indicates the confidence interval excludes 1.00 (two-sided nominal alpha = 0.05).";
+901        	footnote5 j = left height = 10pt font = 'times roman'
+902        		"{\line \line Job &job run by &prg using FLOR analytic file (HC338353b) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+903        	column order label sigOW statsOW sigOB statsOB sigOBvsOW statsOBvsOW;
+904        	define order / order order = internal group noprint;
+905        	define label / display group 'Predictor' flow style(header) = [fontsize = &fs just = left]
+906        		style(column) = [fontsize = &fs width = 2.8in cellwidth = 2.8in];
+907        	define sigOW / display noprint;
+908        	define statsOW / display 'Overweight vs Normal#OR (95% CI)'
+909        		style(header) = [fontsize = &fs vjust = bottom just = right]
+910        		style(column) = [fontsize = &fs vjust = bottom just = right cellwidth = 1.35in font_weight = medium];
+911        	define sigOB / display noprint;
+912        	define statsOB / display 'Obesity vs Normal#OR (95% CI)'
+913        		style(header) = [fontsize = &fs vjust = bottom just = right]
+914        		style(column) = [fontsize = &fs vjust = bottom just = right cellwidth = 1.35in font_weight = medium];
+915        	define sigOBvsOW / display noprint;
+916        	define statsOBvsOW / display 'Obesity vs Overweight#OR (95% CI)'
+917        		style(header) = [fontsize = &fs vjust = bottom just = right]
+918        		style(column) = [fontsize = &fs vjust = bottom just = right cellwidth = 1.35in font_weight = medium];
+919        	compute statsOW;
+                                                                               The SAS System
+
+920        		if sigOW = 1 & strip(statsOW) not in ('' '---') then call define(_col_, 'style', 'style=[font_weight=bold]');
+921        	endcomp;
+922        	compute statsOB;
+923        		if sigOB = 1 & strip(statsOB) not in ('' '---') then call define(_col_, 'style', 'style=[font_weight=bold]');
+924        	endcomp;
+925        	compute statsOBvsOW;
+926        		if sigOBvsOW = 1 & strip(statsOBvsOW) not in ('' '---') then call define(_col_, 'style', 'style=[font_weight=bold]');
+927        	endcomp;
+928        run;
+
+NOTE: Groups are not created because the usage of SIGOW is DISPLAY. To avoid this note, change all GROUP variables to ORDER variables.
+NOTE: PROCEDURE REPORT used (Total process time):
+      real time           0.04 seconds
+      cpu time            0.03 seconds
+      
+NOTE: There were 38 observations read from the data set WORK.DB_JOIN.
+
+929        
+930        ods rtf close;
+931        
+932        proc printto;
+933        run;
+

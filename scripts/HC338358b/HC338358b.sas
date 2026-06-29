@@ -1,7 +1,7 @@
 %let req = HC3383;
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = &req.58b;
-%let datefile = 20may26;
+%let datefile = 29jun26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
     print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
@@ -20,8 +20,9 @@ run;
  *               the response. Produces Table 3 (betas)
  *               and Table 3 OR (odds ratios) within
  *               the same workflow. Collapsed Hispanic/Latino
- *               background (3 categories) and marital status
- *               (2 categories) via PROC FORMAT.
+ *               background (3 categories), marital status
+ *               (2 categories), and smoking (never vs current
+ *               or former) via HC338353b imputed covariates.
  *
  * ---------------------------------------------------------
  *
@@ -40,15 +41,17 @@ run;
 
 				 20may26: update input dataset to *_20may26
 						  correct script so it finally shows both bts and OR tables
- *               24jun26: Copy from HC338358; collapse background
+ *               24jun26: Copy from HC338358 -- collapse background
  *                        (bkgrd1_c3nomiss_fmt) and marital status
  *                        (marital_status_c2_fmt).
  *                        Correct marital collapse -- single/separated/other vs cohabiting.
+ *                        Collapse cigarette_use to never vs current or former (cigarette_use_c2_fmt).
  *                        update Table 3 title -- overweight or obese status or not
+ *               29jun26: Input HC338353b imputed data; use derived collapsed covariates.
 
  * ----------------------------------------------------------
  *
- *  INPUT:  data.HC338353_imputed_data_&datefile.          
+ *  INPUT:  data.HC338353b_imputed_data_&datefile.          
  *
  *  OUTPUT: Table 3 (betas) and Table 3 OR (odds ratios)   
  *
@@ -64,7 +67,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 * Define macro variables;
 %put JOB=&job.;
 %let prg = AQA;
-%let impdb = data.HC338353_imputed_data_&datefile.;
+%let impdb = data.HC338353b_imputed_data_&datefile.;
 %let lf_margin = 0.7in;
 %let rg_margin = 0.7in;
 %let table_num = 3;
@@ -129,13 +132,13 @@ run;
 title 'Model 1 - Sociodemographics';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+    class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
           yrsus_c3(ref='US_BORN') bmipct_c2(ref='NORMAL');
-    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-                       parity_v1 employedyn marital_status yrsus_c3 / dist = binomial;
-    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-           marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3
+                       parity_v1 employedyn marital_status_c2 yrsus_c3 / dist = binomial;
+    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt.
+           marital_status_c2 marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
            education_c3 education_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
     ods output ParameterEstimates = genmod_results_1;
 run;
@@ -143,16 +146,16 @@ run;
 title 'Model 2: Model 1 + (diet, alcohol, smoke, pa, slpdur)';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+    class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-          yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+          yrsus_c3(ref='US_BORN') cigarette_use_c2(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") bmipct_c2(ref='NORMAL');
-    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-                       parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
+    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3
+                       parity_v1 employedyn marital_status_c2 yrsus_c3 cigarette_use_c2 hei2010_c3
                        alcohol_use pag2008yn slpdur / dist = binomial;
-    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-           marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt.
+           marital_status_c2 marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. bmipct_c2 bmipct_c2_fmt.;
     ods output ParameterEstimates = genmod_results_2;
 run;
@@ -160,17 +163,17 @@ run;
 title 'Model 3: Model 2 + mental health';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+    class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-          yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+          yrsus_c3(ref='US_BORN') cigarette_use_c2(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
           bmipct_c2(ref='NORMAL');
-    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3
-                       parity_v1 employedyn marital_status yrsus_c3 cigarette_use hei2010_c3
+    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3
+                       parity_v1 employedyn marital_status_c2 yrsus_c3 cigarette_use_c2 hei2010_c3
                        alcohol_use pag2008yn slpdur cesd10 stai10 / dist = binomial;
-    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-           marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt.
+           marital_status_c2 marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
            bmipct_c2 bmipct_c2_fmt.;
     ods output ParameterEstimates = genmod_results_3;
@@ -179,17 +182,17 @@ run;
 title 'Model 4: Model 3 + PRS';
 proc genmod data = impdb;
     by _imputation_;
-    class centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN') marital_status(ref='SINGLE_OTHER')
+    class centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN') marital_status_c2(ref='SINGLE_OTHER')
           employedyn(ref="NOT_EMPLOYED") education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO")
-          yrsus_c3(ref='US_BORN') cigarette_use(ref="NEVER") alcohol_use(ref="NEVER")
+          yrsus_c3(ref='US_BORN') cigarette_use_c2(ref="NEVER") alcohol_use(ref="NEVER")
           pag2008yn(ref="YES") hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX")
           bmipct_c2(ref='NORMAL');
-    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c7nomiss n_hc education_c3 parity_v1
-                       employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use
+    model bmipct_c2 = centernum yrs_btwn_v1flor age bkgrd1_c3nomiss n_hc education_c3 parity_v1
+                       employedyn marital_status_c2 yrsus_c3 cigarette_use_c2 hei2010_c3 alcohol_use
                        pag2008yn slpdur cesd10 stai10 child_prs_bmi_a / dist = binomial;
-    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt.
-           marital_status marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt.
+           marital_status_c2 marital_status_c2_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt.
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.
            bmipct_c2 bmipct_c2_fmt.;
     ods output ParameterEstimates = genmod_results_4;
@@ -319,7 +322,7 @@ proc report data = table3_or_wide;
     footnote5 j = left height = &fs_titles font = 'times roman'
         "^S={leftmargin=&lft_mgn rightmargin=&rgt_mgn}Model 4: Model 3 + child's obesity genetic risk score.";
     footnote6 j = left height = 10pt font = 'times roman'
-        "{\line \line Job &job run by &prg using FLOR analytic file (HC338353) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+        "{\line \line Job &job run by &prg using FLOR analytic file (HC338353b) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
     columns order label
             sig_1 ('Model 1' or_txt_1 ci_txt_1)
             sig_2 ('Model 2' or_txt_2 ci_txt_2)

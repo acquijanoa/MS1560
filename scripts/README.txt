@@ -10,6 +10,10 @@ History:
 	24jun26: rename centralized formats job HC338390 to HC3383XX (job 90).
 	         add b-version sensitivity jobs 02b, 54b, 58b, 61b, 63b, 64b with collapsed Hispanic/Latino background
 	         (3 categories) and marital status (2 categories) via bkgrd1_c3nomiss_fmt and marital_status_c2_fmt in HC3383XX.
+	26jun26: b-version jobs also collapse smoking to never vs current or former (cigarette_use_c2_fmt in HC3383XX).
+	29jun26: job 53b recreated from job 53; impute full-granularity covariates and derive collapsed
+	         categories after MI (bkgrd1_c3nomiss, marital_status_c2, cigarette_use_c2, HEI2010_C3,
+	         SLPDUR_LT8HRS). B-version model jobs 54b-64b now input HC338353b imputed data.
 
 Domains: 
 1. Maternal sociodemographic, acculturation
@@ -59,6 +63,15 @@ JOB:
 	input: hc338351_flor_ddmmyy.sas7bdat
 	output: hc338353a_imputed_data_ddmmyy.sas7bdat
 
+53b: Imputation model [n=227x10]
+	note: same MI model as job 53 (full-granularity covariates); post-process collapsed Hispanic/Latino
+		background (3 categories), marital status (2 categories), smoking (never vs current or former),
+		HEI2010_C3, and SLPDUR_LT8HRS after imputation.
+		29jun26: recreated from HC338353; output imputed dataset dated with run date (&sysdate.).
+	input: hc338351_flor_ddmmyy.sas7bdat
+	output: hc338353b_imputed_data_ddmmyy.sas7bdat
+		hc338353b_mi_ddmmyy.rtf
+
 ### Regression and Mediation Analysis ###
 
 54: Regression model [n=227]
@@ -73,9 +86,9 @@ JOB:
 	response: WAZ
 	Table: 2.1a 
 
-54b: Regression model [n=227] -- collapsed Hispanic/Latino background in 3 categories and marital status in 2 categories
+54b: Regression model [n=227] -- collapsed Hispanic/Latino background in 3 categories, marital status in 2 categories, smoking in 2 categories (never vs current or former)
 		(bkgrd1_c3nomiss_fmt, marital_status_c2_fmt in HC3383XX).
-	input: hc338353_imputed_data_ddmmyy.sas7bdat
+	input: hc338353b_imputed_data_ddmmyy.sas7bdat
 	output: hc338354b_Table2.1_ddmmyy.rtf
 	response: WAZ
 	Table: 2.1
@@ -92,8 +105,8 @@ JOB:
 	response: BMIPCT_C2 (overweight/obese) 
 	Table: 3a
 
-58b: Logistic model [n=227] -- collapsed background and marital status.
-	input: hc338353_imputed_data_ddmmyy.sas7bdat
+58b: Logistic model [n=227] -- collapsed background, marital status, and smoking.
+	input: hc338353b_imputed_data_ddmmyy.sas7bdat
 	output: hc338358b_Table3_ddmmyy.rtf
 	response: BMIPCT_C2 (overweight/obese)
 	Table: 3
@@ -111,8 +124,8 @@ JOB:
 	output: HC338361a_Table2_ddmmyy.rtf
 	Table: 2a
 
-61b: Regression model [n=227] -- collapsed background and marital status
-	input: hc338353_imputed_data_ddmmyy.sas7bdat
+61b: Regression model [n=227] -- collapsed background, marital status, and smoking
+	input: hc338353b_imputed_data_ddmmyy.sas7bdat
 	output: HC338361b_Table2_ddmmyy.rtf
 	response: BMIZ
 	Table: 2
@@ -145,8 +158,8 @@ JOB:
 	response: birthwt_ga_z
 	Table: 5
 
-63b: Regression model [n=227] -- collapsed background and marital status.
-	input: hc338353_imputed_data_ddmmyy.sas7bdat
+63b: Regression model [n=227] -- collapsed background, marital status, and smoking.
+	input: hc338353b_imputed_data_ddmmyy.sas7bdat
 	output: HC338363b_Table2_ddmmyy.rtf
 	response: birthwt_ga_z
 	Table: 5
@@ -165,8 +178,8 @@ JOB:
 	response: birthwt_ga_z
 	Table: 4a
 
-64b: Multinomial Regression model [n=227] -- collapsed background and marital status.
-	input: hc338353_imputed_data_ddmmyy.sas7bdat
+64b: Multinomial Regression model [n=227] -- collapsed background, marital status, and smoking.
+	input: hc338353b_imputed_data_ddmmyy.sas7bdat
 	output: HC338364b_Table4_ddmmyy.rtf
 	response: BMIPCT_C3
 	Table: 4
@@ -189,7 +202,7 @@ JOB:
 
 02: Descriptive Table 1 (taken and adapted from SC - HC338302)
 
-02b: Descriptive Table 1 -- collapsed categories
+02b: Descriptive Table 1 -- collapsed background, marital status, and smoking categories
 	note: Copy of job 02; Hispanic/Latino background in 3 categories and marital status in 2 categories.
 	input: hc338351_all_ddmmyy.sas7bdat
 	output: hc338302b_Table1_ddmmyy.rtf
@@ -199,7 +212,7 @@ JOB:
 
 90: Centralized variable formats (HC3383XX/HC3383XX.sas; renamed from HC338390, Jun 2026)
 	note: All production table and model jobs %include this script. Collapsed-category formats
-		(bkgrd1_c3nomiss_fmt, marital_status_c2_fmt) support b-version jobs.
+		(bkgrd1_c3nomiss_fmt, marital_status_c2_fmt, cigarette_use_c2_fmt) support b-version jobs.
 
 91: SAS Macros
 	9101: Labels to include in proc report, used in job 54
@@ -216,12 +229,6 @@ JOB:
 
 
 ### ARCHIVED
-
-53b: Imputation model [n=227x10] [It's not updated on 12nov25] ### Archived within old_files
-	note: child anthropometry is not imputed
-		PAG2008YN, HEI2010_C3 and SLPDUR_LT8HRS in the imputation model
-	input: hc338351_flor_ddmmyy.sas7bdat
-	output: hc338353b_imputed_data_ddmmyy.sas7bdat 		 
 
 53c: Imputation model [n=201x10] [It's not updated on 12nov25] ### Archived within old_files
 	note: child anthropometry and child_prs_bmi_a are not imputed

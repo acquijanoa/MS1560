@@ -26,8 +26,8 @@ run;
 
   DESCRIPTION:   Create Table 1. Maternal Preconception and Child Characteristics among HCHS/SOL women with a 
                  child born between baseline (2008-11) and Visit 2 (2014-17), by FLOR participation.
-                 Collapsed Hispanic/Latino background (3 categories) and marital status
-                 (2 categories), aligned with model jobs 54b-64b.
+                 Collapsed Hispanic/Latino background (3 categories), marital status
+                 (2 categories), and smoking (never vs current or former). Aligned with model jobs 54b-64b.
             
   LANGUAGE:      SAS VERSION 9.4
 
@@ -51,16 +51,14 @@ run;
 				24jun26 (AQA)
 						Copy from HC338302 -- collapse Hispanic/Latino background
 						to 3 categories and marital status to 2 categories.
-						Correct marital collapse -- single/separated/other vs cohabiting.
-						child sex -- show % and p-value for FLOR and non-FLOR columns
 						replace WAZ with BMI-for-age z score (BMIZ)
 						reorder child rows -- birthweight z before BMI category
 						drop income, housing %, acculturation, and % MVPA from table
-						Mental health section -- CESD-10 and STAI-10 only
 						drop anthropometry section (BMI, waist circumference)
 						replace continuous HEI-2010 with categorical HEI2010_C3
 						update sleep duration row label
-						update BMI group level labels with superscript th
+				26jun26 (AQA)
+						Collapse smoking to never vs current or former (cigarette_use_c2).
 
   NOTE:          Related: HC3139 - MS1207 [FLOR grant aim #1] Uses final INV1 data and MI
 -----------------------------------------------------------------
@@ -95,7 +93,7 @@ data repdata;
     merge all (in=want) child;
     by id;
     if want;
-    length bkgrd_c3 marital_c2 8;
+    length bkgrd_c3 marital_c2 cigarette_use_c2 8;
     if not missing(bkgrd1_c7nomiss) then do;
         if bkgrd1_c7nomiss = 3 then bkgrd_c3 = 1;
         else if bkgrd1_c7nomiss in (0, 2, 4) then bkgrd_c3 = 2;
@@ -104,6 +102,10 @@ data repdata;
     if not missing(marital_status) then do;
         if marital_status = 2 then marital_c2 = 1;
         else if marital_status in (1, 3) then marital_c2 = 2;
+    end;
+    if not missing(cigarette_use) then do;
+        if cigarette_use = 1 then cigarette_use_c2 = 1;
+        else if cigarette_use in (2, 3) then cigarette_use_c2 = 2;
     end;
     format bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt. marital_status marital_status_c2_fmt.;
 run;
@@ -448,9 +450,8 @@ run;
 %categorical(N_HC,0,&y No,N_HC gt .z,1)
 %continuous(CESD10,Depressive symptoms,CESD10 gt .z)
 %continuous(STAI10,Anxiety,STAI10 gt .z) 
-%categorical(CIGARETTE_USE,1,&y Never,CIGARETTE_USE gt .z,1)
-%categorical(CIGARETTE_USE,2,&y Former,CIGARETTE_USE gt .z,1)
-%categorical(CIGARETTE_USE,3,&y Current,CIGARETTE_USE gt .z,1)
+%categorical(CIGARETTE_USE_C2,1,&y Never,CIGARETTE_USE_C2 gt .z,1)
+%categorical(CIGARETTE_USE_C2,2,&y Current or former,CIGARETTE_USE_C2 gt .z,1)
 
 %categorical(HEI2010_C3,1,%str(&y Low (<=50.1)),HEI2010_C3 gt .z,1)
 %categorical(HEI2010_C3,2,%str(&y Medium (>50.1-62.5)),HEI2010_C3 gt .z,1)
@@ -485,7 +486,7 @@ data allrows;
         toplines(where=(line=12)) /* Health Behaviors */
         toplines(where=(line=13)) /* Alcohol Use, % */ ALCOHOL_USE_1
         ALCOHOL_USE_2 ALCOHOL_USE_3 toplines(where=(line=14)) /* Smoking, % */
-        CIGARETTE_USE_1 CIGARETTE_USE_2 CIGARETTE_USE_3
+        CIGARETTE_USE_C2_1 CIGARETTE_USE_C2_2
         toplines(where=(line=11)) /* Diet */ HEI2010_C3_1 HEI2010_C3_2 HEI2010_C3_3
 		SLPDUR
         toplines(where=(line=15)) /* Phisical activity, % */ PAG2008YN_1

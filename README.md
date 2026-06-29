@@ -21,6 +21,7 @@ This project contains SAS code and outputs for Manuscript 1560, focused on mater
 | HC338352/HC338352.sas | Job 52: missing-data pattern tables by manuscript domains using the FLOR analytic dataset. |
 | HC338353/HC338353.sas | Job 53: multiple imputation (10 imputations, n=227 main sample); output HC338353_imputed_data_<datefile>; waz/bmiz in MI model; raw anthropometry not imputed. |
 | HC338353a/HC338353a.sas | Job 53a: MI for the PRS-complete subset (n=201); same covariate logic as job 53 except child anthropometry and child_prs_bmi_a are not imputed. |
+| HC338353b/HC338353b.sas | Job 53b: MI (10 imputations, n=227) with same full-granularity covariate model as job 53; post-imputation collapse of Hispanic/Latino background (3 categories), marital status (2 categories), smoking (never vs current or former), HEI2010_C3, and SLPDUR_LT8HRS; output HC338353b_imputed_data_<sysdate>; feeds b-version model jobs 54b-64b. |
 | HC338354/HC338354.sas | Job 54: pooled linear model for child WAZ across imputations (Models 1–4); produces Table 2.1 for the main sample. |
 | HC338354b/HC338354b.sas | Job 54b: same as job 54 with collapsed background and marital status (Table 2.1). |
 | HC338354a/HC338354a.sas | Job 54a: same pooled linear model as job 54 for WAZ on the PRS-complete imputed sample; produces Table 2.1a. |

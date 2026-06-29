@@ -39,6 +39,7 @@ run;
 *                Align OR variance with HC338364b -- multivariate MI pooling (COVB)
 *                and Rubin-pooled SE for Obese vs Overweight contrast.
 *                Marital status reference = Single (aligned with main tables).
+*       26jun26: Add bkgrd1_c7nomiss to MODEL statement (was in CLASS only).
 *
 *  INPUT: HC338353_imputed_data_&datefile.
 *
@@ -77,7 +78,7 @@ proc logistic data = logistic_input plots=none;
 		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
 		cigarette_use(ref="NEVER") alcohol_use(ref="NEVER") pag2008yn(ref="YES")
 		hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX") / param = ref;
-	model BMIPCT_C3 = centernum yrs_btwn_v1flor age n_hc education_c3 parity_v1
+	model BMIPCT_C3 = centernum yrs_btwn_v1flor bkgrd1_c7nomiss age n_hc education_c3 parity_v1
 		employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur
 		cesd10 stai10 child_prs_bmi_a / link = glogit expb clodds = wald covb;
 	format BMIPCT_C3 bmipct_c3_fmt. centernum centernum_fmt. n_hc n_hc_fmt.

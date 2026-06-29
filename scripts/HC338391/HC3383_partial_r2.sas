@@ -23,9 +23,12 @@
     model &outcome = &all_test / dist=normal;
     
     /* KEEP FORMATS: Vital to prevent continuous/categorical mismatches */
-    format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
-           marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
-           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+    format centernum centernum_fmt. n_hc n_hc_fmt.
+           bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt.
+           marital_status marital_status_fmt. marital_status_c2 marital_status_c2_fmt.
+           employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
+           education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt.
+           cigarette_use cigarette_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt.
            pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
   run;
   
@@ -86,9 +89,12 @@
       model &outcome = &red_model / dist=normal;
       
       /* Safely leave all formats here; SAS ignores formats for variables not in the model */
-      format centernum centernum_fmt. n_hc n_hc_fmt. bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. 
-            marital_status marital_status_fmt. employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
-            education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt.
+      format centernum centernum_fmt. n_hc n_hc_fmt.
+            bkgrd1_c7nomiss bkgrd1_c7nomiss_fmt. bkgrd1_c3nomiss bkgrd1_c3_fmt.
+            marital_status marital_status_fmt. marital_status_c2 marital_status_c2_fmt.
+            employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. 
+            education_c3 education_c3_fmt. alcohol_use alcohol_use_fmt.
+            cigarette_use cigarette_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt.
             pag2008yn yn_fmt. hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
     run;
     

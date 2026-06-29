@@ -19,6 +19,8 @@
 *  HISTORY:      03nov25: Initial centralized format definitions.
 *                24jun26: Rename from HC338390 to HC3383XX.
 *                Collapse marital status to 2 categories (single/separated/other vs cohabiting).
+*                26jun26: Collapse cigarette_use to 2 categories (never vs current or former).
+*                29jun26: Add bkgrd1_c3_fmt for derived 3-level background variable (HC338353b).
 *
 *-----------------------------------------------------------------
 *  INPUT:        None 
@@ -45,6 +47,10 @@ PROC FORMAT;
 		4 = "CARIBBEAN"
 		5 = "SC_OTHER"
 		6 = "SC_OTHER";
+	VALUE BKGRD1_C3_FMT
+		1 = "MEXICAN"
+		2 = "CARIBBEAN"
+		3 = "SC_OTHER";
 	VALUE PV
 		1 = '***'
 		2 = '**'
@@ -95,6 +101,10 @@ PROC FORMAT;
 		1 = "NEVER"
 		2 = "FORMER"
 		3 = "CURRENT";
+	value cigarette_use_c2_fmt
+		1 = "NEVER"
+		2 = "CURRENT_OR_FORMER"
+		3 = "CURRENT_OR_FORMER";
 	value slpdur_lt8hrs_fmt
 		0 = ">=8_hours"
 		1 = "<8_hours";

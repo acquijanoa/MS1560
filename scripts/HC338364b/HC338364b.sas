@@ -1,7 +1,7 @@
 %let req=HC3383;
 %let homepath = J:\HCHS\STATISTICS\GRAS\QAngarita\Manuscripts\MS1560;
 %let job = &req.64b;
-%let datefile = 20may26;
+%let datefile = 29jun26;
 proc printto log="&homepath.\scripts\&job.\&job._&sysdate..log"
 	print = "&homepath.\scripts\&job.\&job._&sysdate..lst" new;
 run;
@@ -34,15 +34,16 @@ run;
 *		20may26: update input dataset to *_20may26
 *                Initialize MODEL before %labels (fixes uninitialized MODEL error).
 *                Replace cumulative logit / unequal slopes with multinomial logistic
-*                (link=glogit; BMIPCT_C3 reference Normal).
+*                (link=glogit, BMIPCT_C3 reference Normal).
 *                Revise table footnotes to MS1560 abbreviation, model, and footer standards.
 *
 *		24jun26: updates formats for backgroud and marital status.
-*		Correct marital collapse -- single/separated/other vs cohabiting.
-*		Marital status reference = Single/separated/other (collapsed tables).
+*				 Marital status reference = Single/separated/other.
+*				 Collapse cigarette_use to never vs current or former (cigarette_use_c2_fmt).
 *                Revise table footnotes.
+*		29jun26: Input HC338353b imputed data; use derived collapsed covariates.
 *
-*  INPUT: HC338353_imputed_data_&datefile.
+*  INPUT: HC338353b_imputed_data_&datefile.
 *
 *  OUTPUT: &job._Table4_&sysdate..rtf
 *
@@ -58,7 +59,7 @@ libname hchstyle 'J:\hchs\sc\styledef\sty904';
 
 * Define macro variables; 
 %let prg = AQA;
-%let impdb = data.HC338353_imputed_data_&datefile.;
+%let impdb = data.HC338353b_imputed_data_&datefile.;
 %let lf_margin = 0.6in;
 %let rg_margin = 0.7in;
 %let table_num = 4;
@@ -76,18 +77,18 @@ run;
 title 'Model 4 (complete): Multinomial logistic (generalized logit)';
 proc logistic data = logistic_input plots=none;
 	by _imputation_;
-	class bmipct_c3(ref='Normal') centernum(ref="BRONX") bkgrd1_c7nomiss(ref='MEXICAN')
-		marital_status(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED")
+	class bmipct_c3(ref='Normal') centernum(ref="BRONX") bkgrd1_c3nomiss(ref='MEXICAN')
+		marital_status_c2(ref='SINGLE_OTHER') employedyn(ref="NOT_EMPLOYED")
 		education_c3(ref='N_HIGHSCHOOL_GED') n_hc(ref="NO") yrsus_c3(ref='US_BORN')
-		cigarette_use(ref="NEVER") alcohol_use(ref="NEVER") pag2008yn(ref="YES")
+		cigarette_use_c2(ref="NEVER") alcohol_use(ref="NEVER") pag2008yn(ref="YES")
 		hei2010_c3(ref="LOW") cesd10(ref="NODEPRE") stai10(ref="NOANX") / param = ref;
-	model BMIPCT_C3 = centernum yrs_btwn_v1flor bkgrd1_c7nomiss age n_hc education_c3 parity_v1
-		employedyn marital_status yrsus_c3 cigarette_use hei2010_c3 alcohol_use pag2008yn slpdur
+	model BMIPCT_C3 = centernum yrs_btwn_v1flor bkgrd1_c3nomiss age n_hc education_c3 parity_v1
+		employedyn marital_status_c2 yrsus_c3 cigarette_use_c2 hei2010_c3 alcohol_use pag2008yn slpdur
 		cesd10 stai10 child_prs_bmi_a / link = glogit expb clodds = wald covb;
 	format BMIPCT_C3 bmipct_c3_fmt. centernum centernum_fmt. n_hc n_hc_fmt.
-		bkgrd1_c7nomiss bkgrd1_c3nomiss_fmt. marital_status marital_status_c2_fmt.
+		bkgrd1_c3nomiss bkgrd1_c3_fmt. marital_status_c2 marital_status_c2_fmt.
 		employedyn employedyn_fmt. yrsus_c3 yrsus_c3_fmt. education_c3 education_c3_fmt.
-		alcohol_use alcohol_use_fmt. cigarette_use cigarette_use_fmt. pag2008yn yn_fmt.
+		alcohol_use alcohol_use_fmt. cigarette_use_c2 cigarette_use_c2_fmt. pag2008yn yn_fmt.
 		hei2010_c3 hei2010_c3_fmt. cesd10 cesd10_fmt. stai10 stai10_fmt.;
 	ods output ParameterEstimates = estimate_raw CovB = covb_raw;
 run;
@@ -612,7 +613,7 @@ proc report data = db_join split = '#'
 	footnote3 j = left height = &fs_titles font = 'times roman'
 		"^S={leftmargin=&lf_margin rightmargin=&rgt_mgn}Bold odds ratio (95% CI) indicates the confidence interval excludes 1.00 (two-sided nominal alpha = 0.05).";
 	footnote5 j = left height = 10pt font = 'times roman'
-		"{\line \line Job &job run by &prg using FLOR analytic file (HC338353) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
+		"{\line \line Job &job run by &prg using FLOR analytic file (HC338353b) on %sysfunc(today(), date9.) at %qtrim(%sysfunc(time(), timeampm.))}";
 	column order label sigOW statsOW sigOB statsOB sigOBvsOW statsOBvsOW;
 	define order / order order = internal group noprint;
 	define label / display group 'Predictor' flow style(header) = [fontsize = &fs just = left]
