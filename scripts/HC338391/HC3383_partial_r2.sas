@@ -1,3 +1,28 @@
+/*
+
+	Program name: HC3383_partial_r2.sas
+
+	Programmer: Alvaro Quijano (AQA)
+
+	Description: Macro %get_all_partial_r2 computes partial R-squared (% variance
+		explained) for each Model 4 covariate on multiply imputed data.
+     
+    Fits the full linear GENMOD model and reduced models with one covariate dropped at
+		a time; partial R2 is defined as (SSE_reduced - SSE_full) / SSE_reduced within each
+		imputation, then averaged across imputations. Used by pooled table jobs
+		(54/54a/54b, 61/61a/61b, 62/62a, 63/63a/63b) for the Model 4 "% Variance"
+		column in PROC REPORT.
+
+	Parameters:
+		impdata=   multiply imputed analytic dataset (by _imputation_)
+		class_vars= optional list of class covariates (defaults to Model 4 set)
+		cont_vars=  optional list of continuous covariates (defaults to Model 4 set)
+		outds=      output summary dataset (default partial_r2_summary)
+		outcome=    response variable (default waz)
+
+*/
+
+
 %macro get_all_partial_r2(impdata=, class_vars=, cont_vars=, outds=partial_r2_summary, outcome=waz);
 
   /* 1. Define the variables to loop through */
